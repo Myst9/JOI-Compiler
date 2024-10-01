@@ -1,0 +1,11 @@
+#include <iostream>
+
+using namespace std;
+
+int joi() {
+    cout << "Please enter your name: "; ## Prompt user
+    cin >> name; ## Read input from user using cin
+
+    cout << "Hello, " << name << "!"; ## Greet the user 
+    return 0;
+}
