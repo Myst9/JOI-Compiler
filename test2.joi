@@ -1,0 +1,98 @@
+#include <iostream>
+
+using namespace std;
+int joi() {
+    ## Arithmetic operations
+    int a = 10 + 5;
+    int b = 20 - 3;
+    int c = 4 * 5;
+    int d = 100 / 2;
+    int e = 17 % 5;
+
+    ## Accept all data types
+    int x = 10;
+    bool isTrue = true;
+    float pi = 3.14;
+    char ch = 'A';
+    str greeting = "Hello";
+
+    ## Statements like <datatype><variable><=><expression>
+    int num = 42;
+    float result = 9.8 * 2;
+
+    ## Statements like <datatype> <var1>,<var2>,<var3> = <expr>
+    int p, q, r = 100;
+
+    ## Constant declaration
+    constant int CONST_VAL = 50;
+    constant float CONST_PI = 3.1415;
+
+    ## Comparison operations
+    if (a == b) {
+        cout << "a is equal to b" << endl;
+    }
+
+    if (x != num) {
+        cout << "x is not equal to num" << endl;
+    }
+
+    if (c > d) {
+        cout << "c is greater than d" << endl;
+    }
+
+    if (e < 10) {
+        cout << "e is less than 10" << endl;
+    }
+
+    if (pi >= 3.14 && pi <= 3.15) {
+        cout << "pi is between 3.14 and 3.15" << endl;
+    }
+
+    ## Logical operations
+    bool flag = true && false;
+    bool resultFlag = isTrue || !flag;
+
+    ## Add operations on str and char
+    char charAtIndex = greeting[1];  
+    cout << charAtIndex << endl; 
+
+    ## if-else if-else
+    if (num < 10) {
+        cout << "num is less than 10" << endl;
+    } else {
+        cout << "num is greater than 10" << endl;
+    }
+
+    ## switch-case structure
+    switch (x) {
+        case 10:
+            cout << "x is 10" << endl;
+            break;
+        case 20:
+            cout << "x is 20" << endl;
+            break;
+        default:
+            cout << "x is neither 10 nor 20" << endl;
+    }
+
+    ## while loop
+    int i = 0;
+    while (i < 5) {
+        cout << "i = " << i << endl;
+        i = i + 1;
+    }
+
+    ## do-while loop
+    int j = 0;
+    do {
+        cout << "j = " << j << endl;
+        j = j + 1;
+    } while (j < 3);
+
+    ## for loop
+    for (int k = 0; k < 3; k = k + 1) {
+        cout << "k = " << k << endl;
+    }
+
+    return 0;
+}
