@@ -123,19 +123,41 @@ forUpdate
       IDENTIFIER '=' expression (',' IDENTIFIER '=' expression)*
     ;
 
-// Expressions and conditions
 expression
+    : logicalOrExpression
+    ;
+
+logicalOrExpression
+    : logicalAndExpression (OR logicalAndExpression)*
+    ;
+
+logicalAndExpression
+    : rel_expr (AND rel_expr)*
+    ;
+
+rel_expr
+    : NOT rel_expr
+    | expr (comparisonOp expr)*
+    ;
+
+expr
+    : term ((ADD | SUB) term)*
+    ;
+
+term
+    : factor ((MUL | DIV | MOD) factor)*
+    ;
+
+factor
     : STRING
-    | CHAR_LITERAL       
+    | CHAR_LITERAL
     | IDENTIFIER
     | NUMBER
-    | '(' expression ')' 
-    | expression arithmeticOp expression
-    | expression comparisonOp expression
-    | expression logicalOp expression
-    | NOT expression      
-    | IDENTIFIER '[' expression ']'
+    | IDENTIFIER '[' factor ']'
+    | '(' expr ')'
     ;
+
+// Expressions and conditions
 
 condition: expression;
 
