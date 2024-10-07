@@ -11,6 +11,7 @@ FLOAT: 'float';
 CHAR: 'char';
 STR: 'str';
 CONST: 'constant';
+VOID: 'void';
 MAIN: 'joi';
 RETURN: 'return';
 INCLUDE: '#include';
@@ -46,6 +47,9 @@ SUB: '-';
 MUL: '*';
 DIV: '/';
 MOD: '%';
+INC: '++';
+DEC: '--';
+COLON: ':';
 COMMENT: '##' ~[\r\n]* -> skip; 
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
 CHAR_LITERAL: '\'' . '\''; // Char literals like 'a'
@@ -54,11 +58,20 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt mainFunction EOF;
+program: includeStmt usingStmt functionDef* mainFunction EOF;
 
 includeStmt: INCLUDE IOSTREAM;
 
 usingStmt: USING NAMESPACE STD ';';
+
+functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
+
+paramList: param (',' param)*;
+param: dataType IDENTIFIER;
+
+functionCall: IDENTIFIER '(' argList? ')';
+
+argList: expression (',' expression)*;
 
 mainFunction: INT MAIN '(' ')' '{' statements RETURN expression ';' '}';
 
@@ -76,6 +89,8 @@ statement
     | doWhileStmt
     | forStmt
     | returnStmt
+    | functionCall ';'
+    | expression ';'
     ;
 
 printStmt: COUT LT printExpressionList (LT ENDL)? ';'; 
@@ -94,19 +109,26 @@ constDeclarationStmt: CONST dataType IDENTIFIER '=' expression ';';
 
 varList: IDENTIFIER (',' IDENTIFIER)*;
 
-ifStmt: IF '(' condition ')' '{' statements '}' (ELSE '{' statements '}')?;
+ifStmt
+    : IF condition COLON '{' statements '}' (elseIfStmt* elseStmt?)? ;
 
-switchStmt: SWITCH '(' expression ')' '{' caseStmt* defaultStmt? '}';
+elseIfStmt
+    : ELSE IF condition COLON '{' statements '}' ;
+
+elseStmt
+    : ELSE COLON '{' statements '}' ;
+
+switchStmt: SWITCH expression COLON '{' caseStmt* defaultStmt? '}';
 
 caseStmt: CASE expression ':' statements BREAK ';';
 
 defaultStmt: DEFAULT ':' statements;
 
-whileStmt: WHILE '(' condition ')' '{' statements '}';
+whileStmt: WHILE condition COLON '{' statements '}';
 
 doWhileStmt: DO '{' statements '}' WHILE '(' condition ')' ';';
 
-forStmt: FOR '(' forInit condition? ';' forUpdate ')' '{' statements '}';
+forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
 
 // Define initialization for for loop
 forInit
@@ -121,10 +143,15 @@ forUpdate
     : IDENTIFIER '=' expression
     | // Allow multiple update statements separated by commas
       IDENTIFIER '=' expression (',' IDENTIFIER '=' expression)*
+    | INC IDENTIFIER
+    | DEC IDENTIFIER
+    | IDENTIFIER INC
+    | IDENTIFIER DEC
     ;
 
 expression
     : logicalOrExpression
+    | functionCall
     ;
 
 logicalOrExpression
@@ -149,7 +176,11 @@ term
     ;
 
 factor
-    : STRING
+    : INC IDENTIFIER
+    | DEC IDENTIFIER
+    | IDENTIFIER INC
+    | IDENTIFIER DEC
+    | STRING
     | CHAR_LITERAL
     | IDENTIFIER
     | NUMBER
