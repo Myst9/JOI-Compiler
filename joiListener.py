@@ -35,6 +35,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#functionDefOrStructDef.
+    def enterFunctionDefOrStructDef(self, ctx:joiParser.FunctionDefOrStructDefContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#functionDefOrStructDef.
+    def exitFunctionDefOrStructDef(self, ctx:joiParser.FunctionDefOrStructDefContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#functionDef.
     def enterFunctionDef(self, ctx:joiParser.FunctionDefContext):
         pass
@@ -107,6 +116,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#structDef.
+    def enterStructDef(self, ctx:joiParser.StructDefContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#structDef.
+    def exitStructDef(self, ctx:joiParser.StructDefContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#breakStmt.
     def enterBreakStmt(self, ctx:joiParser.BreakStmtContext):
         pass
@@ -158,6 +176,24 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#assignStmt.
     def exitAssignStmt(self, ctx:joiParser.AssignStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#structAssignStmt.
+    def enterStructAssignStmt(self, ctx:joiParser.StructAssignStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#structAssignStmt.
+    def exitStructAssignStmt(self, ctx:joiParser.StructAssignStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#structAccessStmt.
+    def enterStructAccessStmt(self, ctx:joiParser.StructAccessStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#structAccessStmt.
+    def exitStructAccessStmt(self, ctx:joiParser.StructAccessStmtContext):
         pass
 
 

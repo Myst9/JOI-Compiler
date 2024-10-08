@@ -24,6 +24,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#functionDefOrStructDef.
+    def visitFunctionDefOrStructDef(self, ctx:joiParser.FunctionDefOrStructDefContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#functionDef.
     def visitFunctionDef(self, ctx:joiParser.FunctionDefContext):
         return self.visitChildren(ctx)
@@ -64,6 +69,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#structDef.
+    def visitStructDef(self, ctx:joiParser.StructDefContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#breakStmt.
     def visitBreakStmt(self, ctx:joiParser.BreakStmtContext):
         return self.visitChildren(ctx)
@@ -91,6 +101,16 @@ class joiVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by joiParser#assignStmt.
     def visitAssignStmt(self, ctx:joiParser.AssignStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#structAssignStmt.
+    def visitStructAssignStmt(self, ctx:joiParser.StructAssignStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#structAccessStmt.
+    def visitStructAccessStmt(self, ctx:joiParser.StructAccessStmtContext):
         return self.visitChildren(ctx)
 
 

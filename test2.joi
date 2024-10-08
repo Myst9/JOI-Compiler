@@ -1,6 +1,16 @@
 #include <iostream>
 
 using namespace std;
+
+struct variable:
+    int h;
+    char hi[9]={1, 2};
+:
+
+void func():
+    return 1;
+:
+
 int joi() {
     ## Arithmetic operations
     int a = 10 + 5;
@@ -100,7 +110,7 @@ int joi() {
     bool d[8+4]={true, 4, "t"};
     str h[9][0] = {{"a"},{3}};
     arr[1]=0;
-    arr[0] = d[3];
+    arr[0] = d[3][0];
     p[8]['a'-9] = bhascar();
 
     constant char nigga[9]['p'][true] = {4, {90}};

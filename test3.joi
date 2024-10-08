@@ -1,0 +1,22 @@
+#include <iostream>
+
+using namespace std;
+
+struct variable:
+    int h;
+    char hi[9]={1, 2};
+:
+
+void func():
+    return 1;
+:
+
+int joi() {
+
+    int vh = 1;
+    variable.h[0] = nigga[9][0];
+
+    variable.hi = nigga.id;
+    cout << "Student ID: " << student1.id << endl;
+    return 0;
+}

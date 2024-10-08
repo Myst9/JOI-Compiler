@@ -36,6 +36,7 @@ DO: 'do';
 FOR: 'for';
 TRUE: 'true';
 FALSE: 'false';
+STRUCT: 'struct';
 
 
 EQ: '==';
@@ -63,11 +64,13 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt functionDef* mainFunction EOF;
+program: includeStmt usingStmt functionDefOrStructDef* mainFunction EOF;
 
 includeStmt: INCLUDE IOSTREAM;
 
 usingStmt: USING NAMESPACE STD ';';
+
+functionDefOrStructDef: functionDef | structDef;
 
 functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
 
@@ -100,6 +103,9 @@ statement
     | expression ';'
     ;
 
+
+structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
+
 breakStmt: BREAK ';';
 continueStmt: CONTINUE ';';
 printStmt: COUT LT printExpressionList (LT ENDL)? ';'; 
@@ -110,7 +116,14 @@ inputStmt: CIN GT IDENTIFIER ';';
 
 assignStmt: IDENTIFIER '=' expression ';'
             | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
+            | structAssignStmt
             ;
+
+structAssignStmt: structAccessStmt '=' expression ';'
+                | structAccessStmt '[' expression ']'('['expression']')* '=' expression ';'
+                ;
+
+structAccessStmt: IDENTIFIER'.'IDENTIFIER;
 
 returnStmt: RETURN expression ';';
 
@@ -146,6 +159,8 @@ whileStmt: WHILE condition COLON '{' statements '}';
 doWhileStmt: DO '{' statements '}' WHILE  condition COLON ;
 
 forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
+
+
 
 // Define initialization for for loop
 forInit
@@ -201,10 +216,11 @@ factor
     | CHAR_LITERAL
     | IDENTIFIER
     | NUMBER
-    | IDENTIFIER '[' expr ']'
+    | IDENTIFIER ('[' expr ']')+
     | '(' expr ')'
     | TRUE
     | FALSE
+    | structAccessStmt
     ;
 
 // Expressions and conditions

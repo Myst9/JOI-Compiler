@@ -4,7 +4,7 @@ from joiParser import joiParser
 from tac_generator import TACGenerator
 
 def main():
-    input_stream = FileStream('test2.joi')
+    input_stream = FileStream('test3.joi')
     lexer = joiLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = joiParser(stream)
