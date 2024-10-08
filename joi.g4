@@ -57,9 +57,10 @@ MOD: '%';
 INC: '++';
 DEC: '--';
 COLON: ':';
+AMPERSAND: '&';
 COMMENT: '##' ~[\r\n]* -> skip; 
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
-CHAR_LITERAL: '\'' IDENTIFIER '\''; // Char literals like 'a'
+CHAR_LITERAL: '\'' . '\''; // Char literals like 'a'
 STRING: '"' (~["\\] | '\\' .)* '"'; 
 NUMBER: [0-9]+ ('.' [0-9]+)?; 
 WS: [ \t\r\n]+ -> skip;
@@ -132,11 +133,15 @@ returnStmt: RETURN expression ';';
 
 declarationStmt: dataType varList ('=' expression)? ';'
                 | arrayDeclarationStmt ';'
+                | referenceDeclarationStmt ';'
                 ; 
 
 arrayDeclarationStmt: dataType IDENTIFIER '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
 
 arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression;
+
+referenceDeclarationStmt: referenceDataType IDENTIFIER '=' IDENTIFIER ('['expression']')*
+                        ;
 
 constDeclarationStmt: CONST declarationStmt;
 
@@ -237,7 +242,8 @@ comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
 logicalOp: AND | OR;
 
 // Data types
-dataType: INT | BOOL | FLOAT | CHAR | STR;
+dataType: INT | BOOL | FLOAT | CHAR | STR ;
+referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
 
 // Entry point for parsing
 main: program;

@@ -139,6 +139,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#referenceDeclarationStmt.
+    def visitReferenceDeclarationStmt(self, ctx:joiParser.ReferenceDeclarationStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#constDeclarationStmt.
     def visitConstDeclarationStmt(self, ctx:joiParser.ConstDeclarationStmtContext):
         return self.visitChildren(ctx)
@@ -261,6 +266,11 @@ class joiVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by joiParser#dataType.
     def visitDataType(self, ctx:joiParser.DataTypeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#referenceDataType.
+    def visitReferenceDataType(self, ctx:joiParser.ReferenceDataTypeContext):
         return self.visitChildren(ctx)
 
 

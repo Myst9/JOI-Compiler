@@ -242,6 +242,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#referenceDeclarationStmt.
+    def enterReferenceDeclarationStmt(self, ctx:joiParser.ReferenceDeclarationStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#referenceDeclarationStmt.
+    def exitReferenceDeclarationStmt(self, ctx:joiParser.ReferenceDeclarationStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#constDeclarationStmt.
     def enterConstDeclarationStmt(self, ctx:joiParser.ConstDeclarationStmtContext):
         pass
@@ -464,6 +473,15 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#dataType.
     def exitDataType(self, ctx:joiParser.DataTypeContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#referenceDataType.
+    def enterReferenceDataType(self, ctx:joiParser.ReferenceDataTypeContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#referenceDataType.
+    def exitReferenceDataType(self, ctx:joiParser.ReferenceDataTypeContext):
         pass
 
 

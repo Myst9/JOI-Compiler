@@ -25,5 +25,9 @@ int joi() {
 
     variable.hi = pallavi;
     cout << "Student ID: " << student1.id << endl;
+
+    int& h = vh;
+    int& ju = j[0]['9'][o];
+    char& j = 1;
     return 0;
 }
