@@ -30,9 +30,14 @@ SWITCH: 'switch';
 CASE: 'case';
 DEFAULT: 'default';
 BREAK: 'break';
+CONTINUE: 'continue';
 WHILE: 'while';
 DO: 'do';
 FOR: 'for';
+TRUE: 'true';
+FALSE: 'false';
+
+
 EQ: '==';
 NEQ: '!=';
 GT_OP: '>';
@@ -52,7 +57,7 @@ DEC: '--';
 COLON: ':';
 COMMENT: '##' ~[\r\n]* -> skip; 
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
-CHAR_LITERAL: '\'' . '\''; // Char literals like 'a'
+CHAR_LITERAL: '\'' IDENTIFIER '\''; // Char literals like 'a'
 STRING: '"' (~["\\] | '\\' .)* '"'; 
 NUMBER: [0-9]+ ('.' [0-9]+)?; 
 WS: [ \t\r\n]+ -> skip;
@@ -89,23 +94,35 @@ statement
     | doWhileStmt
     | forStmt
     | returnStmt
+    | breakStmt
+    | continueStmt
     | functionCall ';'
     | expression ';'
     ;
 
+breakStmt: BREAK ';';
+continueStmt: CONTINUE ';';
 printStmt: COUT LT printExpressionList (LT ENDL)? ';'; 
 
 printExpressionList: expression (LT expression)*;
 
 inputStmt: CIN GT IDENTIFIER ';';
 
-assignStmt: IDENTIFIER '=' expression ';';
+assignStmt: IDENTIFIER '=' expression ';'
+            | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
+            ;
 
 returnStmt: RETURN expression ';';
 
-declarationStmt: dataType varList ('=' expression)? ';'; 
+declarationStmt: dataType varList ('=' expression)? ';'
+                | arrayDeclarationStmt ';'
+                ; 
 
-constDeclarationStmt: CONST dataType IDENTIFIER '=' expression ';';
+arrayDeclarationStmt: dataType IDENTIFIER '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
+
+arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression;
+
+constDeclarationStmt: CONST declarationStmt;
 
 varList: IDENTIFIER (',' IDENTIFIER)*;
 
@@ -126,7 +143,7 @@ defaultStmt: DEFAULT ':' statements;
 
 whileStmt: WHILE condition COLON '{' statements '}';
 
-doWhileStmt: DO '{' statements '}' WHILE '(' condition ')' ';';
+doWhileStmt: DO '{' statements '}' WHILE  condition COLON ;
 
 forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
 
@@ -184,8 +201,10 @@ factor
     | CHAR_LITERAL
     | IDENTIFIER
     | NUMBER
-    | IDENTIFIER '[' factor ']'
+    | IDENTIFIER '[' expr ']'
     | '(' expr ')'
+    | TRUE
+    | FALSE
     ;
 
 // Expressions and conditions

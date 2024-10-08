@@ -9,7 +9,7 @@ def main():
     stream = CommonTokenStream(lexer)
     parser = joiParser(stream)
     tree = parser.program()
-    print(tree.toStringTree(recog=parser))
+    # print(tree.toStringTree(recog=parser))
 
     # tac_generator = TACGenerator()
     # tac_generator.visit(tree)
