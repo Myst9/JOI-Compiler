@@ -35,12 +35,12 @@ class joiListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by joiParser#functionDefOrStructDef.
-    def enterFunctionDefOrStructDef(self, ctx:joiParser.FunctionDefOrStructDefContext):
+    # Enter a parse tree produced by joiParser#functionDefOrStructDefOrEnumDef.
+    def enterFunctionDefOrStructDefOrEnumDef(self, ctx:joiParser.FunctionDefOrStructDefOrEnumDefContext):
         pass
 
-    # Exit a parse tree produced by joiParser#functionDefOrStructDef.
-    def exitFunctionDefOrStructDef(self, ctx:joiParser.FunctionDefOrStructDefContext):
+    # Exit a parse tree produced by joiParser#functionDefOrStructDefOrEnumDef.
+    def exitFunctionDefOrStructDefOrEnumDef(self, ctx:joiParser.FunctionDefOrStructDefOrEnumDefContext):
         pass
 
 
@@ -122,6 +122,15 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#structDef.
     def exitStructDef(self, ctx:joiParser.StructDefContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#enumDef.
+    def enterEnumDef(self, ctx:joiParser.EnumDefContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#enumDef.
+    def exitEnumDef(self, ctx:joiParser.EnumDefContext):
         pass
 
 

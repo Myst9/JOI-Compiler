@@ -24,8 +24,8 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by joiParser#functionDefOrStructDef.
-    def visitFunctionDefOrStructDef(self, ctx:joiParser.FunctionDefOrStructDefContext):
+    # Visit a parse tree produced by joiParser#functionDefOrStructDefOrEnumDef.
+    def visitFunctionDefOrStructDefOrEnumDef(self, ctx:joiParser.FunctionDefOrStructDefOrEnumDefContext):
         return self.visitChildren(ctx)
 
 
@@ -71,6 +71,11 @@ class joiVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by joiParser#structDef.
     def visitStructDef(self, ctx:joiParser.StructDefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#enumDef.
+    def visitEnumDef(self, ctx:joiParser.EnumDefContext):
         return self.visitChildren(ctx)
 
 

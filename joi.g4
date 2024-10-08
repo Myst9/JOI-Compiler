@@ -37,6 +37,7 @@ FOR: 'for';
 TRUE: 'true';
 FALSE: 'false';
 STRUCT: 'struct';
+ENUM: 'enum';
 
 
 EQ: '==';
@@ -64,13 +65,13 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt functionDefOrStructDef* mainFunction EOF;
+program: includeStmt usingStmt functionDefOrStructDefOrEnumDef* mainFunction EOF;
 
 includeStmt: INCLUDE IOSTREAM;
 
 usingStmt: USING NAMESPACE STD ';';
 
-functionDefOrStructDef: functionDef | structDef;
+functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
 
 functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
 
@@ -105,6 +106,8 @@ statement
 
 
 structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
+
+enumDef: ENUM IDENTIFIER COLON IDENTIFIER (',' IDENTIFIER)* COLON ;
 
 breakStmt: BREAK ';';
 continueStmt: CONTINUE ';';

@@ -11,12 +11,19 @@ void func():
     return 1;
 :
 
+enum eee:
+ teja, 
+ hi,
+ pallavi, ##this is not LLM comment
+ hola
+:
+
 int joi() {
 
     int vh = 1;
     variable.h[0] = nigga[9][0];
 
-    variable.hi = nigga.id;
+    variable.hi = pallavi;
     cout << "Student ID: " << student1.id << endl;
     return 0;
 }
