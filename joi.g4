@@ -42,7 +42,9 @@ PRIVATE: 'private';
 PUBLIC: 'public';
 PROTECTED: 'protected';
 CLASS: 'class';
-
+VIRTUAL: 'virtual';
+NEW: 'new';
+DELETE: 'delete';
 
 EQ: '==';
 NEQ: '!=';
@@ -112,8 +114,10 @@ statement
     | continueStmt
     | functionCall ';'
     | expression ';'
+    | deleteStmt
     ;
 
+deleteStmt: DELETE IDENTIFIER ';';
 
 structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
 

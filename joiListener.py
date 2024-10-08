@@ -134,6 +134,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#deleteStmt.
+    def enterDeleteStmt(self, ctx:joiParser.DeleteStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#deleteStmt.
+    def exitDeleteStmt(self, ctx:joiParser.DeleteStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#structDef.
     def enterStructDef(self, ctx:joiParser.StructDefContext):
         pass

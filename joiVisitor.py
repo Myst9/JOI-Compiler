@@ -79,6 +79,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#deleteStmt.
+    def visitDeleteStmt(self, ctx:joiParser.DeleteStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#structDef.
     def visitStructDef(self, ctx:joiParser.StructDefContext):
         return self.visitChildren(ctx)

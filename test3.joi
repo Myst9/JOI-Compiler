@@ -136,5 +136,7 @@ int joi() {
 
     C.func(34, 5);
 
+    delete C;
+
     return 0;
 }
