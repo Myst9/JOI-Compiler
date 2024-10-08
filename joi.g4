@@ -38,6 +38,10 @@ TRUE: 'true';
 FALSE: 'false';
 STRUCT: 'struct';
 ENUM: 'enum';
+PRIVATE: 'private';
+PUBLIC: 'public';
+PROTECTED: 'protected';
+CLASS: 'class';
 
 
 EQ: '==';
@@ -66,7 +70,7 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt functionDefOrStructDefOrEnumDef* mainFunction EOF;
+program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef)* mainFunction EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
 
 includeStmt: INCLUDE IOSTREAM;
 
@@ -76,8 +80,12 @@ functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
 
 functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
 
+classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? '{' (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)*'}'';';
+
+constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
+
 paramList: param (',' param)*;
-param: dataType IDENTIFIER;
+param: (dataType | referenceDataType) IDENTIFIER;
 
 functionCall: IDENTIFIER '(' argList? ')';
 
@@ -189,6 +197,12 @@ forUpdate
     | IDENTIFIER DEC
     ;
 
+
+accessSpecifier: PRIVATE
+                | PUBLIC
+                | PROTECTED
+                ;
+
 expression
     : logicalOrExpression
     | functionCall
@@ -230,6 +244,8 @@ factor
     | FALSE
     | structAccessStmt
     ;
+
+
 
 // Expressions and conditions
 

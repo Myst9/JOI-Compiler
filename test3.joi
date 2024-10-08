@@ -2,14 +2,21 @@
 
 using namespace std;
 
+char n = 1;
+
 struct variable:
     int h;
     char hi[9]={1, 2};
 :
 
+int hi = 90;
+
 void func():
     return 1;
 :
+
+
+int& mni = hi[3];
 
 enum eee:
  teja, 
@@ -17,6 +24,102 @@ enum eee:
  pallavi, ##this is not LLM comment
  hola
 :
+
+
+int jik[89][10] = {1, {22, 4}};
+
+void func(int y, bool& ch):
+    return 7;
+:
+
+
+class Class{
+    private:
+    int vo;
+    char ch='9';
+    void func():
+        return 0;
+    :
+    int hi(bool ui, bool& s, str& jj):
+    
+    :
+    public:
+    int vo;
+    char ch='9';
+    void func():
+        return 0;
+    :
+    int hi(bool ui, bool& s, str& jj):
+    
+    :
+    Class(int j, int k, str g):
+        cout<<"i"<<endl;
+    :
+    private:
+    int vo;
+    char ch='9';
+    void func():
+        return 0;
+    :
+    int hi(bool ui, bool& s, str& jj):
+    
+    :
+    Class():
+
+    :
+    public:
+    int vo;
+    char ch='9';
+    void func():
+        return 0;
+    :
+    int hi(bool ui, bool& s, str& jj):
+    
+    :
+
+
+};
+
+
+class A{
+
+};
+class B{
+
+};
+
+class C: public B{
+    public:
+    C(int& hi):
+
+    :
+    protected:
+    int vo;
+    char ch='9';
+    void func():
+        return 0;
+    :
+    int hi(bool ui, bool& s, str& jj):
+    
+    :
+
+};
+class C: public B, public A, public D{
+    public:
+    C(int& hi):
+
+    :
+    protected:
+    int vo;
+    char ch='9';
+    void func():
+        return 0;
+    :
+    int hi(bool ui, bool& s, str& jj):
+    
+    :
+
+};
 
 int joi() {
 
@@ -28,6 +131,8 @@ int joi() {
 
     int& h = vh;
     int& ju = j[0]['9'][o];
-    char& j = 1;
+
+    func(y, ch);
+
     return 0;
 }

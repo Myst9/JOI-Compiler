@@ -34,6 +34,16 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#classDef.
+    def visitClassDef(self, ctx:joiParser.ClassDefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#constructor.
+    def visitConstructor(self, ctx:joiParser.ConstructorContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#paramList.
     def visitParamList(self, ctx:joiParser.ParamListContext):
         return self.visitChildren(ctx)
@@ -206,6 +216,11 @@ class joiVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by joiParser#forUpdate.
     def visitForUpdate(self, ctx:joiParser.ForUpdateContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#accessSpecifier.
+    def visitAccessSpecifier(self, ctx:joiParser.AccessSpecifierContext):
         return self.visitChildren(ctx)
 
 

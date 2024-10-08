@@ -53,6 +53,24 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#classDef.
+    def enterClassDef(self, ctx:joiParser.ClassDefContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#classDef.
+    def exitClassDef(self, ctx:joiParser.ClassDefContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#constructor.
+    def enterConstructor(self, ctx:joiParser.ConstructorContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#constructor.
+    def exitConstructor(self, ctx:joiParser.ConstructorContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#paramList.
     def enterParamList(self, ctx:joiParser.ParamListContext):
         pass
@@ -365,6 +383,15 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#forUpdate.
     def exitForUpdate(self, ctx:joiParser.ForUpdateContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#accessSpecifier.
+    def enterAccessSpecifier(self, ctx:joiParser.AccessSpecifierContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#accessSpecifier.
+    def exitAccessSpecifier(self, ctx:joiParser.AccessSpecifierContext):
         pass
 
 
