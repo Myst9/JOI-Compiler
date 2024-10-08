@@ -99,6 +99,7 @@ statement
     : printStmt
     | inputStmt
     | assignStmt
+    | classFunctionAccessStmt
     | declarationStmt
     | constDeclarationStmt
     | ifStmt
@@ -136,6 +137,8 @@ structAssignStmt: structAccessStmt '=' expression ';'
                 ;
 
 structAccessStmt: IDENTIFIER'.'IDENTIFIER;
+
+classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 
 returnStmt: RETURN expression ';';
 

@@ -134,5 +134,7 @@ int joi() {
 
     func(y, ch);
 
+    C.func(34, 5);
+
     return 0;
 }

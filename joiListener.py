@@ -224,6 +224,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#classFunctionAccessStmt.
+    def enterClassFunctionAccessStmt(self, ctx:joiParser.ClassFunctionAccessStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#classFunctionAccessStmt.
+    def exitClassFunctionAccessStmt(self, ctx:joiParser.ClassFunctionAccessStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#returnStmt.
     def enterReturnStmt(self, ctx:joiParser.ReturnStmtContext):
         pass
