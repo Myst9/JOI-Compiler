@@ -45,6 +45,9 @@ CLASS: 'class';
 VIRTUAL: 'virtual';
 NEW: 'new';
 DELETE: 'delete';
+TRY: 'try';
+CATCH: 'catch';
+THROW: 'throw';
 
 EQ: '==';
 NEQ: '!=';
@@ -120,6 +123,8 @@ statement
     | functionCall ';'
     | expression ';'
     | deleteStmt
+    | tryCatchStmt
+    | throwStmt
     ;
 
 deleteStmt: DELETE IDENTIFIER ';';
@@ -167,6 +172,15 @@ referenceDeclarationStmt: referenceDataType IDENTIFIER '=' IDENTIFIER ('['expres
 constDeclarationStmt: CONST declarationStmt;
 
 varList: IDENTIFIER (',' IDENTIFIER)*;
+
+tryCatchStmt
+    : TRY COLON statements COLON catchBlock+;
+
+catchBlock
+    : CATCH '(' IDENTIFIER IDENTIFIER ')' COLON statements COLON;
+
+throwStmt
+    : THROW expression ';';
 
 ifStmt
     : IF condition COLON '{' statements '}' (elseIfStmt* elseStmt?)? ;
