@@ -62,6 +62,11 @@ DIV: '/';
 MOD: '%';
 INC: '++';
 DEC: '--';
+PLUS_ASSIGN: '+=';
+MINUS_ASSIGN: '-=';
+MUL_ASSIGN: '*=';
+DIV_ASSIGN: '/=';
+MOD_ASSIGN: '%=';
 COLON: ':';
 AMPERSAND: '&';
 COMMENT: '##' ~[\r\n]* -> skip; 
@@ -133,6 +138,7 @@ inputStmt: CIN GT IDENTIFIER ';';
 
 assignStmt: IDENTIFIER '=' expression ';'
             | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
+            | IDENTIFIER assignOp expression ';'
             | structAssignStmt
             ;
 
@@ -259,6 +265,8 @@ factor
 condition: expression;
 
 arithmeticOp: ADD | SUB | MUL | DIV | MOD;
+
+assignOp: PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
 comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
 
