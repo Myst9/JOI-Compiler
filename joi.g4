@@ -97,7 +97,10 @@ constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
 paramList: param (',' param)*;
 param: (dataType | referenceDataType) IDENTIFIER;
 
-functionCall: IDENTIFIER '(' argList? ')';
+functionCall: IDENTIFIER '(' argList? ')'
+    | IDENTIFIER '.' IDENTIFIER '(' argList? ')'
+    | structAccessStmt '(' argList? ')'
+    ;
 
 argList: expression (',' expression)*;
 
@@ -135,9 +138,12 @@ enumDef: ENUM IDENTIFIER COLON IDENTIFIER (',' IDENTIFIER)* COLON ;
 
 breakStmt: BREAK ';';
 continueStmt: CONTINUE ';';
-printStmt: COUT LT printExpressionList (LT ENDL)? ';'; 
+printStmt: COUT LT printExpressionList (LT printExpressionList)* ';';
 
-printExpressionList: expression (LT expression)*;
+printExpressionList
+    : expression
+    | ENDL
+    ;
 
 inputStmt: CIN GT IDENTIFIER ';';
 
