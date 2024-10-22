@@ -221,14 +221,7 @@ forInit
 
 // Define updates for for loop
 forUpdate
-    : IDENTIFIER '=' expression
-    | // Allow multiple update statements separated by commas
-      IDENTIFIER '=' expression (',' IDENTIFIER '=' expression)*
-    | INC IDENTIFIER
-    | DEC IDENTIFIER
-    | IDENTIFIER INC
-    | IDENTIFIER DEC
-    ;
+    : expression;
 
 
 accessSpecifier: PRIVATE

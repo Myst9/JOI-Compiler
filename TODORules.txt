@@ -1,0 +1,134 @@
+AS THE IMPLEMENTATION OF A RULE IS DONE IN VMCODE GENERATOR
+AND THE STACK BASED CODE IS READY AND WORKING WELL, JUST PUT IT IN THE completedRules.txt and remove here
+
+
+
+
+
+// Parser rules
+program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef)* mainFunction EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
+
+includeStmt: INCLUDE IOSTREAM;
+
+usingStmt: USING NAMESPACE STD ';';
+
+functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
+
+functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
+
+classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? '{' (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)*'}'';';
+
+constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
+
+paramList: param (',' param)*;
+param: (dataType | referenceDataType) IDENTIFIER;
+
+functionCall: IDENTIFIER '(' argList? ')'
+    | IDENTIFIER '.' IDENTIFIER '(' argList? ')'
+    | structAccessStmt '(' argList? ')'
+    ;
+
+argList: expression (',' expression)*;
+
+
+
+
+
+
+
+deleteStmt: DELETE IDENTIFIER ';';
+
+structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
+
+enumDef: ENUM IDENTIFIER COLON IDENTIFIER (',' IDENTIFIER)* COLON ;
+
+
+
+inputStmt: CIN GT IDENTIFIER ';';
+
+assignStmt: IDENTIFIER '=' expression ';'
+            | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
+            | IDENTIFIER assignOp expression ';'
+            | structAssignStmt
+            ;
+
+structAssignStmt: structAccessStmt '=' expression ';'
+                | structAccessStmt '[' expression ']'('['expression']')* '=' expression ';'
+                ;
+
+structAccessStmt: IDENTIFIER'.'IDENTIFIER;
+
+classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
+
+returnStmt: RETURN expression ';';
+
+
+
+arrayDeclarationStmt: dataType IDENTIFIER '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
+
+arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression;
+
+referenceDeclarationStmt: referenceDataType IDENTIFIER '=' IDENTIFIER ('['expression']')*
+                        ;
+
+constDeclarationStmt: CONST declarationStmt;
+
+
+
+tryCatchStmt
+    : TRY COLON statements COLON catchBlock+;
+
+catchBlock
+    : CATCH '(' IDENTIFIER IDENTIFIER ')' COLON statements COLON;
+
+throwStmt
+    : THROW expression ';';
+
+
+
+
+
+
+
+
+accessSpecifier: PRIVATE
+                | PUBLIC
+                | PROTECTED
+                ;
+
+
+
+factor
+    : INC IDENTIFIER
+    | DEC IDENTIFIER
+    | IDENTIFIER INC
+    | IDENTIFIER DEC
+    | STRING
+    | CHAR_LITERAL
+    | IDENTIFIER
+    | NUMBER
+    | IDENTIFIER ('[' expr ']')+
+    | '(' expr ')'
+    | TRUE
+    | FALSE
+    | structAccessStmt
+    ;
+
+
+
+// Expressions and conditions
+
+
+
+
+
+assignOp: PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
+
+
+
+// Data types
+dataType: INT | BOOL | FLOAT | CHAR | STR ;
+referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
+
+
+

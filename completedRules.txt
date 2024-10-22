@@ -1,0 +1,127 @@
+AS THE IMPLEMENTATION OF A RULE IS DONE IN VMCODE GENERATOR
+AND THE STACK BASED CODE IS READY AND WORKING WELL, JUST PUT THE RULE FROM THE TODORules.txt and remove there
+
+
+
+
+
+
+main: program;
+
+mainFunction: INT MAIN '(' ')' '{' statements RETURN expression ';' '}';
+
+statements: statement*;
+
+statement
+    : printStmt
+    | inputStmt
+    | assignStmt
+    | classFunctionAccessStmt
+    | declarationStmt
+    | constDeclarationStmt
+    | ifStmt
+    | switchStmt
+    | whileStmt
+    | doWhileStmt
+    | forStmt
+    | returnStmt
+    | breakStmt
+    | continueStmt
+    | functionCall ';'
+    | expression ';'
+    | deleteStmt
+    | tryCatchStmt
+    | throwStmt
+    ;
+breakStmt: BREAK ';';
+continueStmt: CONTINUE ';';
+printStmt: COUT LT printExpressionList (LT printExpressionList)* ';';
+
+printExpressionList
+    : expression
+    | ENDL
+    ;
+ifStmt
+    : IF condition COLON '{' statements '}' (elseIfStmt* elseStmt?)? ;
+
+elseIfStmt
+    : ELSE IF condition COLON '{' statements '}' ;
+
+elseStmt
+    : ELSE COLON '{' statements '}' ;
+
+whileStmt: WHILE condition COLON '{' statements '}';
+
+doWhileStmt: DO '{' statements '}' WHILE  condition COLON ;
+
+switchStmt: SWITCH expression COLON '{' caseStmt* defaultStmt? '}';
+
+caseStmt: CASE expression ':' statements BREAK ';';
+
+defaultStmt: DEFAULT ':' statements;
+
+forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
+
+forInit
+    : assignStmt
+    | declarationStmt
+    | // Allow multiple initialization statements separated by commas
+      declarationStmt (',' declarationStmt)*
+    ;
+
+forUpdate
+    : expression;
+
+declarationStmt: dataType varList ('=' expression)? ';'
+                | arrayDeclarationStmt ';'
+                | referenceDeclarationStmt ';'
+                ; 
+
+condition: expression;
+
+varList: IDENTIFIER (',' IDENTIFIER)*;
+
+expression
+    : logicalOrExpression
+    | functionCall
+    ;
+
+logicalOrExpression
+    : logicalAndExpression (OR logicalAndExpression)*
+    ;
+
+logicalAndExpression
+    : rel_expr (AND rel_expr)*
+    ;
+
+rel_expr
+    : NOT rel_expr
+    | expr (comparisonOp expr)*
+    ;
+
+expr
+    : term ((ADD | SUB) term)*
+    ;
+
+term
+    : factor ((MUL | DIV | MOD) factor)*
+    ;
+
+
+
+
+
+
+
+arithmeticOp: ADD | SUB | MUL | DIV | MOD;
+
+comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
+
+
+
+
+
+
+
+
+

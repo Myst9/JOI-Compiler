@@ -305,6 +305,33 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#tryCatchStmt.
+    def enterTryCatchStmt(self, ctx:joiParser.TryCatchStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#tryCatchStmt.
+    def exitTryCatchStmt(self, ctx:joiParser.TryCatchStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#catchBlock.
+    def enterCatchBlock(self, ctx:joiParser.CatchBlockContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#catchBlock.
+    def exitCatchBlock(self, ctx:joiParser.CatchBlockContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#throwStmt.
+    def enterThrowStmt(self, ctx:joiParser.ThrowStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#throwStmt.
+    def exitThrowStmt(self, ctx:joiParser.ThrowStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#ifStmt.
     def enterIfStmt(self, ctx:joiParser.IfStmtContext):
         pass
@@ -491,6 +518,15 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#arithmeticOp.
     def exitArithmeticOp(self, ctx:joiParser.ArithmeticOpContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#assignOp.
+    def enterAssignOp(self, ctx:joiParser.AssignOpContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#assignOp.
+    def exitAssignOp(self, ctx:joiParser.AssignOpContext):
         pass
 
 

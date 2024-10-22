@@ -174,6 +174,21 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#tryCatchStmt.
+    def visitTryCatchStmt(self, ctx:joiParser.TryCatchStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#catchBlock.
+    def visitCatchBlock(self, ctx:joiParser.CatchBlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#throwStmt.
+    def visitThrowStmt(self, ctx:joiParser.ThrowStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#ifStmt.
     def visitIfStmt(self, ctx:joiParser.IfStmtContext):
         return self.visitChildren(ctx)
@@ -276,6 +291,11 @@ class joiVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by joiParser#arithmeticOp.
     def visitArithmeticOp(self, ctx:joiParser.ArithmeticOpContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#assignOp.
+    def visitAssignOp(self, ctx:joiParser.AssignOpContext):
         return self.visitChildren(ctx)
 
 

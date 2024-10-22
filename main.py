@@ -4,7 +4,7 @@ from joiParser import joiParser
 from vmCode_generator import VMCodeGenerator
 
 def main():
-    input_stream = FileStream('test3.joi')
+    input_stream = FileStream('t.joi')
     lexer = joiLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = joiParser(stream)
