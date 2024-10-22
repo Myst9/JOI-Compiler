@@ -1,7 +1,7 @@
 from antlr4 import *
 from joiLexer import joiLexer
 from joiParser import joiParser
-from tac_generator import TACGenerator
+from vmCode_generator import VMCodeGenerator
 
 def main():
     input_stream = FileStream('test3.joi')
@@ -9,13 +9,15 @@ def main():
     stream = CommonTokenStream(lexer)
     parser = joiParser(stream)
     tree = parser.program()
-    # print(tree.toStringTree(recog=parser))
+    print(tree.toStringTree(recog=parser))
 
-    # tac_generator = TACGenerator()
-    # tac_generator.visit(tree)
+    # Initialize the VM code generator
+    code_generator = VMCodeGenerator()
+    code_generator.visit(tree)
 
-    # print("Three Address Code:")
-    # print(tac_generator.getTAC())
+    # Print generated VM instructions
+    for instruction in code_generator.instructions:
+        print(instruction)
 
 if __name__ == "__main__":
     main()
