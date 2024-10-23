@@ -103,6 +103,45 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.throwStmt():
             return self.visit(ctx.throwStmt())
         
+
+    def visitInputStmt(self, ctx: joiParser.InputStmtContext):
+        var_info = self.visit(ctx.idOrPointerOrAddrId())
+        var_name = var_info[1]
+        var_type = var_info[0]
+        if(not symbolTable.read(var_name)):
+            ExitFromProgram(f'cannot take input for undeclared variable {var_name}')
+        if(var_type=='address_identifier'):
+            ExitFromProgram(f'cannot take input into a referenced variable {var_name}')
+        self.instructions.append(f'INPUT {var_name}')
+    
+    def visitDeleteStmt(self, ctx: joiParser.DeleteStmtContext):
+        var_info = self.visit(ctx.idOrPointerOrAddrId())
+        var_name = var_info[1]
+        var_type = var_info[0]
+        if(not symbolTable.read(var_name)):
+            ExitFromProgram(f'cannot delete undeclared variable {var_name}')
+        if((symbolTable.read(var_name))['type']!='pointer'):
+            ExitFromProgram(f'please provide a pointer to delete')
+        symbolTable.delete(var_name)
+        self.instructions.append(f'DELETE {var_name}')#I exactly dont know, just put it here as of now
+        
+    def visitReferenceDeclarationStmt(self, ctx: joiParser.ReferenceDeclarationStmtContext):
+        data_type = ctx.dataType().getText()
+        
+        var_name = self.visit(ctx.address_identifier())[1]
+        if(symbolTable.read(var_name)):
+            ExitFromProgram(f'already declared {var_name}. cannot reference declare it.')
+        referenced_info = self.visit(ctx.idOrPointerOrAddrId())#[type, name]
+        referenced_name = referenced_info[1]
+        referenced_type = referenced_info[0] #pointer or address or variable
+        if(referenced_type=='address_identifier'):
+            ExitFromProgram(f'cannot bind {referenced_name} to {var_name}')
+
+        symbolTable.create(name=var_name, symbol_type='reference',scope='ytd',datatype=data_type)
+        for expr in ctx.expression():
+            self.visit(expr)
+        
+        
     def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
         variables = self.visit(ctx.declarationStmt())
         for var in variables:
@@ -163,13 +202,14 @@ class VMCodeGenerator(joiVisitor):
     def visitParam(self, ctx: joiParser.ParamContext):#need to add scope when adding to symbol table
         if(ctx.dataType()):
             data_type = ctx.dataType().getText()
-        elif(ctx.referenceDataType()): 
-            data_type = self.visit(ctx.referenceDataType())
         
-        param_name = ctx.IDENTIFIER().getText()
+        param_info = self.visit(ctx.idOrPointerOrAddrId())
+        param_name = param_info[1]
+        param_type = param_info[0]
+
         if(symbolTable.read(param_name)):# need to implement scope for this.. as of now only name checking is done
             ExitFromProgram("param name is already used in the code. Try different name.")
-        symbolTable.create(name=param_name, symbol_type='parameter', scope='ytd',datatype=data_type)
+        symbolTable.create(name=param_name, symbol_type='parameter', scope='ytd',datatype=data_type, paramtype=param_type)
         return param_name
     
     def visitFunctionCall(self, ctx: joiParser.FunctionCallContext):
@@ -195,46 +235,51 @@ class VMCodeGenerator(joiVisitor):
         return ctx.getChild(0).getText()
 
     def visitDeclarationStmt(self, ctx: joiParser.DeclarationStmtContext):
+        
         if ctx.dataType() and ctx.varList():
             data_type = ctx.dataType().getText()  
             var_list = ctx.varList() 
-           
             variables = self.visit(var_list)
            
             if ctx.expression():  
                 self.visit(ctx.expression())  
                 for var in variables:
-                    if(symbolTable.read(var)):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
-                        ExitFromProgram(f'already declared {var} variable')
-                    self.instructions.append(f'DECLARE {data_type} {var}')  # Declaration
-                    self.instructions.append(f'STORE {var}') # Store initialized value
-                    symbolTable.create(name=var, symbol_type='variable', scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
-                    self.instructions.append(f'POP {var}') # since it is only declaration you can take it out.
+                    if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
+                        ExitFromProgram(f'already declared {var[1]} variable')
+                    self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Declaration
+                    self.instructions.append(f'STORE {var[1]}') # Store initialized value
+                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
+                    self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
             else:
+                # print(variables)
                 for var in variables:
-                    if(symbolTable.read(var)):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
-                        ExitFromProgram(f'already declared {var} variable')
-                    self.instructions.append(f'DECLARE {data_type} {var}')  # Just declare if no assignment
-                    symbolTable.create(name=var, symbol_type='variable', scope='ytd', datatype=data_type)
+                    if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
+                        ExitFromProgram(f'already declared {var[1]} variable')
+                    self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
+                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
+
             return variables
-        elif ctx.arrayDeclarationStmt():
+        elif(ctx.arrayDeclarationStmt()):
             return self.visit(ctx.arrayDeclarationStmt())
-        elif ctx.referenceDeclarationStmt():
-            return self.visit(ctx.referenceDeclarationStmt())
         else:
             raise Exception("Unhandled declaration statement type")
     
     def visitArrayDeclarationStmt(self, ctx: joiParser.ArrayDeclarationStmtContext):
         
         data_type = ctx.dataType().getText()  
-        arrayName = ctx.IDENTIFIER().getText() 
+        arrayinfo = self.visit(ctx.idOrPointerOrAddrId())
+        arrayName = arrayinfo[1] 
         if(symbolTable.read(arrayName)):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
             ExitFromProgram(f'already declared {arrayName} variable')
-
+        if(arrayinfo[0]=='address_identifier'):
+            ExitFromProgram(f'cannot create {arrayName} array of references')
         symbolTable.create(name=arrayName, symbol_type='array', scope='ytd', datatype=data_type)
         for expression in ctx.expression():
             self.visit(expression)
-        self.visit(ctx.arrayValueAssigning())
+        
+        if(ctx.arrayValueAssigning()):
+            self.visit(ctx.arrayValueAssigning())
+        
 
 
     def visitArrayValueAssigning(self, ctx: joiParser.ArrayValueAssigningContext):
@@ -245,9 +290,20 @@ class VMCodeGenerator(joiVisitor):
 
     def visitVarList(self, ctx:joiParser.VarListContext):
         variables = []
-        for var in ctx.IDENTIFIER():
-            variables.append(var.getText())
+        for var in ctx.var():
+            variables.append(self.visit(var))
         return variables
+    
+    def visitVar(self, ctx: joiParser.VarContext):
+        return self.visit(ctx.idOrPointerOrAddrId())
+    
+    def visitPointer(self, ctx: joiParser.PointerContext):
+        varname = self.visit(ctx.idOrPointerOrAddrId())[1]
+        return ['pointer', varname]
+    
+    def visitAddress_identifier(self, ctx: joiParser.Address_identifierContext):
+        varname = ctx.IDENTIFIER().getText()
+        return ['address_identifier', varname]
 
     def visitExpression(self, ctx:joiParser.ExpressionContext):
         if ctx.functionCall():
@@ -307,9 +363,16 @@ class VMCodeGenerator(joiVisitor):
             elif op == '%':
                 self.instructions.append('MOD')
 
+    def visitIdOrPointerOrAddrId(self, ctx: joiParser.IdOrPointerOrAddrIdContext):
+        if(ctx.pointer()):
+            return self.visit(ctx.pointer())
+        elif(ctx.address_identifier()):
+            return self.visit(ctx.address_identifier())
+        return ['variable', ctx.IDENTIFIER().getText()]
+
     def visitFactor(self, ctx:joiParser.FactorContext):
-        if ctx.IDENTIFIER():
-            var_name = ctx.IDENTIFIER().getText()
+        if ctx.idOrPointerOrAddrId():
+            var_name = self.visit(ctx.idOrPointerOrAddrId())[1]
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot use undeclared variable")
             if ctx.INC():
@@ -382,8 +445,8 @@ class VMCodeGenerator(joiVisitor):
         # if ctx.IDENTIFIER() and ctx.expression(0) and ctx.expression(1):
         # (IDENTIFIER '[' expression ']' ('[' expression ']')* '=' expression ';')
         # should check this-------------------------------------
-        if ctx.IDENTIFIER() and len(ctx.expression())>=2:
-            var_name = ctx.IDENTIFIER().getText()  
+        if ctx.idOrPointerOrAddrId() and len(ctx.expression())>=2:
+            var_name = self.visit(ctx.idOrPointerOrAddrId())[1]  
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared array")
             index = self.visit(ctx.expression(0))  
@@ -395,8 +458,8 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append(f'PUSH {index}')  
             self.visit(ctx.expression(len(ctx.expression())-1))  
             self.instructions.append('POP_ARRAY') 
-        elif ctx.IDENTIFIER() and ctx.expression(0) and not ctx.assignOp():
-            var_name = ctx.IDENTIFIER().getText() 
+        elif ctx.idOrPointerOrAddrId() and ctx.expression(0) and not ctx.assignOp():
+            var_name = self.visit(ctx.idOrPointerOrAddrId())[1] 
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared variable") 
             self.visit(ctx.expression(0))  
@@ -404,8 +467,8 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append(f'POP {var_name}')  
 
         # (IDENTIFIER assignOp expression ';')
-        elif ctx.IDENTIFIER() and ctx.assignOp() and ctx.expression(0):
-            var_name = ctx.IDENTIFIER().getText()  
+        elif ctx.idOrPointerOrAddrId() and ctx.assignOp() and ctx.expression(0):
+            var_name = self.visit(ctx.idOrPointerOrAddrId())[1]
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared variable") 
             op = ctx.assignOp().getText()  

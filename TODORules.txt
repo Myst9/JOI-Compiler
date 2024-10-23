@@ -1,11 +1,3 @@
-AS THE IMPLEMENTATION OF A RULE IS DONE IN VMCODE GENERATOR
-AND THE STACK BASED CODE IS READY AND WORKING WELL, JUST PUT IT IN THE completedRules.txt and remove here
-
-
-
-
-
-// Parser rules
 program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef)* mainFunction EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
 
 includeStmt: INCLUDE IOSTREAM;
@@ -15,8 +7,7 @@ usingStmt: USING NAMESPACE STD ';';
 functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
 
 
-
-classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? '{' (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)*'}'';';
+classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? COLON (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)* COLON ';';
 
 constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
 
@@ -31,23 +22,15 @@ functionCall: IDENTIFIER '(' argList? ')'
 
 
 
-
-
-
-
-deleteStmt: DELETE IDENTIFIER ';';
-
 structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
 
 enumDef: ENUM IDENTIFIER COLON IDENTIFIER (',' IDENTIFIER)* COLON ;
 
 
 
-inputStmt: CIN GT IDENTIFIER ';';
-
-assignStmt: IDENTIFIER '=' expression ';'
-            | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
-            | IDENTIFIER assignOp expression ';'
+assignStmt: idOrPointerOrAddrId '=' expression ';'
+            | idOrPointerOrAddrId '[' expression ']'('['expression']')* '=' expression ';'
+            | idOrPointerOrAddrId assignOp expression ';'
             | structAssignStmt
             ;
 
@@ -59,16 +42,10 @@ structAccessStmt: IDENTIFIER'.'IDENTIFIER;
 
 classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 
-returnStmt: RETURN expression ';';
 
 
-//////////////array is a little difficult need to sit with the VM peopel.. or atleast make the symbol table first
-arrayDeclarationStmt: dataType IDENTIFIER '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
 
-arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression;
 
-referenceDeclarationStmt: referenceDataType IDENTIFIER '=' IDENTIFIER ('['expression']')*
-                        ;
 
 
 
@@ -88,45 +65,25 @@ throwStmt
 
 
 
-
 accessSpecifier: PRIVATE
                 | PUBLIC
                 | PROTECTED
                 ;
 
-
-
 factor
-    : INC IDENTIFIER
-    | DEC IDENTIFIER
-    | IDENTIFIER INC
-    | IDENTIFIER DEC
+    : INC idOrPointerOrAddrId
+    | DEC idOrPointerOrAddrId
+    | idOrPointerOrAddrId INC
+    | idOrPointerOrAddrId DEC
     | STRING
     | CHAR_LITERAL
-    | IDENTIFIER
+    | idOrPointerOrAddrId
     | NUMBER
-    | IDENTIFIER ('[' expr ']')+
+    | idOrPointerOrAddrId ('[' expr ']')+
     | '(' expr ')'
     | TRUE
     | FALSE
     | structAccessStmt
     ;
-
-
-
-// Expressions and conditions
-
-
-
-
-
-assignOp: PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
-
-
-
-// Data types
-dataType: INT | BOOL | FLOAT | CHAR | STR ;
-referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
-
 
 

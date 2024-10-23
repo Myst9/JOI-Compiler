@@ -12,7 +12,7 @@ mainFunction: INT MAIN '(' ')' '{' statements RETURN expression ';' '}';
 
 functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
 paramList: param (',' param)*;
-param: (dataType | referenceDataType) IDENTIFIER;
+param: dataType idOrPointerOrAddrId;
 
 
 argList: expression (',' expression)*;
@@ -40,14 +40,24 @@ statement
     | tryCatchStmt
     | throwStmt
     ;
+
+
+deleteStmt: DELETE idOrPointerOrAddrId ';';
+
 breakStmt: BREAK ';';
 continueStmt: CONTINUE ';';
 printStmt: COUT LT printExpressionList (LT printExpressionList)* ';';
+
 
 printExpressionList
     : expression
     | ENDL
     ;
+
+inputStmt: CIN GT idOrPointerOrAddrId ';';
+
+returnStmt: RETURN expression ';';
+
 ifStmt
     : IF condition COLON '{' statements '}' (elseIfStmt* elseStmt?)? ;
 
@@ -57,15 +67,15 @@ elseIfStmt
 elseStmt
     : ELSE COLON '{' statements '}' ;
 
-whileStmt: WHILE condition COLON '{' statements '}';
-
-doWhileStmt: DO '{' statements '}' WHILE  condition COLON ;
-
 switchStmt: SWITCH expression COLON '{' caseStmt* defaultStmt? '}';
 
 caseStmt: CASE expression ':' statements BREAK ';';
 
 defaultStmt: DEFAULT ':' statements;
+
+whileStmt: WHILE condition COLON '{' statements '}';
+
+doWhileStmt: DO '{' statements '}' WHILE  condition COLON ;
 
 forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
 
@@ -79,17 +89,24 @@ forInit
 forUpdate
     : expression;
 
-declarationStmt: dataType varList ('=' expression)? ';'
+
+
+declarationStmt:  dataType varList ('=' expression)? ';'
                 | arrayDeclarationStmt ';'
-                | referenceDeclarationStmt ';'
-                ;
+                ; 
+
+arrayDeclarationStmt: dataType idOrPointerOrAddrId '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
+
+arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression ;
 
 
-constDeclarationStmt: CONST declarationStmt; 
 
-condition: expression;
+constDeclarationStmt: CONST declarationStmt;
 
-varList: IDENTIFIER (',' IDENTIFIER)*;
+varList: var (',' var)*;
+
+var: idOrPointerOrAddrId;
+
 
 expression
     : logicalOrExpression
@@ -123,11 +140,25 @@ term
 
 
 
+idOrPointerOrAddrId: IDENTIFIER
+                    | pointer
+                    | address_identifier;
+
+pointer: DOLLAR idOrPointerOrAddrId;
+address_identifier: AMPERSAND IDENTIFIER;
+
+
+
+condition: expression;
+
 arithmeticOp: ADD | SUB | MUL | DIV | MOD;
 
 comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
 
 
+
+dataType: INT | BOOL | FLOAT | CHAR | STR ;
+referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
 
 
 

@@ -174,6 +174,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#var.
+    def visitVar(self, ctx:joiParser.VarContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#tryCatchStmt.
     def visitTryCatchStmt(self, ctx:joiParser.TryCatchStmtContext):
         return self.visitChildren(ctx)
@@ -281,6 +286,21 @@ class joiVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by joiParser#factor.
     def visitFactor(self, ctx:joiParser.FactorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#idOrPointerOrAddrId.
+    def visitIdOrPointerOrAddrId(self, ctx:joiParser.IdOrPointerOrAddrIdContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#pointer.
+    def visitPointer(self, ctx:joiParser.PointerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#address_identifier.
+    def visitAddress_identifier(self, ctx:joiParser.Address_identifierContext):
         return self.visitChildren(ctx)
 
 

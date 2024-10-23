@@ -72,6 +72,7 @@ DIV_ASSIGN: '/=';
 MOD_ASSIGN: '%=';
 COLON: ':';
 AMPERSAND: '&';
+DOLLAR: '$';
 COMMENT: '##' ~[\r\n]* -> skip; 
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
 CHAR_LITERAL: '\'' . '\''; // Char literals like 'a'
@@ -90,12 +91,12 @@ functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
 
 functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
 
-classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? '{' (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)*'}'';';
+classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? COLON (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)* COLON ';';
 
 constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
 
 paramList: param (',' param)*;
-param: (dataType | referenceDataType) IDENTIFIER;
+param: dataType idOrPointerOrAddrId;
 
 functionCall: IDENTIFIER '(' argList? ')'
     | IDENTIFIER '.' IDENTIFIER '(' argList? ')'
@@ -130,7 +131,7 @@ statement
     | throwStmt
     ;
 
-deleteStmt: DELETE IDENTIFIER ';';
+deleteStmt: DELETE idOrPointerOrAddrId ';';
 
 structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
 
@@ -145,11 +146,11 @@ printExpressionList
     | ENDL
     ;
 
-inputStmt: CIN GT IDENTIFIER ';';
+inputStmt: CIN GT idOrPointerOrAddrId ';';
 
-assignStmt: IDENTIFIER '=' expression ';'
-            | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
-            | IDENTIFIER assignOp expression ';'
+assignStmt: idOrPointerOrAddrId '=' expression ';'
+            | idOrPointerOrAddrId '[' expression ']'('['expression']')* '=' expression ';'
+            | idOrPointerOrAddrId assignOp expression ';'
             | structAssignStmt
             ;
 
@@ -163,21 +164,22 @@ classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 
 returnStmt: RETURN expression ';';
 
-declarationStmt: dataType varList ('=' expression)? ';'
+declarationStmt:  dataType varList ('=' expression)? ';'
                 | arrayDeclarationStmt ';'
-                | referenceDeclarationStmt ';'
                 ; 
 
-arrayDeclarationStmt: dataType IDENTIFIER '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
+arrayDeclarationStmt: dataType idOrPointerOrAddrId '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
 
-arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression;
+arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression ;
 
-referenceDeclarationStmt: referenceDataType IDENTIFIER '=' IDENTIFIER ('['expression']')*
+referenceDeclarationStmt: dataType address_identifier '=' idOrPointerOrAddrId ('['expression']')*
                         ;
 
 constDeclarationStmt: CONST declarationStmt;
 
-varList: IDENTIFIER (',' IDENTIFIER)*;
+varList: var (',' var)*;
+
+var: idOrPointerOrAddrId;
 
 tryCatchStmt
     : TRY COLON statements COLON catchBlock+;
@@ -256,22 +258,27 @@ term
     ;
 
 factor
-    : INC IDENTIFIER
-    | DEC IDENTIFIER
-    | IDENTIFIER INC
-    | IDENTIFIER DEC
+    : INC idOrPointerOrAddrId
+    | DEC idOrPointerOrAddrId
+    | idOrPointerOrAddrId INC
+    | idOrPointerOrAddrId DEC
     | STRING
     | CHAR_LITERAL
-    | IDENTIFIER
+    | idOrPointerOrAddrId
     | NUMBER
-    | IDENTIFIER ('[' expr ']')+
+    | idOrPointerOrAddrId ('[' expr ']')+
     | '(' expr ')'
     | TRUE
     | FALSE
     | structAccessStmt
     ;
 
+idOrPointerOrAddrId: IDENTIFIER
+                    | pointer
+                    | address_identifier;
 
+pointer: DOLLAR idOrPointerOrAddrId;
+address_identifier: AMPERSAND IDENTIFIER;
 
 // Expressions and conditions
 
@@ -288,6 +295,5 @@ logicalOp: AND | OR;
 // Data types
 dataType: INT | BOOL | FLOAT | CHAR | STR ;
 referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
-
 // Entry point for parsing
 main: program;

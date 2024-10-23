@@ -305,6 +305,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#var.
+    def enterVar(self, ctx:joiParser.VarContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#var.
+    def exitVar(self, ctx:joiParser.VarContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#tryCatchStmt.
     def enterTryCatchStmt(self, ctx:joiParser.TryCatchStmtContext):
         pass
@@ -500,6 +509,33 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#factor.
     def exitFactor(self, ctx:joiParser.FactorContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#idOrPointerOrAddrId.
+    def enterIdOrPointerOrAddrId(self, ctx:joiParser.IdOrPointerOrAddrIdContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#idOrPointerOrAddrId.
+    def exitIdOrPointerOrAddrId(self, ctx:joiParser.IdOrPointerOrAddrIdContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#pointer.
+    def enterPointer(self, ctx:joiParser.PointerContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#pointer.
+    def exitPointer(self, ctx:joiParser.PointerContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#address_identifier.
+    def enterAddress_identifier(self, ctx:joiParser.Address_identifierContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#address_identifier.
+    def exitAddress_identifier(self, ctx:joiParser.Address_identifierContext):
         pass
 
 

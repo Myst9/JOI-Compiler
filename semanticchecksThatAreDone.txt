@@ -1,3 +1,5 @@
 1. break and continue cannot be written outside the loops
 2. doens't allow to declare already declared varialbes, arrays
 3. cannot assign to undeclareed variables, arrays
+4. int &b = &c; doesnt work;
+5. delete will only work on pointers
