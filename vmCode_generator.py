@@ -23,8 +23,8 @@ switchq=0
 caseq=0
 forq=0
 
-def ExitFromProgram(str):
-    print(str)
+def ExitFromProgram(errormessage):
+    print(errormessage)
     sys.exit()
 
 class VMCodeGenerator(joiVisitor):
