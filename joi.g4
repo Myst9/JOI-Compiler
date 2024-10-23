@@ -149,6 +149,7 @@ printExpressionList
 inputStmt: CIN GT idOrPointerOrAddrId ';';
 
 assignStmt: idOrPointerOrAddrId '=' expression ';'
+            | IDENTIFIER '=' typecastExpr ';'
             | idOrPointerOrAddrId '[' expression ']'('['expression']')* '=' expression ';'
             | idOrPointerOrAddrId assignOp expression ';'
             | structAssignStmt
@@ -234,7 +235,10 @@ accessSpecifier: PRIVATE
 expression
     : logicalOrExpression
     | functionCall
+    | typecastExpr
     ;
+
+typecastExpr: '(' dataType ')' IDENTIFIER;
 
 logicalOrExpression
     : logicalAndExpression (OR logicalAndExpression)*
