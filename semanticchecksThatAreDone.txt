@@ -1,0 +1,3 @@
+1. break and continue cannot be written outside the loops
+2. doens't allow to declare already declared varialbes, arrays
+3. cannot assign to undeclareed variables, arrays

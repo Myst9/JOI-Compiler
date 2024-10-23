@@ -10,6 +10,13 @@ main: program;
 
 mainFunction: INT MAIN '(' ')' '{' statements RETURN expression ';' '}';
 
+functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
+paramList: param (',' param)*;
+param: (dataType | referenceDataType) IDENTIFIER;
+
+
+argList: expression (',' expression)*;
+
 statements: statement*;
 
 statement

@@ -14,21 +14,20 @@ usingStmt: USING NAMESPACE STD ';';
 
 functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
 
-functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
+
 
 classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? '{' (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)*'}'';';
 
 constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
 
-paramList: param (',' param)*;
-param: (dataType | referenceDataType) IDENTIFIER;
+
 
 functionCall: IDENTIFIER '(' argList? ')'
     | IDENTIFIER '.' IDENTIFIER '(' argList? ')'
     | structAccessStmt '(' argList? ')'
     ;
 
-argList: expression (',' expression)*;
+
 
 
 
