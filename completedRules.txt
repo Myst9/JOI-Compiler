@@ -75,7 +75,10 @@ forUpdate
 declarationStmt: dataType varList ('=' expression)? ';'
                 | arrayDeclarationStmt ';'
                 | referenceDeclarationStmt ';'
-                ; 
+                ;
+
+
+constDeclarationStmt: CONST declarationStmt; 
 
 condition: expression;
 

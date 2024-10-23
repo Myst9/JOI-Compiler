@@ -63,7 +63,7 @@ classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 returnStmt: RETURN expression ';';
 
 
-
+//////////////array is a little difficult need to sit with the VM peopel.. or atleast make the symbol table first
 arrayDeclarationStmt: dataType IDENTIFIER '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
 
 arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression;
@@ -71,7 +71,6 @@ arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expr
 referenceDeclarationStmt: referenceDataType IDENTIFIER '=' IDENTIFIER ('['expression']')*
                         ;
 
-constDeclarationStmt: CONST declarationStmt;
 
 
 

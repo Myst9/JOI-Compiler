@@ -1,6 +1,7 @@
 from antlr4 import *
 from joiParser import joiParser
 from joiVisitor import joiVisitor
+import sys
 
 ifqueue=[]
 elseifqueue=[]
@@ -21,6 +22,10 @@ dowhileq=0
 switchq=0
 caseq=0
 forq=0
+
+def ExitFromProgram(str):
+    print(str)
+    sys.exit()
 
 class VMCodeGenerator(joiVisitor):
     def __init__(self):
@@ -89,10 +94,14 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.throwStmt():
             return self.visit(ctx.throwStmt())
         
+    def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
+        self.visit(ctx.declarationStmt())
+        
     def visitBreakStmt(self, ctx: joiParser.BreakStmtContext):
         if(BreakOrContinueWhichLoop):
             self.instructions.append(f'JMP, end_{BreakOrContinueWhichLoop[-1]}')
         else:
+            ExitFromProgram("break written outside loop")
             pass # this is the case where break is not written in any loop but outside the loop.. we have to halt the 
                 # code here. HOW DO WE DO THAT???
 
@@ -100,6 +109,7 @@ class VMCodeGenerator(joiVisitor):
         if(BreakOrContinueWhichLoop):
             self.instructions.append(f'JMP, {BreakOrContinueWhichLoop[-1]}')
         else:
+            ExitFromProgram("continue written outside loop")
             pass # this is the case where continue is not written in any loop but outside the loop.. we have to halt the 
                 # code here. HOW DO WE DO THAT???
         
@@ -139,7 +149,22 @@ class VMCodeGenerator(joiVisitor):
             return self.visit(ctx.referenceDeclarationStmt())
         else:
             raise Exception("Unhandled declaration statement type")
+    
+    def visitArrayDeclarationStmt(self, ctx: joiParser.ArrayDeclarationStmtContext):
         
+        data_type = ctx.dataType().getText()  
+        arrayName = ctx.IDENTIFIER().getText() 
+        for expression in ctx.expression():
+            self.visit(expression)
+        self.visit(ctx.arrayValueAssigning())
+
+
+    def visitArrayValueAssigning(self, ctx: joiParser.ArrayValueAssigningContext):
+        for assigning in ctx.arrayValueAssigning():
+            self.visit(assigning)
+        if(ctx.expression()):
+            self.visit(ctx.expression())
+
     def visitVarList(self, ctx:joiParser.VarListContext):
         variables = []
         for var in ctx.IDENTIFIER():

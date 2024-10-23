@@ -4,9 +4,7 @@ using namespace std;
 
 int joi() {
         
-    a=b++;
-    b=++a;
-    c=++b++;
+    int a[3]={4, 4, 3, 2};
 
     
     
