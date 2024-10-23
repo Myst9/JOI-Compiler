@@ -148,6 +148,7 @@ printExpressionList
 inputStmt: CIN GT IDENTIFIER ';';
 
 assignStmt: IDENTIFIER '=' expression ';'
+            | IDENTIFIER '=' typecastExpr ';'
             | IDENTIFIER '[' expression ']'('['expression']')* '=' expression ';'
             | IDENTIFIER assignOp expression ';'
             | structAssignStmt
@@ -232,7 +233,10 @@ accessSpecifier: PRIVATE
 expression
     : logicalOrExpression
     | functionCall
+    | typecastExpr
     ;
+
+typecastExpr: '(' dataType ')' IDENTIFIER;
 
 logicalOrExpression
     : logicalAndExpression (OR logicalAndExpression)*
