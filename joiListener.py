@@ -233,6 +233,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#structDeclarationStmt.
+    def enterStructDeclarationStmt(self, ctx:joiParser.StructDeclarationStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#structDeclarationStmt.
+    def exitStructDeclarationStmt(self, ctx:joiParser.StructDeclarationStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#objectDeclarationStmt.
     def enterObjectDeclarationStmt(self, ctx:joiParser.ObjectDeclarationStmtContext):
         pass

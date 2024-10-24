@@ -130,6 +130,7 @@ statement
     | tryCatchStmt
     | throwStmt
     | objectDeclarationStmt
+    | structDeclarationStmt
     ;
 
 deleteStmt: DELETE idOrPointerOrAddrId ';';
@@ -160,8 +161,11 @@ structAssignStmt: structAccessStmt '=' expression ';'
                 | structAccessStmt '[' expression ']'('['expression']')* '=' expression ';'
                 ;
 
+
+
 structAccessStmt: IDENTIFIER'.'IDENTIFIER;
 
+structDeclarationStmt: IDENTIFIER IDENTIFIER ';';
 objectDeclarationStmt: IDENTIFIER IDENTIFIER '=' NEW IDENTIFIER '('(expression (',' expression)*)?')'';';
 
 classFunctionAccessStmt: IDENTIFIER'.'functionCall';';

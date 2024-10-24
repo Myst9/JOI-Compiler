@@ -104,8 +104,14 @@ class VMCodeGenerator(joiVisitor):
             return self.visit(ctx.throwStmt())
         elif ctx.objectDeclarationStmt():
             return self.visit(ctx.objectDeclarationStmt())
+        elif ctx.structDeclarationStmt():
+            return self.visit(ctx.structDeclarationStmt())
         
 
+    def visitStructDeclarationStmt(self, ctx: joiParser.StructDeclarationStmtContext):
+        struct_class = ctx.IDENTIFIER(0).getText()
+        struct_name= ctx.IDENTIFIER(1).getText()
+        
 
 
     def visitInputStmt(self, ctx: joiParser.InputStmtContext):

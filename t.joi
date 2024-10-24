@@ -1,12 +1,19 @@
 #include <iostream>
 using namespace std;
 
-struct OG:
-int a = 4;
-int b[2];
-:
-
-int joi(){
-    OG.b[1] = OG.a;
+## Dynamic memory allocation and deallocation in joi
+int joi() {
+    int a = 4;
+    int b = 3;
+    while true:{
+        if a<b:{
+            continue;
+        }
+        else:{
+            break;
+        }
+    }
     return 0;
+    
 }
+

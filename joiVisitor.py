@@ -134,6 +134,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#structDeclarationStmt.
+    def visitStructDeclarationStmt(self, ctx:joiParser.StructDeclarationStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#objectDeclarationStmt.
     def visitObjectDeclarationStmt(self, ctx:joiParser.ObjectDeclarationStmtContext):
         return self.visitChildren(ctx)
