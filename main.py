@@ -29,7 +29,7 @@ def main():
 
         # Print generated VM instructions
         for instruction in code_generator.instructions:
-            print(instruction)
+                print(instruction)
 
     except Exception as e:
         print(e)

@@ -1,1 +1,6 @@
 pointers in stack how to represent them?
+error checks from objectDeclarationStmt are removed..add them once clas DEF tree working is done.
+struct and object def are remained
+trycatchblock tree are remained.
+once case check is done in switch statements, remove it from stack use pop(), becuase push operation push '+' then again push'-' for case2 which will compare '-' with '+' instead of operation with '-'
+so you have to pop '+' first and then push '-'

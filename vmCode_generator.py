@@ -102,7 +102,11 @@ class VMCodeGenerator(joiVisitor):
             return self.visit(ctx.tryCatchStmt())
         elif ctx.throwStmt():
             return self.visit(ctx.throwStmt())
+        elif ctx.objectDeclarationStmt():
+            return self.visit(ctx.objectDeclarationStmt())
         
+
+
 
     def visitInputStmt(self, ctx: joiParser.InputStmtContext):
         var_info = self.visit(ctx.idOrPointerOrAddrId())
@@ -140,6 +144,28 @@ class VMCodeGenerator(joiVisitor):
         symbolTable.create(name=var_name, symbol_type='reference',scope='ytd',datatype=data_type)
         for expr in ctx.expression():
             self.visit(expr)
+
+    
+    def visitObjectDeclarationStmt(self, ctx: joiParser.ObjectDeclarationStmtContext):
+        class_name = ctx.IDENTIFIER(0).getText()
+        object_name = ctx.IDENTIFIER(1).getText()
+        constructor_name = ctx.IDENTIFIER(2).getText()
+        # if(symbolTable.read(object_name)):
+        #     ExitFromProgram(f'already declared {object_name}. use another name.')
+        # if(not symbolTable.read(class_name) or not symbolTable.read(constructor_name)):
+        #     ExitFromProgram(f'{class_name} or {constructor_name} is not declared yet. Please check')
+        # if((symbolTable.read(class_name))['type']!='class' or (symbolTable.read(constructor_name))['type']!='class'):
+        #     ExitFromProgram(f'{class_name} or {constructor_name} is not a class. cannot make a object')
+        symbolTable.create(name=object_name, symbol_type='object',scope='ytd', datatype=class_name)
+        self.instructions.append(f'DECLARE {class_name} {object_name}')
+        if(ctx.expression()):
+            self.instructions.append(f'ARG_for_CNSTRCTR') # still need to write upward push for expression results
+            for expr in ctx.expression():
+                self.visit(expr)
+            self.instructions.append(f'ARGS END')
+        
+        
+        
         
         
     def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
@@ -171,7 +197,7 @@ class VMCodeGenerator(joiVisitor):
     
     def visitPrintExpressionList(self, ctx: joiParser.PrintExpressionListContext):
         if(ctx.expression()):
-            ## return self.visit(ctx.expression())
+            # return self.visit(ctx.expression())
             pass
             ## self.visit(ctx.expression()) returning noneType because answers are not returned..
             ## have to look into it once.. so for now Iam making it to pass
@@ -186,9 +212,12 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram("The name already exists. Use a different name.")
         self.instructions.append(f'FUNC_{func_name}:')
         symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type)
-        params = self.visitParamList(ctx.paramList()) 
-        for param in params:
-            self.instructions.append(f'param {param}')
+        
+        
+        if(ctx.paramList()):
+            params = self.visitParamList(ctx.paramList()) 
+            for param in params:
+                self.instructions.append(f'param {param}')
         self.visit(ctx.statements())
         if(ctx.returnStmt()):
             self.visit(ctx.returnStmt())
@@ -202,7 +231,8 @@ class VMCodeGenerator(joiVisitor):
     def visitParam(self, ctx: joiParser.ParamContext):#need to add scope when adding to symbol table
         if(ctx.dataType()):
             data_type = ctx.dataType().getText()
-        
+        param_info = [None, None]
+
         param_info = self.visit(ctx.idOrPointerOrAddrId())
         param_name = param_info[1]
         param_type = param_info[0]
@@ -214,14 +244,18 @@ class VMCodeGenerator(joiVisitor):
     
     def visitFunctionCall(self, ctx: joiParser.FunctionCallContext):
         if(ctx.argList()):
+            self.instructions.append(f'ARGS_START')
             arguments = self.visit(ctx.argList())
+            self.instructions.append(f'ARGS END')
+        
         if(len(ctx.IDENTIFIER())==1):
             func_name = ctx.IDENTIFIER(len(ctx.IDENTIFIER())-1).getText()
             if(not symbolTable.read(func_name)):
                 ExitFromProgram("No such function to call")
             
-            # for arg in arguments: # this can be written once expression starts returning things... TejA work on that 
-            #     self.instructions.append(f'ARGS {arg}')
+            # if(arguments):
+            #     for arg in arguments: # this can be written once expression starts returning things... TejA work on that 
+            #         self.instructions.append(f'ARGS {arg}')
             self.instructions.append(f'CALL {func_name}')
 
     
@@ -229,6 +263,7 @@ class VMCodeGenerator(joiVisitor):
         arguments = []
         for argum in ctx.expression():
             arguments.append(self.visit(argum))
+        return arguments
 
 
     def visitReferenceDataType(self, ctx: joiParser.ReferenceDataTypeContext):
@@ -306,40 +341,47 @@ class VMCodeGenerator(joiVisitor):
         return ['address_identifier', varname]
 
     def visitExpression(self, ctx:joiParser.ExpressionContext):
-        if ctx.functionCall():
-            return self.visit(ctx.functionCall())
-        else:
+        # if(ctx.functionCall()):
+        #     return self.visit(ctx.functionCall())
+        if(ctx.logicalOrExpression()):
             return self.visit(ctx.logicalOrExpression())
 
     def visitLogicalOrExpression(self, ctx:joiParser.LogicalOrExpressionContext):
-        self.visit(ctx.logicalAndExpression(0))
+        loc = self.visit(ctx.logicalAndExpression(0))
 
         for i in range(1, len(ctx.logicalAndExpression())):
             self.visit(ctx.logicalAndExpression(i)) 
             self.instructions.append('OR') 
+
+        return loc
             
     def visitLogicalAndExpression(self, ctx:joiParser.LogicalAndExpressionContext):
-        self.visit(ctx.rel_expr(0))
+        lac = self.visit(ctx.rel_expr(0))
 
         for i in range(1, len(ctx.rel_expr())):
             self.visit(ctx.rel_expr(i))  
             self.instructions.append('AND') 
+        return lac
 
     def visitRel_expr(self, ctx:joiParser.Rel_exprContext):
         # NOT rel_expr 
         if ctx.NOT():
-            self.visit(ctx.rel_expr())  
+            relexp = self.visit(ctx.rel_expr())  
             self.instructions.append('NOT')  
+            return relexp
         else:
-            self.visit(ctx.expr(0))
+            e= self.visit(ctx.expr(0))
             
             for i in range(1, len(ctx.expr())):
                 self.visit(ctx.expr(i))  
                 comp_op = ctx.comparisonOp(i - 1).getText() 
                 self.visitComparisonOp(comp_op)
 
+            return e
+
+
     def visitExpr(self, ctx:joiParser.ExprContext):
-        self.visit(ctx.term(0)) 
+        t = self.visit(ctx.term(0)) 
         
         for i in range(1, len(ctx.term())):
             self.visit(ctx.term(i))  
@@ -350,8 +392,10 @@ class VMCodeGenerator(joiVisitor):
             elif op == '-':
                 self.instructions.append('SUB') 
 
+        return t
+
     def visitTerm(self, ctx:joiParser.TermContext):
-        self.visit(ctx.factor(0))  
+        f = self.visit(ctx.factor(0))  
         
         for i in range(1, len(ctx.factor())):
             self.visit(ctx.factor(i)) 
@@ -362,6 +406,8 @@ class VMCodeGenerator(joiVisitor):
                 self.instructions.append('DIV')
             elif op == '%':
                 self.instructions.append('MOD')
+        
+        return f
 
     def visitIdOrPointerOrAddrId(self, ctx: joiParser.IdOrPointerOrAddrIdContext):
         if(ctx.pointer()):
@@ -372,7 +418,8 @@ class VMCodeGenerator(joiVisitor):
 
     def visitFactor(self, ctx:joiParser.FactorContext):
         if ctx.idOrPointerOrAddrId():
-            var_name = self.visit(ctx.idOrPointerOrAddrId())[1]
+            var_info = self.visit(ctx.idOrPointerOrAddrId())
+            var_name = var_info[1]
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot use undeclared variable")
             if ctx.INC():
@@ -420,6 +467,7 @@ class VMCodeGenerator(joiVisitor):
                 self.instructions.append(f'PUSH_ARRAY {var_name}')  # should check this----------------
             else:
                 self.instructions.append(f'PUSH {var_name}')  
+            return var_info
         elif ctx.NUMBER():
             number = ctx.NUMBER().getText()
             self.instructions.append(f'PUSH {number}')  
@@ -434,7 +482,9 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.FALSE():
             self.instructions.append('PUSH 0')  
         elif ctx.expr(): 
-            self.visit(ctx.expr())  
+            return self.visit(ctx.expr())  
+        elif ctx.functionCall():
+            self.visit(ctx.functionCall())
         elif ctx.structAccessStmt():
             self.visit(ctx.structAccessStmt())  # to be done
 

@@ -233,6 +233,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#objectDeclarationStmt.
+    def enterObjectDeclarationStmt(self, ctx:joiParser.ObjectDeclarationStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#objectDeclarationStmt.
+    def exitObjectDeclarationStmt(self, ctx:joiParser.ObjectDeclarationStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#classFunctionAccessStmt.
     def enterClassFunctionAccessStmt(self, ctx:joiParser.ClassFunctionAccessStmtContext):
         pass
@@ -455,6 +464,15 @@ class joiListener(ParseTreeListener):
 
     # Exit a parse tree produced by joiParser#expression.
     def exitExpression(self, ctx:joiParser.ExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#typecastExpr.
+    def enterTypecastExpr(self, ctx:joiParser.TypecastExprContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#typecastExpr.
+    def exitTypecastExpr(self, ctx:joiParser.TypecastExprContext):
         pass
 
 

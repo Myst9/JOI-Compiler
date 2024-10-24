@@ -81,7 +81,7 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef)* mainFunction EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
+program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef | constDeclarationStmt)* mainFunction EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
 
 includeStmt: INCLUDE IOSTREAM;
 
@@ -129,6 +129,7 @@ statement
     | deleteStmt
     | tryCatchStmt
     | throwStmt
+    | objectDeclarationStmt
     ;
 
 deleteStmt: DELETE idOrPointerOrAddrId ';';
@@ -160,6 +161,8 @@ structAssignStmt: structAccessStmt '=' expression ';'
                 ;
 
 structAccessStmt: IDENTIFIER'.'IDENTIFIER;
+
+objectDeclarationStmt: IDENTIFIER IDENTIFIER '=' NEW IDENTIFIER '('(expression (',' expression)*)?')'';';
 
 classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 
@@ -234,7 +237,6 @@ accessSpecifier: PRIVATE
 
 expression
     : logicalOrExpression
-    | functionCall
     | typecastExpr
     ;
 
@@ -274,6 +276,7 @@ factor
     | '(' expr ')'
     | TRUE
     | FALSE
+    | functionCall
     | structAccessStmt
     ;
 
