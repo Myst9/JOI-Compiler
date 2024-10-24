@@ -172,7 +172,7 @@ classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 
 returnStmt: RETURN expression ';';
 
-declarationStmt:  dataType varList ('=' expression)? ';'
+declarationStmt:  dataType varList ('=' (expression| NEW dataType))? ';'
                 | arrayDeclarationStmt ';'
                 ; 
 

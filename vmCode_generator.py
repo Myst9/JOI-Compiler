@@ -111,7 +111,7 @@ class VMCodeGenerator(joiVisitor):
     def visitStructDeclarationStmt(self, ctx: joiParser.StructDeclarationStmtContext):
         struct_class = ctx.IDENTIFIER(0).getText()
         struct_name= ctx.IDENTIFIER(1).getText()
-        
+
 
 
     def visitInputStmt(self, ctx: joiParser.InputStmtContext):
@@ -278,11 +278,11 @@ class VMCodeGenerator(joiVisitor):
     def visitDeclarationStmt(self, ctx: joiParser.DeclarationStmtContext):
         
         if ctx.dataType() and ctx.varList():
-            data_type = ctx.dataType().getText()  
+            data_type = ctx.dataType(0).getText()  
             var_list = ctx.varList() 
             variables = self.visit(var_list)
            
-            if ctx.expression():  
+            if not ctx.NEW() and ctx.expression():  
                 self.visit(ctx.expression())  
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
@@ -293,11 +293,13 @@ class VMCodeGenerator(joiVisitor):
                     self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
             else:
                 # print(variables)
+                # for expr in ctx.expression():
+                #     self.visit(expr)
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
                         ExitFromProgram(f'already declared {var[1]} variable')
                     self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
-                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
+                    symbolTable.create(name=var[1], symbol_type='pointer', scope='ytd', datatype=data_type)
 
             return variables
         elif(ctx.arrayDeclarationStmt()):

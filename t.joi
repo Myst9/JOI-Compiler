@@ -1,19 +1,15 @@
 #include <iostream>
 using namespace std;
-
 ## Dynamic memory allocation and deallocation in joi
-int joi() {
-    int a = 4;
-    int b = 3;
-    while true:{
-        if a<b:{
-            continue;
-        }
-        else:{
-            break;
-        }
-    }
-    return 0;
-    
-}
 
+int joi() {
+    ## Using new in joi
+    int$ pointer= new int;  ## Allocating memory for a single integer
+    $pointer = 42; ## Assigning value
+    cout << "Value: " << $pointer << endl; ## Displaying value
+    delete pointer;  ## Deallocating memory
+
+
+
+    return 0; ## Indicate successful execution
+}
