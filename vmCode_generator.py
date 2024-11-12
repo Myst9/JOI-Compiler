@@ -720,13 +720,49 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append('GTE') 
         elif op == '<=':
             self.instructions.append('LTE') 
+            
+    def visitStructDef(self, ctx: joiParser.StructDefContext):
+        struct_name = ctx.IDENTIFIER().getText()
+        if symbolTable.read(struct_name):
+            ExitFromProgram(f"Struct '{struct_name}' already defined.")
+        symbolTable.create(name=struct_name, symbol_type='struct', scope='ytd')
 
-
-
-
-
-
-
+        for declaration in ctx.declarationStmt():
+            self.visit(declaration)
+            
+    def visitStructDeclarationStmt(self, ctx: joiParser.StructDeclarationStmtContext):
+        struct_name = ctx.IDENTIFIER(0).getText()
+        var_name = ctx.IDENTIFIER(1).getText()
+        if symbolTable.read(var_name):
+            ExitFromProgram(f"Variable '{var_name}' already declared.")
+        if not symbolTable.read(struct_name):
+            ExitFromProgram(f"Struct '{struct_name}' is not defined.")
+        symbolTable.create(name=var_name, symbol_type='struct', scope='ytd', datatype=struct_name)
+        self.instructions.append(f'DECLARE {struct_name} {var_name}')
+        
+    def visitStructAccessStmt(self, ctx: joiParser.StructAccessStmtContext):
+        struct_var = ctx.IDENTIFIER(0).getText()
+        member = ctx.IDENTIFIER(1).getText()
+        struct_info = symbolTable.read(struct_var)
+        if not struct_info or struct_info['type'] != 'struct':
+            ExitFromProgram(f"'{struct_var}' is not a struct variable.")
+        member_info = symbolTable.read(f"{member}")
+        if not member_info:
+            ExitFromProgram(f"Struct '{struct_info['datatype']}' has no member '{member}'.")
+        self.instructions.append(f'PUSH {struct_var}')
+        self.instructions.append(f'PUSH_FIELD {member}')
+        return (struct_var, member) 
+        
+        
+    def visitStructAssignStmt(self, ctx: joiParser.StructAssignStmtContext):
+        struct_access_info = self.visit(ctx.structAccessStmt())
+        if struct_access_info is not None:  
+            if ctx.expression():     
+                for i, expr in enumerate(ctx.expression()):
+                    self.visit(expr)
+                self.instructions.append('POP_FIELD')     
+            else:
+                raise Exception(f"Unhandled struct assignment type: {ctx}")
 
     def visitMainFunction(self, ctx:joiParser.MainFunctionContext):
         self.instructions.append('LABEL MAIN')  
