@@ -86,8 +86,6 @@ class VMCodeGenerator(joiVisitor):
             forqueue.append(forq)
             forq+=1
             return self.visit(ctx.forStmt())
-        elif ctx.returnStmt():
-            return self.visit(ctx.returnStmt())
         elif ctx.breakStmt():
             return self.visit(ctx.breakStmt())
         elif ctx.continueStmt():
@@ -107,10 +105,6 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.structDeclarationStmt():
             return self.visit(ctx.structDeclarationStmt())
         
-
-    def visitStructDeclarationStmt(self, ctx: joiParser.StructDeclarationStmtContext):
-        struct_class = ctx.IDENTIFIER(0).getText()
-        struct_name= ctx.IDENTIFIER(1).getText()
 
 
 
@@ -137,16 +131,20 @@ class VMCodeGenerator(joiVisitor):
         
     def visitReferenceDeclarationStmt(self, ctx: joiParser.ReferenceDeclarationStmtContext):
         data_type = ctx.dataType().getText()
-        
         var_name = self.visit(ctx.address_identifier())[1]
         if(symbolTable.read(var_name)):
             ExitFromProgram(f'already declared {var_name}. cannot reference declare it.')
+
         referenced_info = self.visit(ctx.idOrPointerOrAddrId())#[type, name]
         referenced_name = referenced_info[1]
         referenced_type = referenced_info[0] #pointer or address or variable
         if(referenced_type=='address_identifier'):
             ExitFromProgram(f'cannot bind {referenced_name} to {var_name}')
 
+        data_type_of_referenced_var = symbolTable.read(referenced_name)['datatype']
+        if(data_type_of_referenced_var!=data_type):
+            ExitFromProgram(f'cannot bind address of {data_type_of_referenced_var} {referenced_name} to {data_type} {var_name}')
+        
         symbolTable.create(name=var_name, symbol_type='reference',scope='ytd',datatype=data_type)
         for expr in ctx.expression():
             self.visit(expr)
@@ -176,8 +174,9 @@ class VMCodeGenerator(joiVisitor):
         
     def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
         variables = self.visit(ctx.declarationStmt())
+        self.instructions.append(f"PREVIOUS {len(variables)} DECLARES ARE CONSTANT")
         for var in variables:
-            symbolTable.update(name=var, symbol_type='constant')
+            symbolTable.update(name=var[1], constant=True)
         
     def visitBreakStmt(self, ctx: joiParser.BreakStmtContext):
         if(BreakOrContinueWhichLoop):
@@ -198,41 +197,67 @@ class VMCodeGenerator(joiVisitor):
     def visitPrintStmt(self, ctx: joiParser.PrintStmtContext):
         to_be_printed_string=""
         for printexpression in ctx.printExpressionList():
-            to_be_printed_string+=self.visit(printexpression)
-        self.instructions.append(f'PRINT {printexpression}')
+            data_to_print, data_type_of_the_print = self.visit(printexpression)
+            to_be_printed_string+=data_to_print
+        self.instructions.append(f'PRINT {to_be_printed_string}')
     
     def visitPrintExpressionList(self, ctx: joiParser.PrintExpressionListContext):
-        if(ctx.expression()):
-            # return self.visit(ctx.expression())
-            pass
-            ## self.visit(ctx.expression()) returning noneType because answers are not returned..
-            ## have to look into it once.. so for now Iam making it to pass
-        return "\n"
+        if(ctx.expression()):            
+            value_of_expression, data_type_of_expression = self.visit(ctx.expression()) #value of the expression doesn't calculate the final answer.. for strings this might work but for variable and stuff we have to think with VM team
+            ## for arithmetic expressions i am now returning only the first variable in arithmetic expression I don't have a choice.. need to work with VM team to exactly ask how they need... what is the VM code to print statement
+            return value_of_expression, data_type_of_expression
+            ##above can be easily written as return self.visit(ctx.expression())
+            ##but wrote like this for more clarity
+        
+        if(ctx.ENDL()):
+            return "\n", "str"
+        
+        return "", "str"
     
     def visitFunctionDef(self, ctx: joiParser.FunctionDefContext):
         return_type="void"
-        if(ctx.dataType()):
+        if(ctx.dataType()):#talks about which return type the function is
             return_type = ctx.dataType().getText() 
         func_name = ctx.IDENTIFIER().getText()
         if(symbolTable.read(func_name)):
-            ExitFromProgram("The name already exists. Use a different name.")
-        self.instructions.append(f'FUNC_{func_name}:')
-        symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type)
+            ExitFromProgram(f"The function {func_name} already exists. Use a different name.")
+        self.instructions.append(f'FUNC_{func_name}:') #check if func already exists
         
-        if(ctx.statements()):
-            if(ctx.paramList()):
-                params = self.visitParamList(ctx.paramList()) 
-                for param in params:
-                    self.instructions.append(f'param {param}')
+        params_data_type_array = []
+        if(ctx.paramList()):# get info about paramnames and their datatypes to check for argument passing
+            params, params_data_type_array = self.visitParamList(ctx.paramList()) 
+            for param in params:
+                self.instructions.append(f'param {param}')
+
+        if(ctx.statements()):#casual statements
             self.visit(ctx.statements())
             if(ctx.returnStmt()):
-                self.visit(ctx.returnStmt())
+                varname_func_returns, data_type_func_returns = self.visit(ctx.returnStmt())
+                #if both are None that means it should match with void function
+                if(return_type=="void" and data_type_func_returns!=None):
+                    ExitFromProgram(f'You cannot return anything for a void function')
+
+                #we know that returntype of func must match with the return statement data type
+                if(return_type!=data_type_func_returns):
+                    ExitFromProgram(f'function {func_name} should return {return_type}, but you are returning {data_type_func_returns}')
+            
+            else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
+                if(return_type!="void"):
+                    ExitFromProgram(f'function {func_name} must return {return_type} type. Currently you are returning nothing')
+
+        symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array)
+        
+        if(return_type=='void'):
+            self.instructions.append('RETURN VOID')
 
     def visitParamList(self, ctx: joiParser.ParamListContext):
         params = []
+        params_data_types = []
         for param in ctx.param():
-            params.append(self.visit(param))
-        return params
+            param_name, param_data_type, param_type = self.visit(param)
+            params.append(param_name)
+            params_data_types.append(param_data_type)
+        return params, params_data_types
     
     def visitParam(self, ctx: joiParser.ParamContext):#need to add scope when adding to symbol table
         if(ctx.dataType()):
@@ -245,31 +270,44 @@ class VMCodeGenerator(joiVisitor):
 
         if(symbolTable.read(param_name)):# need to implement scope for this.. as of now only name checking is done
             ExitFromProgram("param name is already used in the code. Try different name.")
-        symbolTable.create(name=param_name, symbol_type='parameter', scope='ytd',datatype=data_type, paramtype=param_type)
-        return param_name
+        symbolTable.create(name=param_name, symbol_type='parameter', scope='ytd',datatype=data_type)
+        return param_name, data_type, param_type
     
     def visitFunctionCall(self, ctx: joiParser.FunctionCallContext):
-        if(ctx.argList()):
-            self.instructions.append(f'ARGS_START')
-            arguments = self.visit(ctx.argList())
-            self.instructions.append(f'ARGS END')
         
         if(len(ctx.IDENTIFIER())==1):
             func_name = ctx.IDENTIFIER(len(ctx.IDENTIFIER())-1).getText()
             if(not symbolTable.read(func_name)):
                 ExitFromProgram("No such function to call")
             
-            # if(arguments):
-            #     for arg in arguments: # this can be written once expression starts returning things... TejA work on that 
-            #         self.instructions.append(f'ARGS {arg}')
+            # Arguments in a function call
+            arguments_data_types = []
+            if(ctx.argList()):
+                self.instructions.append(f'ARGS_START')
+                arguments, arguments_data_types = self.visit(ctx.argList())
+                self.instructions.append(f'ARGS END')
+            
+            function_info = symbolTable.read(func_name)
+            function_return_type = function_info['returntype']
+            function_params_type = function_info['paramstype']
+
+            #the arguments' datatypes should match with the function's params datatypes else throw error
+            if(function_params_type!=arguments_data_types):
+                ExitFromProgram(f'The arguments and parameters are not matching for the function {func_name}')
+
             self.instructions.append(f'CALL {func_name}')
+
+        return func_name, function_return_type
 
     
     def visitArgList(self, ctx: joiParser.ArgListContext):
         arguments = []
+        arguments_data_types = []
         for argum in ctx.expression():
-            arguments.append(self.visit(argum))
-        return arguments
+            argum_name, argum_data_type = self.visit(argum)
+            arguments.append(argum_name)
+            arguments_data_types.append(argum_data_type)
+        return arguments, arguments_data_types
 
 
     def visitReferenceDataType(self, ctx: joiParser.ReferenceDataTypeContext):
@@ -280,26 +318,44 @@ class VMCodeGenerator(joiVisitor):
         if ctx.dataType() and ctx.varList():
             data_type = ctx.dataType(0).getText()  
             var_list = ctx.varList() 
-            variables = self.visit(var_list)
+            variables = self.visit(var_list) ##variabletype(var\pointer\address) , varname
            
             if not ctx.NEW() and ctx.expression():  
-                self.visit(ctx.expression())  
+                var_name, var_data_type = self.visit(ctx.expression())  
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
                         ExitFromProgram(f'already declared {var[1]} variable')
+
+                    if(data_type!=var_data_type): # prevents int a = 'c';
+                        ExitFromProgram(f'Cannot assign {var_data_type} to {data_type}')
                     self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Declaration
                     self.instructions.append(f'STORE {var[1]}') # Store initialized value
-                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
                     self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
+                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
+            
+            elif ctx.NEW():
+                for var in variables:
+                    if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
+                        ExitFromProgram(f'already declared {var[1]} variable')
+                    
+                    # this is for stmts like int$ a = new int;
+                    # so it should not allow like int$ a = new bool;
+                    #for that is the below check
+                    if(ctx.dataType(1).getText()!=data_type):
+                        ExitFromProgram(f'Cannot create new {ctx.dataType(1).getText()} for {var[1]} which is {data_type}')
+
+                    if(var[0]!='pointer'):
+                        ExitFromProgram(f'cannot declare new {data_type} to {var[1]}.\n {var[1]} is not a pointer')
+
+                    self.instructions.append(f'DECLARE NEW {data_type} {var[1]}')    
+                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
+
             else:
-                # print(variables)
-                # for expr in ctx.expression():
-                #     self.visit(expr)
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
                         ExitFromProgram(f'already declared {var[1]} variable')
                     self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
-                    symbolTable.create(name=var[1], symbol_type='pointer', scope='ytd', datatype=data_type)
+                    symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
 
             return variables
         elif(ctx.arrayDeclarationStmt()):
@@ -309,27 +365,52 @@ class VMCodeGenerator(joiVisitor):
     
     def visitArrayDeclarationStmt(self, ctx: joiParser.ArrayDeclarationStmtContext):
         
-        data_type = ctx.dataType().getText()  
+        data_type_of_array = ctx.dataType().getText()  
         arrayinfo = self.visit(ctx.idOrPointerOrAddrId())
         arrayName = arrayinfo[1] 
         if(symbolTable.read(arrayName)):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
             ExitFromProgram(f'already declared {arrayName} variable')
         if(arrayinfo[0]=='address_identifier'):
             ExitFromProgram(f'cannot create {arrayName} array of references')
-        symbolTable.create(name=arrayName, symbol_type='array', scope='ytd', datatype=data_type)
+
+        symbolTable.create(name=arrayName, symbol_type='array', scope='ytd', datatype=data_type_of_array)
+
+        ##THis part is for array size during its declaration
+        self.instructions.append(f'SIZE OF ARRAY START')
         for expression in ctx.expression():
-            self.visit(expression)
-        
+            index, index_data_type = self.visit(expression) #index data tyep cannot be anything other than int
+            if(index_data_type!='int'):
+                ExitFromProgram(f'array cannot be accessed with {index_data_type} in []. Please use integers') 
+        self.instructions.append(f'SIZE OF ARRAY END')
+
+        ##Here the initial values are assigned.
         if(ctx.arrayValueAssigning()):
-            self.visit(ctx.arrayValueAssigning())
-        
+            data_type_of_initial_values = self.visit(ctx.arrayValueAssigning())
+            if(data_type_of_initial_values!=data_type_of_array):
+                ExitFromProgram(f'Cannot assign {data_type_of_initial_values} to {data_type_of_array}')
+
+        self.instructions.append(f'DECLARE {data_type_of_array} ARRAY {arrayName} of {arrayinfo[0]}')        
+        return [['array', arrayName]]#This line is useful for const declarations.. don't think it is useless
 
 
     def visitArrayValueAssigning(self, ctx: joiParser.ArrayValueAssigningContext):
-        for assigning in ctx.arrayValueAssigning():
-            self.visit(assigning)
         if(ctx.expression()):
-            self.visit(ctx.expression())
+            return self.visit(ctx.expression()) ## returns in the format.. value, datatype ## just like other returns
+        
+        set_of_data_types = set()
+        for assigning in ctx.arrayValueAssigning():
+            assigning_value_not_needed_really, assigning_value_data_type = self.visit(assigning)
+            set_of_data_types.add(assigning_value_data_type)
+            ##some big jugaad... first let's push all the datatype returns into one set.
+            ##if set size is more than one then it means there are more than one datatypes in the values.. not allowed.
+            ##if set size is one then we push it back to arrayDeclarationStmt and check if datatype of declaration is matching with these values datatypes...
+            ##one check is enough.. since previously we already checked if all values are same datatype
+            ## this works no issues
+
+        if(len(set_of_data_types)>1):#this means more than one datatype is in the array we cannot declare like that
+            ExitFromProgram(f'Cannot declare an array with values of different data types')
+        
+        return set_of_data_types.pop()
 
     def visitVarList(self, ctx:joiParser.VarListContext):
         variables = []
@@ -388,7 +469,7 @@ class VMCodeGenerator(joiVisitor):
                 next_expr, data_type_of_next_expr = self.visit(ctx.expr(i))  
                 comp_op = ctx.comparisonOp(i - 1).getText() 
                 operation = self.visitComparisonOp(comp_op)
-                if(data_type_of_first_expr=='string' or data_type_of_next_expr=='string'):
+                if(data_type_of_first_expr=='str' or data_type_of_next_expr=='str'):
                     ExitFromProgram(f'Cannot operate {operation} on {first_expr}, {next_expr} strings')
                 if(data_type_of_first_expr!=data_type_of_next_expr):
                     ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_expr} is {data_type_of_first_expr} and {next_expr} is {data_type_of_next_expr}')
@@ -497,10 +578,12 @@ class VMCodeGenerator(joiVisitor):
             # as wanted old value is used for current operation and new value is already with us to use for next operation
             
             elif ctx.expr():  
+                self.instructions.append(f'ARR_INDEX START')
                 for expr in ctx.expr():  
                     expr_value, expr_data_type = self.visit(expr)
                     if(expr_data_type!='int'):
                         ExitFromProgram(f'array cannot be accessed with {expr_data_type} in []. Please use integers')
+                self.instructions.append(f'ARR_INDEX END')
                 self.instructions.append(f'PUSH_ARRAY {var_name}')  # should check this----------------
             else:
                 self.instructions.append(f'PUSH {var_name}')  
@@ -515,7 +598,7 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.STRING():
             string_value = ctx.STRING().getText()
             self.instructions.append(f'PUSH "{string_value}"')  
-            return string_value, 'string'
+            return string_value, 'str'
         elif ctx.CHAR_LITERAL():
             char_value = ctx.CHAR_LITERAL().getText()
             self.instructions.append(f'PUSH {char_value}')  
@@ -529,10 +612,25 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.expr(): 
             return self.visit(ctx.expr())  
         elif ctx.functionCall():
-            self.visit(ctx.functionCall()) 
-            return '1', '1' #temperory
+            func_name, function_return_type = self.visit(ctx.functionCall()) 
+            return func_name, function_return_type
         elif ctx.structAccessStmt():
-            self.visit(ctx.structAccessStmt())  # to be done
+            struct_var_name, struct_var_member = self.visit(ctx.structAccessStmt())
+            data_type_of_member = symbolTable.read(struct_var_member)['datatype']
+            return struct_var_member, data_type_of_member
+        elif ctx.structAccessForArrayStmt():
+            return self.visit(ctx.structAccessForArrayStmt())
+
+    def visitStructAccessForArrayStmt(self, ctx: joiParser.StructAccessForArrayStmtContext):
+        total_expressions = len(ctx.expression())
+        self.instructions.append(f'ARR_INDEX START')
+        for i in range(0, total_expressions):
+            index, index_data_type = self.visit(ctx.expression(i))
+            if(index_data_type!='int'):
+                ExitFromProgram(f'array cannot be accessed with {index_data_type} in []. Please use integers') 
+        self.instructions.append(f'ARR_INDEX END')
+        struct_var_name, struct_var_member = self.visit(ctx.structAccessStmt())
+        return struct_var_member, symbolTable.read(struct_var_member)['datatype']
 
 
 
@@ -545,27 +643,51 @@ class VMCodeGenerator(joiVisitor):
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1]  
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared array")
+            if(symbolTable.read(var_name)['constant']==True):
+                ExitFromProgram(f'cannot assign to constant variables')
 
-            data_type_of_array = symbolTable.read(var_name)['datatype']
-            index, data_type_of_index = self.visit(ctx.expression(0)) 
-            if(data_type_of_index!='int'):
-                ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             
-            for i in range(1, len(ctx.expression()) - 1):
+            data_type_of_array = symbolTable.read(var_name)['datatype']
+            # index, data_type_of_index = self.visit(ctx.expression(0)) 
+            # if(data_type_of_index!='int'):
+            #     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
+            
+            self.instructions.append(f'ARR_INDEX START')
+            for i in range(0, len(ctx.expression()) - 1):
                 index, data_type_of_index = self.visit(ctx.expression(i)) 
                 if(data_type_of_index!='int'):
                     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
-
+            self.instructions.append(f'ARR_INDEX END')
             self.instructions.append(f'PUSH_ARRAY {var_name}')  
-            self.instructions.append(f'PUSH {index}')  
+            # self.instructions.append(f'PUSH {index}')  
             expr, data_type_of_assigning_value = self.visit(ctx.expression(len(ctx.expression())-1))  
+
+            if(ctx.assignOp()):
+                op = ctx.assignOp().getText()  
+                if op == '+=':
+                    self.instructions.append('ADD')  
+                elif op == '-=':
+                    self.instructions.append('SUB')  
+                elif op == '*=':
+                    self.instructions.append('MUL')  
+                elif op == '/=':
+                    self.instructions.append('DIV')
+                elif op == '%=':
+                    self.instructions.append('MOD')
+                
+                if((data_type_of_array!='int' or data_type_of_assigning_value!='int') and (data_type_of_array!='float' or data_type_of_assigning_value!='float')):
+                    ExitFromProgram(f'can perform {op} operation only int and floats.\n{var_name} is of {data_type_of_array} and you are trying to do {op} with {data_type_of_assigning_value}')
+
             if(data_type_of_array!=data_type_of_assigning_value):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_array}')
             self.instructions.append('POP_ARRAY') 
         elif ctx.idOrPointerOrAddrId() and ctx.expression(0) and not ctx.assignOp(): # a = 3 type statements
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1] 
+            
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared variable") 
+            if(symbolTable.read(var_name)['constant']==True):
+                ExitFromProgram(f'cannot assign to constant variables')
             
             data_type_of_variable = symbolTable.read(var_name)['datatype']
             expr, data_type_of_assigning_value = self.visit(ctx.expression(0))  
@@ -581,6 +703,9 @@ class VMCodeGenerator(joiVisitor):
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1]
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared variable") 
+            if(symbolTable.read(var_name)['constant']==True):
+                ExitFromProgram(f'cannot assign to constant variables')
+
             op = ctx.assignOp().getText()  
             
             self.instructions.append(f'PUSH {var_name}')  
@@ -597,7 +722,9 @@ class VMCodeGenerator(joiVisitor):
             elif op == '*=':
                 self.instructions.append('MUL')  
             elif op == '/=':
-                self.instructions.append('DIV')  
+                self.instructions.append('DIV')
+            elif op == '%=':
+                self.instructions.append('MOD') 
             
             self.instructions.append(f'STORE {var_name}')
             self.instructions.append(f'POP {var_name}')  
@@ -609,9 +736,12 @@ class VMCodeGenerator(joiVisitor):
             raise Exception("Unhandled assignment statement type")
 
     def visitReturnStmt(self, ctx:joiParser.ReturnStmtContext):
+        varname_of_return = None
+        data_type_of_return = None
         if ctx.expression():
-            self.visit(ctx.expression())
+            varname_of_return, data_type_of_return = self.visit(ctx.expression())
         self.instructions.append('RETURN')
+        return varname_of_return, data_type_of_return
 
     def visitIfStmt(self, ctx: joiParser.IfStmtContext):
         varname_of_condition, data_type_of_condition = self.visit(ctx.condition()) #varname of condition is not useful in this case for big expressions.. can be useful only if condition is singel variable
@@ -720,7 +850,7 @@ class VMCodeGenerator(joiVisitor):
         self.visit(ctx.statements())
         self.instructions.append(f'JMP, end_switch_{switchqueue[-1]}')
 
-        return [varname_of_expression, data_type_of_expression] # during switch case we will compare this datatype with switch expr datatype and decide if they can be evaluated at all
+        return varname_of_expression, data_type_of_expression # during switch case we will compare this datatype with switch expr datatype and decide if they can be evaluated at all
 
     def visitDefaultStmt(self, ctx: joiParser.DefaultStmtContext):
         self.visit(ctx.statements())
@@ -748,7 +878,9 @@ class VMCodeGenerator(joiVisitor):
                 self.visit(declaration)
 
     def visitForUpdate(self, ctx: joiParser.ForUpdateContext):
-        self.visit(ctx.expression())
+        _, __ = self.visit(ctx.expression())
+        ##No need for returning these values here.. we don't have any use with their values or datatypes
+        ## because this is just 'for loop' update.. there is nothing we can do with them
 
 
 
@@ -792,12 +924,14 @@ class VMCodeGenerator(joiVisitor):
             
     def visitStructDef(self, ctx: joiParser.StructDefContext):
         struct_name = ctx.IDENTIFIER().getText()
+        self.instructions.append(f'STRUCT_{struct_name}')
         if symbolTable.read(struct_name):
             ExitFromProgram(f"Struct '{struct_name}' already defined.")
         symbolTable.create(name=struct_name, symbol_type='struct', scope='ytd')
 
         for declaration in ctx.declarationStmt():
             self.visit(declaration)
+        self.instructions.append(f'STRUCT_END_{struct_name}')
             
     def visitStructDeclarationStmt(self, ctx: joiParser.StructDeclarationStmtContext):
         struct_name = ctx.IDENTIFIER(0).getText()
@@ -806,32 +940,74 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f"Variable '{var_name}' already declared.")
         if not symbolTable.read(struct_name):
             ExitFromProgram(f"Struct '{struct_name}' is not defined.")
-        symbolTable.create(name=var_name, symbol_type='struct', scope='ytd', datatype=struct_name)
+        symbolTable.create(name=var_name, symbol_type='struct_variable', scope='ytd', datatype=struct_name)
         self.instructions.append(f'DECLARE {struct_name} {var_name}')
         
     def visitStructAccessStmt(self, ctx: joiParser.StructAccessStmtContext):
         struct_var = ctx.IDENTIFIER(0).getText()
         member = ctx.IDENTIFIER(1).getText()
         struct_info = symbolTable.read(struct_var)
-        if not struct_info or struct_info['type'] != 'struct':
+        if not struct_info or struct_info['type'] != 'struct_variable':
             ExitFromProgram(f"'{struct_var}' is not a struct variable.")
         member_info = symbolTable.read(f"{member}")
         if not member_info:
             ExitFromProgram(f"Struct '{struct_info['datatype']}' has no member '{member}'.")
-        self.instructions.append(f'PUSH {struct_var}')
-        self.instructions.append(f'PUSH_FIELD {member}')
-        return (struct_var, member) 
+        # self.instructions.append(f'PUSH {struct_var}')
+        # self.instructions.append(f'PUSH_FIELD {member}')
+        self.instructions.append(f'PUSH {struct_var}.{member}')
+        return struct_var, member
         
         
     def visitStructAssignStmt(self, ctx: joiParser.StructAssignStmtContext):
-        struct_access_info = self.visit(ctx.structAccessStmt())
-        if struct_access_info is not None:  
-            if ctx.expression():     
-                for i, expr in enumerate(ctx.expression()):
-                    self.visit(expr)
-                self.instructions.append('POP_FIELD')     
-            else:
-                raise Exception(f"Unhandled struct assignment type: {ctx}")
+        # if struct_var_name is not None:  
+        total_expressions = len(ctx.expression())
+        
+        if(total_expressions>1):
+            self.instructions.append(f'ARR_INDEX START')
+            for i in range(0, total_expressions-1):
+                index, index_data_type = self.visit(ctx.expression(i))
+                if(index_data_type!='int'):
+                    ExitFromProgram(f'array cannot be accessed with {index_data_type} in []. Please use integers') 
+            self.instructions.append(f'ARR_INDEX END')
+            struct_var_name, struct_var_member = self.visit(ctx.structAccessStmt())
+            # self.instructions.append(f'PUSH_ARRAY {struct_var_name}.{struct_var_member}')  
+        else:
+            # self.instructions.append(f'PUSH {struct_var_name}') ## this might be correct but for simplicity in understanding writing like below
+            # self.instructions.append(f'PUSH_FIELD {struct_var_member}')
+            struct_var_name, struct_var_member = self.visit(ctx.structAccessStmt())
+            # self.instructions.append(f'PUSH {struct_var_name}.{struct_var_member}')
+            
+        value_to_assign, data_type_of_value_to_assign = self.visit(ctx.expression(total_expressions-1)) #this is the value to assign
+        data_type_of_member = symbolTable.read(struct_var_member)['datatype']
+
+        if(ctx.assignOp()):
+            #assignOp must work only on integers or floats
+            op = ctx.assignOp().getText()                
+            if op == '+=':
+                self.instructions.append('ADD')  
+            elif op == '-=':
+                self.instructions.append('SUB')  
+            elif op == '*=':
+                self.instructions.append('MUL')  
+            elif op == '/=':
+                self.instructions.append('DIV')
+            elif op == '%=':
+                self.instructions.append('MOD') 
+
+            if((data_type_of_member!='int' or data_type_of_value_to_assign!='int') and (data_type_of_member!='float' or data_type_of_value_to_assign!='float')):
+                ExitFromProgram(f'can perform {op} operation only int and floats.\n{struct_var_member} is of {data_type_of_member} and you are trying to do {op} with {data_type_of_value_to_assign}')
+            
+
+        if(data_type_of_value_to_assign!=data_type_of_member):
+            ExitFromProgram(f'cannot assign {data_type_of_value_to_assign} to {data_type_of_member} {struct_var_name}.{struct_var_member}')
+        
+        if(total_expressions>1):
+            self.instructions.append(f'STORE {data_type_of_member} {struct_var_name}.{struct_var_member}')
+            self.instructions.append(f'POP_ARRAY')
+        else:
+            self.instructions.append(f'STORE {data_type_of_member} {struct_var_name}.{struct_var_member}')
+            self.instructions.append(f'POP {struct_var_name}.{struct_var_member}')
+
 
 
 

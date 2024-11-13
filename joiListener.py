@@ -539,6 +539,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#structAccessForArrayStmt.
+    def enterStructAccessForArrayStmt(self, ctx:joiParser.StructAccessForArrayStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#structAccessForArrayStmt.
+    def exitStructAccessForArrayStmt(self, ctx:joiParser.StructAccessForArrayStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#idOrPointerOrAddrId.
     def enterIdOrPointerOrAddrId(self, ctx:joiParser.IdOrPointerOrAddrIdContext):
         pass

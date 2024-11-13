@@ -1,75 +1,22 @@
 
 
-functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
-
-functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' ((COLON statements returnStmt? COLON)| ';');
-
 classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? COLON (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)* COLON ';';
 
 constructor: IDENTIFIER '(' paramList? ')' COLON statements COLON;
 
-paramList: param (',' param)*;
-param: dataType idOrPointerOrAddrId;
-
-functionCall: IDENTIFIER '(' argList? ')'
-    | IDENTIFIER '.' IDENTIFIER '(' argList? ')'
-    | structAccessStmt '(' argList? ')'
-    ;
-
-argList: expression (',' expression)*;
-
-
-
-
-structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
-
 enumDef: ENUM IDENTIFIER COLON IDENTIFIER (',' IDENTIFIER)* COLON ;
 
 
-printStmt: COUT LT printExpressionList (LT printExpressionList)* ';';
-
-printExpressionList
-    : expression
-    | ENDL
-    ;
-
 inputStmt: CIN GT idOrPointerOrAddrId ';';
 
-assignStmt: IDENTIFIER '=' typecastExpr ';'
-            structAssignStmt
-            ;
-
-structAssignStmt: structAccessStmt '=' expression ';'
-                | structAccessStmt '[' expression ']'('['expression']')* '=' expression ';'
-                ;
 
 
 
-structAccessStmt: IDENTIFIER'.'IDENTIFIER;
-
-structDeclarationStmt: IDENTIFIER IDENTIFIER ';';
 objectDeclarationStmt: IDENTIFIER IDENTIFIER '=' NEW IDENTIFIER '('(expression (',' expression)*)?')'';';
 
 classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
 
-returnStmt: RETURN expression ';';
 
-declarationStmt:  dataType varList ('=' (expression| NEW dataType))? ';'
-                | arrayDeclarationStmt ';'
-                ; 
-
-arrayDeclarationStmt: dataType idOrPointerOrAddrId '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
-
-arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression ;
-
-referenceDeclarationStmt: dataType address_identifier '=' idOrPointerOrAddrId ('['expression']')*
-                        ;
-
-constDeclarationStmt: CONST declarationStmt;
-
-varList: var (',' var)*;
-
-var: idOrPointerOrAddrId;
 
 tryCatchStmt
     : TRY COLON statements COLON catchBlock+;
@@ -79,28 +26,6 @@ catchBlock
 
 throwStmt
     : THROW expression ';';
-
-
-
-
-
-
-
-forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
-
-
-
-// Define initialization for for loop
-forInit
-    : assignStmt
-    | declarationStmt
-    | // Allow multiple initialization statements separated by commas
-      declarationStmt (',' declarationStmt)*
-    ;
-
-// Define updates for for loop
-forUpdate
-    : expression;
 
 
 accessSpecifier: PRIVATE
@@ -114,9 +39,4 @@ expression
 
 typecastExpr: '(' dataType ')' IDENTIFIER;
 
-factor: 
-    functionCall
-    | structAccessStmt
-    ;
-    
 main: program;

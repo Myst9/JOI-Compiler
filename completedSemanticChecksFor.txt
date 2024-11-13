@@ -4,10 +4,16 @@ includeStmt: INCLUDE IOSTREAM;
 
 usingStmt: USING NAMESPACE STD ';';
 
+functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
+
+
+functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' ((COLON statements returnStmt? COLON)| ';');
+paramList: param (',' param)*;
+param: dataType idOrPointerOrAddrId;
+
 mainFunction: INT MAIN '(' ')' '{' statements RETURN expression ';' '}';
 
 statements: statement*;
-
 
 statement
     : printStmt
@@ -33,12 +39,46 @@ statement
     | structDeclarationStmt
     ;
 
+printStmt: COUT LT printExpressionList (LT printExpressionList)* ';';
+
+printExpressionList
+    : expression
+    | ENDL
+    ;
+
 breakStmt: BREAK ';';
 continueStmt: CONTINUE ';';
 
-assignStmt: idOrPointerOrAddrId '=' expression ';'
-            | idOrPointerOrAddrId '[' expression ']'('['expression']')* '=' expression ';'
+constDeclarationStmt: CONST declarationStmt;
+
+varList: var (',' var)*;
+
+var: idOrPointerOrAddrId;
+
+declarationStmt:  dataType varList ('=' (expression| NEW dataType))? ';'
+                | arrayDeclarationStmt ';'
+                ;
+
+arrayDeclarationStmt: dataType idOrPointerOrAddrId '[' expression ']' ('['expression']')* ('=' arrayValueAssigning)? ;
+
+arrayValueAssigning: '{'arrayValueAssigning (',' arrayValueAssigning)*'}' | expression ;
+
+assignStmt: idOrPointerOrAddrId  ('='|assignOp) expression ';'
+            | idOrPointerOrAddrId '[' expression ']'('['expression']')*  ('='|assignOp) expression ';'
             | idOrPointerOrAddrId assignOp expression ';'
+            | IDENTIFIER '=' typecastExpr ';'
+            | structAssignStmt
+            ;
+
+structDef: STRUCT IDENTIFIER COLON declarationStmt+ COLON ;
+structAccessStmt: IDENTIFIER'.'IDENTIFIER;
+structDeclarationStmt: IDENTIFIER IDENTIFIER ';';
+structAssignStmt: structAccessStmt ('='|assignOp) expression ';'
+                | structAccessStmt '[' expression ']'('['expression']')* ('='|assignOp) expression ';'
+                ;
+
+referenceDeclarationStmt: dataType address_identifier '=' idOrPointerOrAddrId ('['expression']')*
+                        ;
 
 ifStmt
     : IF condition COLON '{' statements '}' (elseIfStmt* elseStmt?)? ;
@@ -60,6 +100,26 @@ caseStmt: CASE expression ':' statements BREAK ';';
 defaultStmt: DEFAULT ':' statements;
 
 deleteStmt: DELETE idOrPointerOrAddrId ';';
+
+returnStmt: RETURN expression ';';
+
+forStmt: FOR forInit condition? ';' forUpdate ':' '{' statements '}';
+
+forInit
+    : assignStmt
+    | declarationStmt
+    | // Allow multiple initialization statements separated by commas
+      declarationStmt (',' declarationStmt)*
+    ;
+
+forUpdate
+    : expression;
+
+
+functionCall: IDENTIFIER '(' argList? ')'
+
+argList: expression (',' expression)*;
+
 
 
 
@@ -101,6 +161,9 @@ factor
     | '(' expr ')'
     | TRUE
     | FALSE
+    | functionCall
+    | structAccessStmt
+    ;
 
 idOrPointerOrAddrId: IDENTIFIER
                     | pointer

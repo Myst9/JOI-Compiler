@@ -99,8 +99,8 @@ paramList: param (',' param)*;
 param: dataType idOrPointerOrAddrId;
 
 functionCall: IDENTIFIER '(' argList? ')'
-    | IDENTIFIER '.' IDENTIFIER '(' argList? ')'
-    | structAccessStmt '(' argList? ')'
+    // | IDENTIFIER '.' IDENTIFIER '(' argList? ')' // i am assuming this is not needed
+    // becase there is already a rule name classfunctionaccess that we might use for this purpose
     ;
 
 argList: expression (',' expression)*;
@@ -121,7 +121,6 @@ statement
     | whileStmt
     | doWhileStmt
     | forStmt
-    | returnStmt
     | breakStmt
     | continueStmt
     | functionCall ';'
@@ -151,14 +150,14 @@ printExpressionList
 inputStmt: CIN GT idOrPointerOrAddrId ';';
 
 assignStmt: idOrPointerOrAddrId '=' expression ';'
-            | IDENTIFIER '=' typecastExpr ';'
-            | idOrPointerOrAddrId '[' expression ']'('['expression']')* '=' expression ';'
+            | IDENTIFIER ('='|assignOp) typecastExpr ';'
+            | idOrPointerOrAddrId '[' expression ']'('['expression']')* ('='|assignOp) expression ';'
             | idOrPointerOrAddrId assignOp expression ';'
             | structAssignStmt
             ;
 
-structAssignStmt: structAccessStmt '=' expression ';'
-                | structAccessStmt '[' expression ']'('['expression']')* '=' expression ';'
+structAssignStmt: structAccessStmt ('='|assignOp) expression ';'
+                | structAccessStmt '[' expression ']'('['expression']')* ('='|assignOp) expression ';'
                 ;
 
 
@@ -166,6 +165,8 @@ structAssignStmt: structAccessStmt '=' expression ';'
 structAccessStmt: IDENTIFIER'.'IDENTIFIER;
 
 structDeclarationStmt: IDENTIFIER IDENTIFIER ';';
+
+
 objectDeclarationStmt: IDENTIFIER IDENTIFIER '=' NEW IDENTIFIER '('(expression (',' expression)*)?')'';';
 
 classFunctionAccessStmt: IDENTIFIER'.'functionCall';';
@@ -282,7 +283,11 @@ factor
     | FALSE
     | functionCall
     | structAccessStmt
+    | structAccessForArrayStmt
     ;
+
+structAccessForArrayStmt: structAccessStmt ('['expression']')+
+                        ;
 
 idOrPointerOrAddrId: IDENTIFIER
                     | pointer

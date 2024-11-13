@@ -304,6 +304,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#structAccessForArrayStmt.
+    def visitStructAccessForArrayStmt(self, ctx:joiParser.StructAccessForArrayStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#idOrPointerOrAddrId.
     def visitIdOrPointerOrAddrId(self, ctx:joiParser.IdOrPointerOrAddrIdContext):
         return self.visitChildren(ctx)

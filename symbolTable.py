@@ -4,7 +4,7 @@ class SymbolTable:
         self.table = {}
 
     # Create or add a new entry to the symbol table
-    def create(self, name, symbol_type, scope, value=None, datatype=None, returntype=None, paramtype=None):
+    def create(self, name, symbol_type, scope, value=None, datatype=None, returntype=None, paramstype=None, constant=False):
         if name not in self.table:
             self.table[name] = {
                 'type': symbol_type,
@@ -12,7 +12,8 @@ class SymbolTable:
                 'value': value,
                 'datatype': datatype,
                 'returntype': returntype,
-                'paramtype': paramtype
+                'paramstype': paramstype,
+                'constant': constant  #paramstype is an array of datatypes for params in a function. It is like [int int char int] for comparing with args during compilation.
             }
             # print(f"Created: {name} -> {self.table[name]}")
         else:
@@ -28,7 +29,7 @@ class SymbolTable:
             return None
 
     # Update an existing entry in the symbol table
-    def update(self, name, symbol_type=None, scope=None, value=None, datatype=None, returntype=None, paramtype=None):
+    def update(self, name, symbol_type=None, scope=None, value=None, datatype=None, returntype=None, paramstype=None, constant=None):
         if name in self.table:
             if symbol_type is not None:
                 self.table[name]['type'] = symbol_type
@@ -40,8 +41,10 @@ class SymbolTable:
                 self.table[name]['datatype'] = datatype
             if returntype is not None:
                 self.table[name]['returntype'] = returntype
-            if paramtype is not None:
-                self.table[name]['paramtype'] = paramtype
+            if paramstype is not None:
+                self.table[name]['paramstype'] = paramstype
+            if constant is not None:
+                self.table[name]['constant'] = constant
             # print(f"Updated: {name} -> {self.table[name]}")
         else:
             # print(f"Error: Symbol '{name}' not found.")

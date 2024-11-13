@@ -1,3 +1,10 @@
+POINTER ARRAYS ARE NOT DONE HOW TO DO THEM WHAT IS THE VM CODE EXPECTED
+int$ a[1] = {2, 3, 4, 8}; ##WHAT TO DO WITH THESE KIND OF STUFF
+##FOR NOW I AM JUST MENTIONNIG IN THE VM CODE THAT IT IS POINTER ARRAY BUT WE DONT KNOW HOW BIG
+CANNOT DECLARE MULTIPLE ARRAYS IN A SINGLE line
+NEED TO WRITE A EFFICIENT AND CLEAR WAY OF CONSTANT DECLARATION
+
+
 1. break and continue cannot be written outside the loops
 2. doens't allow to declare already declared varialbes, arrays
 3. cannot assign to undeclareed variables, arrays
@@ -10,3 +17,10 @@
 ///// a = b doens't work if a is int and b is char... but int a = b will work because i didn't write semantic check for declarationStmt.. will write later.
 9. as of now only allowing integers in the array access /// a[9] = 3 works.. a['f'] =3 doesnt work because we don't allow 'f' in [] of array
 10. in switch stmt, the case expression and switch expression datatypes must match.. // you cannot compare a char in swithc to a integer case
+11. canot return for void, cannot return wrong datatype for a funciton(Ex:: cannot return int for char function)
+12. functioncall is also working for factor 
+13. NOTE: funcitoncall did not implement for class or struct.. will have to look at it.
+14. Declarations are done.. datatype checks during declarations is also complete..
+15. once a variable is constant declared.. you cannot assign or change its value. ### REmemeber this is true for cases a = something or a+=somehting or on arrays also;
+### I don't know how much it will work for assigning in functions.. mostly it should work there also because anyassignment must deal with '='
+### so 'the constant variables cannot be changed once declared' is working in my opinion 

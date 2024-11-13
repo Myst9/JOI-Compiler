@@ -2,13 +2,18 @@
 using namespace std;
 ## Dynamic memory allocation and deallocation in joi
 
+struct car:
+    int a;
+    int b;
+    int d[2]={1};
+:
+
 int joi() {
     ## Define two 3x3 matrices
-    
-    int a[3] = {1, 2, 'f'}; 
-    int d;
-    char ch;
-    d += 'f';
+
+    car c;
+    float f;
+    f = c.d[0] + c.b;
 
     return 0;
 }
