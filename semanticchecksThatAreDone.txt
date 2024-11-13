@@ -3,3 +3,10 @@
 3. cannot assign to undeclareed variables, arrays
 4. int &b = &c; doesnt work;
 5. delete will only work on pointers
+6. arithmetic operatiosn will work on only int and floats
+7. logical operations will work on all datatypes //not a semantic check just for reminder
+8. cannot assign different datatype // a = b or a+=b doesn't work if a and b are different datatypes // this is true even if a is array
+///// but remember this is only for assignment cases... for decalratin cases, no semantic check is done yet.. will have to write
+///// a = b doens't work if a is int and b is char... but int a = b will work because i didn't write semantic check for declarationStmt.. will write later.
+9. as of now only allowing integers in the array access /// a[9] = 3 works.. a['f'] =3 doesnt work because we don't allow 'f' in [] of array
+10. in switch stmt, the case expression and switch expression datatypes must match.. // you cannot compare a char in swithc to a integer case

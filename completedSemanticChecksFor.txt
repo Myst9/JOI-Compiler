@@ -1,0 +1,126 @@
+program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef | constDeclarationStmt)* mainFunction? EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
+
+includeStmt: INCLUDE IOSTREAM;
+
+usingStmt: USING NAMESPACE STD ';';
+
+mainFunction: INT MAIN '(' ')' '{' statements RETURN expression ';' '}';
+
+statements: statement*;
+
+
+statement
+    : printStmt
+    | inputStmt
+    | assignStmt
+    | classFunctionAccessStmt
+    | declarationStmt
+    | constDeclarationStmt
+    | ifStmt
+    | switchStmt
+    | whileStmt
+    | doWhileStmt
+    | forStmt
+    | returnStmt
+    | breakStmt
+    | continueStmt
+    | functionCall ';'
+    | expression ';'
+    | deleteStmt
+    | tryCatchStmt
+    | throwStmt
+    | objectDeclarationStmt
+    | structDeclarationStmt
+    ;
+
+breakStmt: BREAK ';';
+continueStmt: CONTINUE ';';
+
+assignStmt: idOrPointerOrAddrId '=' expression ';'
+            | idOrPointerOrAddrId '[' expression ']'('['expression']')* '=' expression ';'
+            | idOrPointerOrAddrId assignOp expression ';'
+
+ifStmt
+    : IF condition COLON '{' statements '}' (elseIfStmt* elseStmt?)? ;
+
+elseIfStmt
+    : ELSE IF condition COLON '{' statements '}' ;
+
+elseStmt
+    : ELSE COLON '{' statements '}' ;
+
+whileStmt: WHILE condition COLON '{' statements '}';
+
+doWhileStmt: DO '{' statements '}' WHILE  condition COLON ;
+
+switchStmt: SWITCH expression COLON '{' caseStmt* defaultStmt? '}';
+
+caseStmt: CASE expression ':' statements BREAK ';';
+
+defaultStmt: DEFAULT ':' statements;
+
+deleteStmt: DELETE idOrPointerOrAddrId ';';
+
+
+
+expression
+    : logicalOrExpression
+    ;
+
+logicalOrExpression
+    : logicalAndExpression (OR logicalAndExpression)*
+    ;
+
+logicalAndExpression
+    : rel_expr (AND rel_expr)*
+    ;
+
+rel_expr
+    : NOT rel_expr
+    | expr (comparisonOp expr)*
+    ;
+
+expr
+    : term ((ADD | SUB) term)*
+    ;
+
+term
+    : factor ((MUL | DIV | MOD) factor)*
+    ;
+
+factor
+    : INC idOrPointerOrAddrId
+    | DEC idOrPointerOrAddrId
+    | idOrPointerOrAddrId INC
+    | idOrPointerOrAddrId DEC
+    | STRING
+    | CHAR_LITERAL
+    | idOrPointerOrAddrId
+    | NUMBER
+    | idOrPointerOrAddrId ('[' expr ']')+
+    | '(' expr ')'
+    | TRUE
+    | FALSE
+
+idOrPointerOrAddrId: IDENTIFIER
+                    | pointer
+                    | address_identifier;
+
+pointer: DOLLAR idOrPointerOrAddrId;
+address_identifier: AMPERSAND IDENTIFIER;
+
+
+condition: expression;
+
+
+arithmeticOp: ADD | SUB | MUL | DIV | MOD;
+
+assignOp: PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
+
+comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
+
+logicalOp: AND | OR;
+
+// Data types
+dataType: INT | BOOL | FLOAT | CHAR | STR ;
+referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 

@@ -1,0 +1,7 @@
+int add(int a, int b);
+
+int joi() {
+    int result = add(10, 20);  
+    cout << "Sum: " << result << endl;
+    return 0;
+}

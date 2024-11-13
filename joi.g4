@@ -81,7 +81,7 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef | constDeclarationStmt)* mainFunction EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
+program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef | constDeclarationStmt)* mainFunction? EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
 
 includeStmt: INCLUDE IOSTREAM;
 
@@ -89,7 +89,7 @@ usingStmt: USING NAMESPACE STD ';';
 
 functionDefOrStructDefOrEnumDef: functionDef | structDef | enumDef;
 
-functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' COLON statements returnStmt? COLON;
+functionDef: (dataType | VOID) IDENTIFIER '(' paramList? ')' ((COLON statements returnStmt? COLON)| ';');
 
 classDef: CLASS IDENTIFIER (COLON PUBLIC IDENTIFIER (',' PUBLIC IDENTIFIER)*)? COLON (accessSpecifier COLON (declarationStmt|functionDef|constructor)*)* COLON ';';
 

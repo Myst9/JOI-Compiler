@@ -21,7 +21,7 @@ def main():
     
     try:
         tree = parser.program()
-        print(tree.toStringTree(recog=parser))
+        # print(tree.toStringTree(recog=parser))
         
         # Initialize the VM code generator
         code_generator = VMCodeGenerator()

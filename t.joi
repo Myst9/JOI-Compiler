@@ -3,13 +3,13 @@ using namespace std;
 ## Dynamic memory allocation and deallocation in joi
 
 int joi() {
-    ## Using new in joi
-    int$ pointer= new int;  ## Allocating memory for a single integer
-    $pointer = 42; ## Assigning value
-    cout << "Value: " << $pointer << endl; ## Displaying value
-    delete pointer;  ## Deallocating memory
+    ## Define two 3x3 matrices
+    
+    int a[3] = {1, 2, 'f'}; 
+    int d;
+    char ch;
+    d += 'f';
 
-
-
-    return 0; ## Indicate successful execution
+    return 0;
 }
+

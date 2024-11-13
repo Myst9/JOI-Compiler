@@ -219,14 +219,14 @@ class VMCodeGenerator(joiVisitor):
         self.instructions.append(f'FUNC_{func_name}:')
         symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type)
         
-        
-        if(ctx.paramList()):
-            params = self.visitParamList(ctx.paramList()) 
-            for param in params:
-                self.instructions.append(f'param {param}')
-        self.visit(ctx.statements())
-        if(ctx.returnStmt()):
-            self.visit(ctx.returnStmt())
+        if(ctx.statements()):
+            if(ctx.paramList()):
+                params = self.visitParamList(ctx.paramList()) 
+                for param in params:
+                    self.instructions.append(f'param {param}')
+            self.visit(ctx.statements())
+            if(ctx.returnStmt()):
+                self.visit(ctx.returnStmt())
 
     def visitParamList(self, ctx: joiParser.ParamListContext):
         params = []
@@ -355,67 +355,88 @@ class VMCodeGenerator(joiVisitor):
             return self.visit(ctx.logicalOrExpression())
 
     def visitLogicalOrExpression(self, ctx:joiParser.LogicalOrExpressionContext):
-        loc = self.visit(ctx.logicalAndExpression(0))
+        first_loc, data_type_of_first_loc = self.visit(ctx.logicalAndExpression(0))
 
         for i in range(1, len(ctx.logicalAndExpression())):
-            self.visit(ctx.logicalAndExpression(i)) 
+            next_loc, data_type_of_next_loc = self.visit(ctx.logicalAndExpression(i)) 
             self.instructions.append('OR') 
+            data_type_of_first_loc = 'bool'
 
-        return loc
+        return first_loc, data_type_of_first_loc
             
     def visitLogicalAndExpression(self, ctx:joiParser.LogicalAndExpressionContext):
-        lac = self.visit(ctx.rel_expr(0))
+        first_lac, data_type_of_first_lac = self.visit(ctx.rel_expr(0))
 
         for i in range(1, len(ctx.rel_expr())):
-            self.visit(ctx.rel_expr(i))  
+            next_lac, data_type_of_next_lac = self.visit(ctx.rel_expr(i))  
             self.instructions.append('AND') 
-        return lac
+            data_type_of_first_lac = 'bool'
 
-    def visitRel_expr(self, ctx:joiParser.Rel_exprContext):
+        # print(data_type_of_first_lac)
+        return first_lac, data_type_of_first_lac
+
+    def visitRel_expr(self, ctx:joiParser.Rel_exprContext):#wil always return bool
         # NOT rel_expr 
         if ctx.NOT():
-            relexp = self.visit(ctx.rel_expr())  
+            relexp, data_type_of_relexp = self.visit(ctx.rel_expr())  
             self.instructions.append('NOT')  
-            return relexp
+            return relexp, 'bool'
         else:
-            e= self.visit(ctx.expr(0))
+            first_expr, data_type_of_first_expr= self.visit(ctx.expr(0))
             
             for i in range(1, len(ctx.expr())):
-                self.visit(ctx.expr(i))  
+                next_expr, data_type_of_next_expr = self.visit(ctx.expr(i))  
                 comp_op = ctx.comparisonOp(i - 1).getText() 
-                self.visitComparisonOp(comp_op)
+                operation = self.visitComparisonOp(comp_op)
+                if(data_type_of_first_expr=='string' or data_type_of_next_expr=='string'):
+                    ExitFromProgram(f'Cannot operate {operation} on {first_expr}, {next_expr} strings')
+                if(data_type_of_first_expr!=data_type_of_next_expr):
+                    ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_expr} is {data_type_of_first_expr} and {next_expr} is {data_type_of_next_expr}')
+                data_type_of_first_expr = 'bool'
 
-            return e
+            # print(first_expr)
+            return first_expr, data_type_of_first_expr
 
 
     def visitExpr(self, ctx:joiParser.ExprContext):
-        t = self.visit(ctx.term(0)) 
+        first_term, data_type_of_first_term = self.visit(ctx.term(0)) 
         
         for i in range(1, len(ctx.term())):
-            self.visit(ctx.term(i))  
-            op = ctx.getChild(2 * i - 1).getText()  
-            
+            next_term, data_type_of_next_term = self.visit(ctx.term(i)) 
+            op = ctx.getChild(2 * i - 1).getText()   
             if op == '+':
-                self.instructions.append('ADD')  
+                operation = 'ADD'
             elif op == '-':
-                self.instructions.append('SUB') 
+                operation = 'SUB'
+            self.instructions.append(operation) 
+            if(data_type_of_first_term!='int' and data_type_of_first_term!='float'):
+                ExitFromProgram(f'Cannot operate {operation} on {first_term} which is {data_type_of_first_term}')
+            if(data_type_of_first_term!=data_type_of_next_term):
+                ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_term} is {data_type_of_first_term} and {next_term} is {data_type_of_next_term}')
 
-        return t
+        return first_term, data_type_of_first_term
 
     def visitTerm(self, ctx:joiParser.TermContext):
-        f = self.visit(ctx.factor(0))  
-        
+        first_factor, data_type_of_first_factor = self.visit(ctx.factor(0))  
+
         for i in range(1, len(ctx.factor())):
-            self.visit(ctx.factor(i)) 
+            next_factor, data_type_of_next_factor = self.visit(ctx.factor(i)) 
             op = ctx.getChild(2 * i - 1).getText()  
             if op == '*':
-                self.instructions.append('MUL')
+                operation = 'MUL'
             elif op == '/':
-                self.instructions.append('DIV')
+                operation = 'DIV'
             elif op == '%':
-                self.instructions.append('MOD')
+                operation = 'MOD'            
+            self.instructions.append(operation)
+            
+            if(data_type_of_first_factor!='int' and data_type_of_first_factor!='float'):
+                ExitFromProgram(f'Cannot operate {operation} on {first_factor} which is {data_type_of_first_factor}')
+            if(data_type_of_first_factor!=data_type_of_next_factor):
+                ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_factor} is {data_type_of_first_factor} and {next_factor} is {data_type_of_next_factor}')
         
-        return f
+
+        return first_factor, data_type_of_first_factor
 
     def visitIdOrPointerOrAddrId(self, ctx: joiParser.IdOrPointerOrAddrIdContext):
         if(ctx.pointer()):
@@ -430,7 +451,11 @@ class VMCodeGenerator(joiVisitor):
             var_name = var_info[1]
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot use undeclared variable")
+
+            data_type_of_var_name = symbolTable.read(var_name)['datatype']
             if ctx.INC():
+                if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
+                    ExitFromProgram(f'cannot Increment a {data_type_of_var_name}')
                 if(ctx.getChild(0).getText() == '++'):  # pre-increment
                     self.instructions.append(f'PUSH {var_name}')
                     self.instructions.append('PUSH 1')
@@ -449,6 +474,8 @@ class VMCodeGenerator(joiVisitor):
                     # and stored the new version
 
             elif ctx.DEC():
+                if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
+                    ExitFromProgram(f'cannot Decrement a {data_type_of_var_name}')
                 if(ctx.getChild(0).getText() == '--'):  # pre-decrement
                     self.instructions.append(f'PUSH {var_name}')
                     self.instructions.append('PUSH 1')
@@ -471,28 +498,39 @@ class VMCodeGenerator(joiVisitor):
             
             elif ctx.expr():  
                 for expr in ctx.expr():  
-                    self.visit(expr)  
+                    expr_value, expr_data_type = self.visit(expr)
+                    if(expr_data_type!='int'):
+                        ExitFromProgram(f'array cannot be accessed with {expr_data_type} in []. Please use integers')
                 self.instructions.append(f'PUSH_ARRAY {var_name}')  # should check this----------------
             else:
                 self.instructions.append(f'PUSH {var_name}')  
-            return var_info
+            return var_name, data_type_of_var_name
         elif ctx.NUMBER():
             number = ctx.NUMBER().getText()
             self.instructions.append(f'PUSH {number}')  
+            data_type = 'int'
+            if('.' in number):
+                data_type = 'float'
+            return number, data_type # value, and type
         elif ctx.STRING():
             string_value = ctx.STRING().getText()
             self.instructions.append(f'PUSH "{string_value}"')  
+            return string_value, 'string'
         elif ctx.CHAR_LITERAL():
             char_value = ctx.CHAR_LITERAL().getText()
             self.instructions.append(f'PUSH {char_value}')  
+            return char_value, 'char'
         elif ctx.TRUE():
-            self.instructions.append('PUSH 1')  
+            self.instructions.append('PUSH 1') 
+            return True, 'bool' 
         elif ctx.FALSE():
-            self.instructions.append('PUSH 0')  
+            self.instructions.append('PUSH 0') 
+            return False, 'bool' 
         elif ctx.expr(): 
             return self.visit(ctx.expr())  
         elif ctx.functionCall():
-            self.visit(ctx.functionCall())
+            self.visit(ctx.functionCall()) 
+            return '1', '1' #temperory
         elif ctx.structAccessStmt():
             self.visit(ctx.structAccessStmt())  # to be done
 
@@ -503,36 +541,54 @@ class VMCodeGenerator(joiVisitor):
         # if ctx.IDENTIFIER() and ctx.expression(0) and ctx.expression(1):
         # (IDENTIFIER '[' expression ']' ('[' expression ']')* '=' expression ';')
         # should check this-------------------------------------
-        if ctx.idOrPointerOrAddrId() and len(ctx.expression())>=2:
+        if ctx.idOrPointerOrAddrId() and len(ctx.expression())>=2: ## this is array case
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1]  
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared array")
-            index = self.visit(ctx.expression(0))  
+
+            data_type_of_array = symbolTable.read(var_name)['datatype']
+            index, data_type_of_index = self.visit(ctx.expression(0)) 
+            if(data_type_of_index!='int'):
+                ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             
             for i in range(1, len(ctx.expression()) - 1):
-                index = self.visit(ctx.expression(i)) 
+                index, data_type_of_index = self.visit(ctx.expression(i)) 
+                if(data_type_of_index!='int'):
+                    ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
 
             self.instructions.append(f'PUSH_ARRAY {var_name}')  
             self.instructions.append(f'PUSH {index}')  
-            self.visit(ctx.expression(len(ctx.expression())-1))  
+            expr, data_type_of_assigning_value = self.visit(ctx.expression(len(ctx.expression())-1))  
+            if(data_type_of_array!=data_type_of_assigning_value):
+                ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_array}')
             self.instructions.append('POP_ARRAY') 
-        elif ctx.idOrPointerOrAddrId() and ctx.expression(0) and not ctx.assignOp():
+        elif ctx.idOrPointerOrAddrId() and ctx.expression(0) and not ctx.assignOp(): # a = 3 type statements
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1] 
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared variable") 
-            self.visit(ctx.expression(0))  
+            
+            data_type_of_variable = symbolTable.read(var_name)['datatype']
+            expr, data_type_of_assigning_value = self.visit(ctx.expression(0))  
+
+            if(data_type_of_assigning_value!=data_type_of_variable):
+                ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
+
             self.instructions.append(f'STORE {var_name}')  
             self.instructions.append(f'POP {var_name}')  
 
         # (IDENTIFIER assignOp expression ';')
-        elif ctx.idOrPointerOrAddrId() and ctx.assignOp() and ctx.expression(0):
+        elif ctx.idOrPointerOrAddrId() and ctx.assignOp() and ctx.expression(0): # a+=3 type statements
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1]
             if(not symbolTable.read(var_name)):
                 ExitFromProgram("cannot assign to undeclared variable") 
             op = ctx.assignOp().getText()  
             
             self.instructions.append(f'PUSH {var_name}')  
-            self.visit(ctx.expression(0))  
+
+            data_type_of_variable = symbolTable.read(var_name)['datatype']
+            expr, data_type_of_assigning_value = self.visit(ctx.expression(0))  
+            if(data_type_of_assigning_value!=data_type_of_variable):
+                ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
             
             if op == '+=':
                 self.instructions.append('ADD')  
@@ -558,7 +614,8 @@ class VMCodeGenerator(joiVisitor):
         self.instructions.append('RETURN')
 
     def visitIfStmt(self, ctx: joiParser.IfStmtContext):
-        self.visit(ctx.condition())
+        varname_of_condition, data_type_of_condition = self.visit(ctx.condition()) #varname of condition is not useful in this case for big expressions.. can be useful only if condition is singel variable
+        #however we don't use the above things.. they are there only for future purposes
         global elseifqueue, elseifq, elseq, elseifqueue, ifq, elsequeue
         k=0
         if(len(ctx.elseIfStmt())>0):
@@ -596,7 +653,7 @@ class VMCodeGenerator(joiVisitor):
         ifqueue.pop()
 
     def visitElseIfStmt(self, ctx: joiParser.ElseIfStmtContext):
-        self.visit(ctx.condition())
+        varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
         global elseifqueue, elseifq, elseq, elseifqueue, ifq, elsequeue
         if(elseifqueue):
             self.instructions.append(f'JZ, elseif_{elseifqueue[-1]}')
@@ -611,7 +668,7 @@ class VMCodeGenerator(joiVisitor):
         global whilequeue, whileq, BreakOrContinueWhichLoop
         BreakOrContinueWhichLoop.append(f'while_{whilequeue[-1]}')
         self.instructions.append(f'while_{whilequeue[-1]}:')
-        self.visit(ctx.condition())
+        varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
         self.instructions.append(f'JZ, end_while_{whilequeue[-1]}')
         self.visit(ctx.statements())
         self.instructions.append(f'JMP, while_{whilequeue[-1]}')
@@ -624,7 +681,7 @@ class VMCodeGenerator(joiVisitor):
         BreakOrContinueWhichLoop.append(f'do_while_{dowhilequeue[-1]}')
         self.instructions.append(f'do_while_{dowhilequeue[-1]}:')
         self.visit(ctx.statements())
-        self.visit(ctx.condition())
+        varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
         self.instructions.append(f'JZ, end_do_while_{dowhilequeue[-1]}')
         self.instructions.append(f'JMP, do_while_{dowhilequeue[-1]}')
         self.instructions.append(f'end_do_while_{dowhilequeue[-1]}:')
@@ -633,7 +690,7 @@ class VMCodeGenerator(joiVisitor):
 
     def visitSwitchStmt(self, ctx: joiParser.SwitchStmtContext):
         global switchq, switchqueue, caseq, casequeue
-        self.visit(ctx.expression())
+        varname_of_switch_expression, data_type_of_switch_expression = self.visit(ctx.expression())
         for i in range(caseq+len(ctx.caseStmt())-1, caseq-1, -1):
             casequeue.append(i)
         caseq+=len(ctx.caseStmt())
@@ -641,7 +698,11 @@ class VMCodeGenerator(joiVisitor):
         for case in ctx.caseStmt():
             self.instructions.append(f'case_{casequeue[-1]}:')
             casequeue.pop()
-            self.visit(case)
+            varname_of_case_expression, data_type_of_case_expression = self.visit(case)
+            #check if case_expression and switch expression have same_datatypes.. if not then we cannot compare them in the first place so exit the program
+            # print(data_type_of_switch_expression, data_type_of_case_expression)
+            if(data_type_of_case_expression != data_type_of_switch_expression):
+                ExitFromProgram(f'cannot compare switch expression with the case expression due to mismatching datatypes\n{data_type_of_switch_expression} in switch is compared to {data_type_of_case_expression} in case')
 
         self.instructions.append(f'default_{switchqueue[-1]}:')
         if(ctx.defaultStmt()):
@@ -651,13 +712,15 @@ class VMCodeGenerator(joiVisitor):
             
     def visitCaseStmt(self, ctx: joiParser.CaseStmtContext):
         global casequeue, switchqueue
-        self.visit(ctx.expression())
+        varname_of_expression, data_type_of_expression = self.visit(ctx.expression())
         if(casequeue):
             self.instructions.append(f'JZ, case_{casequeue[-1]}')
         else:
             self.instructions.append(f'JZ, default_{switchqueue[-1]}')
         self.visit(ctx.statements())
         self.instructions.append(f'JMP, end_switch_{switchqueue[-1]}')
+
+        return [varname_of_expression, data_type_of_expression] # during switch case we will compare this datatype with switch expr datatype and decide if they can be evaluated at all
 
     def visitDefaultStmt(self, ctx: joiParser.DefaultStmtContext):
         self.visit(ctx.statements())
@@ -694,7 +757,7 @@ class VMCodeGenerator(joiVisitor):
 
 
     def visitCondition(self, ctx: joiParser.ConditionContext):
-        self.visit(ctx.expression())
+        return self.visit(ctx.expression())
 
     def visitArithmeticOp(self, ctx:joiParser.ArithmeticOpContext):
         op = ctx.getText()
@@ -709,21 +772,66 @@ class VMCodeGenerator(joiVisitor):
                 
     def visitComparisonOp(self, op):
         if op == '==':
-            self.instructions.append('EQ')  
+            operation = 'EQ'
         elif op == '!=':
-            self.instructions.append('NEQ') 
+            operation = 'NEQ'
         elif op == '>':
-            self.instructions.append('GT')  
+            operation = 'GT'
         elif op == '<':
-            self.instructions.append('LT') 
+            operation = 'LT'
         elif op == '>=':
-            self.instructions.append('GTE') 
+            operation = 'GTE'
         elif op == '<=':
-            self.instructions.append('LTE') 
+            operation = 'LTE'
+        
+        self.instructions.append(operation)
+        return operation 
 
 
 
+            
+    def visitStructDef(self, ctx: joiParser.StructDefContext):
+        struct_name = ctx.IDENTIFIER().getText()
+        if symbolTable.read(struct_name):
+            ExitFromProgram(f"Struct '{struct_name}' already defined.")
+        symbolTable.create(name=struct_name, symbol_type='struct', scope='ytd')
 
+        for declaration in ctx.declarationStmt():
+            self.visit(declaration)
+            
+    def visitStructDeclarationStmt(self, ctx: joiParser.StructDeclarationStmtContext):
+        struct_name = ctx.IDENTIFIER(0).getText()
+        var_name = ctx.IDENTIFIER(1).getText()
+        if symbolTable.read(var_name):
+            ExitFromProgram(f"Variable '{var_name}' already declared.")
+        if not symbolTable.read(struct_name):
+            ExitFromProgram(f"Struct '{struct_name}' is not defined.")
+        symbolTable.create(name=var_name, symbol_type='struct', scope='ytd', datatype=struct_name)
+        self.instructions.append(f'DECLARE {struct_name} {var_name}')
+        
+    def visitStructAccessStmt(self, ctx: joiParser.StructAccessStmtContext):
+        struct_var = ctx.IDENTIFIER(0).getText()
+        member = ctx.IDENTIFIER(1).getText()
+        struct_info = symbolTable.read(struct_var)
+        if not struct_info or struct_info['type'] != 'struct':
+            ExitFromProgram(f"'{struct_var}' is not a struct variable.")
+        member_info = symbolTable.read(f"{member}")
+        if not member_info:
+            ExitFromProgram(f"Struct '{struct_info['datatype']}' has no member '{member}'.")
+        self.instructions.append(f'PUSH {struct_var}')
+        self.instructions.append(f'PUSH_FIELD {member}')
+        return (struct_var, member) 
+        
+        
+    def visitStructAssignStmt(self, ctx: joiParser.StructAssignStmtContext):
+        struct_access_info = self.visit(ctx.structAccessStmt())
+        if struct_access_info is not None:  
+            if ctx.expression():     
+                for i, expr in enumerate(ctx.expression()):
+                    self.visit(expr)
+                self.instructions.append('POP_FIELD')     
+            else:
+                raise Exception(f"Unhandled struct assignment type: {ctx}")
 
 
 
