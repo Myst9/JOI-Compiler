@@ -152,16 +152,27 @@ class VMCodeGenerator(joiVisitor):
             self.visit(expr)
 
     
+    def visitClassDef(self, ctx: joiParser.ClassDefContext):
+        class_name = ctx.IDENTIFIER(0).getText()
+        if symbolTable.read(class_name):
+            ExitFromProgram(f"Class '{class_name}' already defined.")
+        symbolTable.create(name=class_name, symbol_type='class', scope='ytd')
+        self.instructions.append(f'DECLARE CLASS {class_name}')
+        for method in ctx.functionDef():
+            self.visitFunctionDef(method)
+
+
+    
     def visitObjectDeclarationStmt(self, ctx: joiParser.ObjectDeclarationStmtContext):
         class_name = ctx.IDENTIFIER(0).getText()
         object_name = ctx.IDENTIFIER(1).getText()
         constructor_name = ctx.IDENTIFIER(2).getText()
-        # if(symbolTable.read(object_name)):
-        #     ExitFromProgram(f'already declared {object_name}. use another name.')
-        # if(not symbolTable.read(class_name) or not symbolTable.read(constructor_name)):
-        #     ExitFromProgram(f'{class_name} or {constructor_name} is not declared yet. Please check')
-        # if((symbolTable.read(class_name))['type']!='class' or (symbolTable.read(constructor_name))['type']!='class'):
-        #     ExitFromProgram(f'{class_name} or {constructor_name} is not a class. cannot make a object')
+        if(symbolTable.read(object_name)):
+            ExitFromProgram(f'already declared {object_name}. use another name.')
+        if(not symbolTable.read(class_name) or not symbolTable.read(constructor_name)):
+            ExitFromProgram(f'{class_name} or {constructor_name} is not declared yet. Please check')
+        if((symbolTable.read(class_name))['type']!='class' or (symbolTable.read(constructor_name))['type']!='class'):
+            ExitFromProgram(f'{class_name} or {constructor_name} is not a class. cannot make a object')
         symbolTable.create(name=object_name, symbol_type='object',scope='ytd', datatype=class_name)
         self.instructions.append(f'DECLARE {class_name} {object_name}')
         if(ctx.expression()):
@@ -832,6 +843,19 @@ class VMCodeGenerator(joiVisitor):
                 self.instructions.append('POP_FIELD')     
             else:
                 raise Exception(f"Unhandled struct assignment type: {ctx}")
+    
+    def visitEnumDef(self, ctx: joiParser.EnumDefContext):
+        enum_name = ctx.IDENTIFIER(0).getText()
+        constants = ctx.IDENTIFIER()[1:]
+        if symbolTable.read(enum_name):
+            ExitFromProgram(f"Enum '{enum_name}' already defined.")
+        symbolTable.create(name=enum_name, symbol_type='enum', scope='ytd')
+    
+
+        for idx, constant in enumerate(constants):
+            const_name = constant.getText()
+            symbolTable.create(name=const_name, symbol_type='const', scope='ytd', value=idx) #instead PUSH idx, DECLARE_CONST const_name,                                                                                         
+            self.instructions.append(f'DECLARE_CONST {const_name} = {idx}') #STORE const_name, POP const_name
 
 
 
