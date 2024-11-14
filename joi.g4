@@ -130,6 +130,7 @@ statement
     | throwStmt
     | objectDeclarationStmt
     | structDeclarationStmt
+    | enumDeclarationStmt
     ;
 
 deleteStmt: DELETE idOrPointerOrAddrId ';';
@@ -154,6 +155,7 @@ assignStmt: idOrPointerOrAddrId '=' expression ';'
             | idOrPointerOrAddrId '[' expression ']'('['expression']')* ('='|assignOp) expression ';'
             | idOrPointerOrAddrId assignOp expression ';'
             | structAssignStmt
+            | enumAccessStmt
             ;
 
 structAssignStmt: structAccessStmt ('='|assignOp) expression ';'
@@ -161,6 +163,9 @@ structAssignStmt: structAccessStmt ('='|assignOp) expression ';'
                 ;
 
 
+enumDeclarationStmt: ENUM IDENTIFIER IDENTIFIER ('=' IDENTIFIER)? ';' ;
+
+enumAccessStmt: IDENTIFIER '=' IDENTIFIER ';' ;
 
 structAccessStmt: IDENTIFIER'.'IDENTIFIER;
 

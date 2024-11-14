@@ -224,6 +224,24 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#enumDeclarationStmt.
+    def enterEnumDeclarationStmt(self, ctx:joiParser.EnumDeclarationStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#enumDeclarationStmt.
+    def exitEnumDeclarationStmt(self, ctx:joiParser.EnumDeclarationStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by joiParser#enumAccessStmt.
+    def enterEnumAccessStmt(self, ctx:joiParser.EnumAccessStmtContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#enumAccessStmt.
+    def exitEnumAccessStmt(self, ctx:joiParser.EnumAccessStmtContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#structAccessStmt.
     def enterStructAccessStmt(self, ctx:joiParser.StructAccessStmtContext):
         pass

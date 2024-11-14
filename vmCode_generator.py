@@ -104,6 +104,8 @@ class VMCodeGenerator(joiVisitor):
             return self.visit(ctx.objectDeclarationStmt())
         elif ctx.structDeclarationStmt():
             return self.visit(ctx.structDeclarationStmt())
+        elif ctx.enumDeclarationStmt():
+            return self.visit(ctx.enumDeclarationStmt())
         
 
 
@@ -743,6 +745,8 @@ class VMCodeGenerator(joiVisitor):
         # to be done
         elif ctx.structAssignStmt():
             return self.visit(ctx.structAssignStmt())  
+        elif ctx.enumAccessStmt():
+            return self.visit(ctx.enumAccessStmt())
         else:
             raise Exception("Unhandled assignment statement type")
 
@@ -1034,6 +1038,12 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append(f'DECLARE_CONST {const_name} = {idx}') #STORE const_name, POP const_name
 
 
+
+    def visitEnumDeclarationStmt(self, ctx: joiParser.EnumDeclarationStmtContext):
+        return super().visitEnumDeclarationStmt(ctx)
+    
+    def visitEnumAccessStmt(self, ctx: joiParser.EnumAccessStmtContext):
+        return super().visitEnumAccessStmt(ctx)
 
 
     def visitMainFunction(self, ctx:joiParser.MainFunctionContext):

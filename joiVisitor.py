@@ -129,6 +129,16 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#enumDeclarationStmt.
+    def visitEnumDeclarationStmt(self, ctx:joiParser.EnumDeclarationStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by joiParser#enumAccessStmt.
+    def visitEnumAccessStmt(self, ctx:joiParser.EnumAccessStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#structAccessStmt.
     def visitStructAccessStmt(self, ctx:joiParser.StructAccessStmtContext):
         return self.visitChildren(ctx)
