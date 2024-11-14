@@ -160,6 +160,26 @@ class VMCodeGenerator(joiVisitor):
         self.instructions.append(f'DECLARE CLASS {class_name}')
         for method in ctx.functionDef():
             self.visitFunctionDef(method)
+        for constructor in ctx.constructor():
+            self.visitConstructor(constructor)
+
+    def visitConstructor(self, ctx: joiParser.ConstructorContext):
+        constructor_name = ctx.IDENTIFIER().getText()
+
+        if not symbolTable.read(constructor_name) or symbolTable.read(constructor_name)['type'] != 'class':
+            ExitFromProgram(f"{constructor_name} is not a valid constructor or does not match any class name.")
+
+        self.instructions.append(f'CONSTRUCTOR_{constructor_name}:')
+
+        symbolTable.create(name=constructor_name, symbol_type='constructor', scope='ytd')
+        if ctx.paramList():
+            params = self.visitParamList(ctx.paramList())
+            for param in params:
+                self.instructions.append(f'PARAM {param}')
+
+        if ctx.statements():
+            self.visit(ctx.statements())
+        self.instructions.append('END_CONSTRUCTOR')
 
 
     
