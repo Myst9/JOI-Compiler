@@ -1060,10 +1060,31 @@ class VMCodeGenerator(joiVisitor):
 
 
     def visitEnumDeclarationStmt(self, ctx: joiParser.EnumDeclarationStmtContext):
-        return super().visitEnumDeclarationStmt(ctx)
+        enum_name = ctx.IDENTIFIER(0).getText()
+        member_name = ctx.IDENTIFIER(1).getText()
+        if not symbolTable.read(enum_name):
+            ExitFromProgram(f"Enum '{enum_name}' is not defined.")
+
+        assigned_value = ctx.IDENTIFIER(2).getText() if ctx.IDENTIFIER(2) else None
+
+        if assigned_value:
+            value = int(assigned_value)
+            symbolTable.create(name=f"{enum_name}.{member_name}", symbol_type='const', scope='ytd', value=value)
+            self.instructions.append(f"DECLARE_CONST {enum_name}.{member_name} = {value}")
+        else:
+            symbolTable.create(name=f"{enum_name}.{member_name}", symbol_type='const', scope='ytd')
+            self.instructions.append(f"DECLARE_CONST {enum_name}.{member_name}")
     
     def visitEnumAccessStmt(self, ctx: joiParser.EnumAccessStmtContext):
-        return super().visitEnumAccessStmt(ctx)
+        enum_member = ctx.IDENTIFIER(0).getText()
+        assigned_value = ctx.IDENTIFIER(1).getText()
+
+        if not symbolTable.read(enum_member):
+            ExitFromProgram(f"Enum member '{enum_member}' is not defined.")
+
+        value = int(assigned_value) 
+        symbolTable.update(enum_member, value=value)
+        self.instructions.append(f"STORE {enum_member} = {value}")
 
 
     def visitMainFunction(self, ctx:joiParser.MainFunctionContext):
