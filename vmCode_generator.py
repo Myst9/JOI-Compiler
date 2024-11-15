@@ -158,10 +158,33 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f"Class '{class_name}' already defined.")
         symbolTable.create(name=class_name, symbol_type='class', scope='ytd')
         self.instructions.append(f'DECLARE CLASS {class_name}')
-        for method in ctx.functionDef():
-            self.visitFunctionDef(method)
-        for constructor in ctx.constructor():
-            self.visitConstructor(constructor)
+
+        access_specifier = None
+        for item in ctx.children: 
+            if isinstance(item, joiParser.AccessSpecifierContext):
+                access_specifier = item.getText().upper()
+            elif isinstance(item, joiParser.DeclarationStmtContext):
+                if access_specifier:
+                    self.instructions.append(f'ACCESS {access_specifier} BEGIN')
+                self.visitDeclarationStmt(item)
+                if access_specifier:
+                    self.instructions.append(f'ACCESS {access_specifier} END')
+            elif isinstance(item, joiParser.FunctionDefContext):
+                if access_specifier:
+                    self.instructions.append(f'ACCESS {access_specifier} BEGIN')
+                self.visitFunctionDef(item)
+                if access_specifier:
+                    self.instructions.append(f'ACCESS {access_specifier} END')
+            elif isinstance(item, joiParser.ConstructorContext):
+                if access_specifier:
+                    self.instructions.append(f'ACCESS {access_specifier} BEGIN')
+                self.visitConstructor(item)
+                if access_specifier:
+                    self.instructions.append(f'ACCESS {access_specifier} END')
+            else:
+                print(f"Unknown class member type: {type(item)}")
+
+        self.instructions.append(f'END CLASS {class_name}')
 
     def visitConstructor(self, ctx: joiParser.ConstructorContext):
         constructor_name = ctx.IDENTIFIER().getText()
