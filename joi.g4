@@ -289,6 +289,7 @@ factor
     | functionCall
     | structAccessStmt
     | structAccessForArrayStmt
+    | classFunctionAccessStmt
     ;
 
 structAccessForArrayStmt: structAccessStmt ('['expression']')+

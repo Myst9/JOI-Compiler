@@ -196,9 +196,11 @@ class VMCodeGenerator(joiVisitor):
 
         symbolTable.create(name=constructor_name, symbol_type='constructor', scope='ytd')
         if ctx.paramList():
-            params = self.visitParamList(ctx.paramList())
+            self.instructions.append(f'PARAMS START')
+            params, params_data_types = self.visitParamList(ctx.paramList())
             for param in params:
                 self.instructions.append(f'PARAM {param}')
+            self.instructions.append(f'PARAMS END')
 
         if ctx.statements():
             self.visit(ctx.statements())
@@ -219,13 +221,16 @@ class VMCodeGenerator(joiVisitor):
         symbolTable.create(name=object_name, symbol_type='object',scope='ytd', datatype=class_name)
         self.instructions.append(f'DECLARE {class_name} {object_name}')
         if(ctx.expression()):
-            self.instructions.append(f'ARG_for_CNSTRCTR') # still need to write upward push for expression results
+            self.instructions.append(f'ARGS_for_CNSTRCTR') # still need to write upward push for expression results
             for expr in ctx.expression():
                 self.visit(expr)
             self.instructions.append(f'ARGS END')
         
-        
-        
+    def visitClassFunctionAccessStmt(self, ctx: joiParser.ClassFunctionAccessStmtContext):
+        object_name = ctx.IDENTIFIER().getText()
+        if(not symbolTable.read(object_name) or symbolTable.read(object_name)['type']!='object'):
+            ExitFromProgram(f'There is no such object as {object_name}. Please check')
+        self.visitFunctionCall()
         
         
     def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
@@ -486,8 +491,8 @@ class VMCodeGenerator(joiVisitor):
         return ['address_identifier', varname]
 
     def visitExpression(self, ctx:joiParser.ExpressionContext):
-        # if(ctx.functionCall()):
-        #     return self.visit(ctx.functionCall())
+        if(ctx.typecastExpr()):
+            return self.visit(ctx.typecastExpr())
         if(ctx.logicalOrExpression()):
             return self.visit(ctx.logicalOrExpression())
 
@@ -533,7 +538,6 @@ class VMCodeGenerator(joiVisitor):
 
             # print(first_expr)
             return first_expr, data_type_of_first_expr
-
 
     def visitExpr(self, ctx:joiParser.ExprContext):
         first_term, data_type_of_first_term = self.visit(ctx.term(0)) 
@@ -676,6 +680,8 @@ class VMCodeGenerator(joiVisitor):
             return struct_var_member, data_type_of_member
         elif ctx.structAccessForArrayStmt():
             return self.visit(ctx.structAccessForArrayStmt())
+        elif ctx.classFunctionAccessStmt():
+            return self.visitClassFunctionAccessStmt()
 
     def visitStructAccessForArrayStmt(self, ctx: joiParser.StructAccessForArrayStmtContext):
         total_expressions = len(ctx.expression())
@@ -688,8 +694,15 @@ class VMCodeGenerator(joiVisitor):
         struct_var_name, struct_var_member = self.visit(ctx.structAccessStmt())
         return struct_var_member, symbolTable.read(struct_var_member)['datatype']
 
-
-
+    def visitTypecastExpr(self, ctx: joiParser.TypecastExprContext):
+        new_data_type = ctx.dataType().getText()
+        variable_to_change = ctx.IDENTIFIER().getText()
+        if(not symbolTable.read(variable_to_change)):
+            ExitFromProgram(f'Please declare the variable before typecasting it')
+        if(symbolTable.read(variable_to_change)['datatype'] not in {'int','float','str','bool', 'char'}):
+            ExitFromProgram(f'Typecasting is only done for primitive datatypes. {variable_to_change} is a {symbolTable.read(variable_to_change)['datatype']}')
+        return variable_to_change, new_data_type
+    
     def visitAssignStmt(self, ctx: joiParser.AssignStmtContext):
 
         # if ctx.IDENTIFIER() and ctx.expression(0) and ctx.expression(1):
