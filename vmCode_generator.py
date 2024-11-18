@@ -310,6 +310,8 @@ class VMCodeGenerator(joiVisitor):
         
         if(return_type=='void'):
             self.instructions.append('RETURN VOID')
+		else:
+			self.instructions.append(f'RETURN_{func_name}')
 
     def visitParamList(self, ctx: joiParser.ParamListContext):
         params = []
