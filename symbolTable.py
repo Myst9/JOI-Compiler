@@ -2,6 +2,7 @@ class SymbolTable:
     def __init__(self):
         # Initialize an empty dictionary for the symbol table
         self.table = {}
+        self.counter = 0
 
     # Create or add a new entry to the symbol table
     def create(self, name, symbol_type, scope, value=None, datatype=None, returntype=None, paramstype=None, constant=False):
@@ -13,9 +14,14 @@ class SymbolTable:
                 'datatype': datatype,
                 'returntype': returntype,
                 'paramstype': paramstype,
-                'constant': constant  #paramstype is an array of datatypes for params in a function. It is like [int int char int] for comparing with args during compilation.
+                'constant': constant,  #paramstype is an array of datatypes for params in a function. It is like [int int char int] for comparing with args during compilation.
+                'id': self.counter #if scope == "local" else None
             }
             # print(f"Created: {name} -> {self.table[name]}")
+            self.counter += 1
+            
+            # if scope == "local":
+            #     self.counter += 1
         else:
             # print(f"Error: Symbol '{name}' already exists.")
             pass
