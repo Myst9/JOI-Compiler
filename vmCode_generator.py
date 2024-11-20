@@ -15,6 +15,7 @@ dowhilequeue=[]
 switchqueue=[]
 casequeue=[]
 forqueue=[]
+loopqueue=[]
 BreakOrContinueWhichLoop=[] #We will push which loop this statement belongs to when we enter the loop node so that when we encounter break statement
                     # we can direclty write JMP to end_{whatever} and when we come out of the loop node, we pop from it.
                     #If it is empty, it means it is not allowed and program breaks.
@@ -75,16 +76,19 @@ class VMCodeGenerator(joiVisitor):
         elif ctx.whileStmt():
             global whileq
             whilequeue.append(whileq)
+            loopqueue.append(whileq)
             whileq+=1
             return self.visit(ctx.whileStmt())
         elif ctx.doWhileStmt():
             global dowhileq
             dowhilequeue.append(dowhileq)
+            loopqueue.append(dowhileq)
             dowhileq+=1
             return self.visit(ctx.doWhileStmt())
         elif ctx.forStmt():
             global forq
             forqueue.append(forq)
+            loopqueue.append(forq)
             forq+=1
             return self.visit(ctx.forStmt())
         elif ctx.breakStmt():
@@ -896,28 +900,57 @@ class VMCodeGenerator(joiVisitor):
     def visitElseStmt(self, ctx: joiParser.ElseStmtContext):
         self.visit(ctx.statements())
 
+    # def visitWhileStmt(self, ctx: joiParser.WhileStmtContext):
+    #     global loopqueue, whileq, BreakOrContinueWhichLoop
+    #     BreakOrContinueWhichLoop.append(f'while_{loopqueue[-1]}')
+    #     self.instructions.append(f'while_{loopqueue[-1]}:')
+    #     varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
+    #     self.instructions.append(f'JZ, end_while_{loopqueue[-1]}')
+    #     self.visit(ctx.statements())
+    #     self.instructions.append(f'JMP, while_{loopqueue[-1]}')
+    #     self.instructions.append(f'end_while_{loopqueue[-1]}:')
+    #     loopqueue.pop()
+    #     BreakOrContinueWhichLoop.pop()
+
     def visitWhileStmt(self, ctx: joiParser.WhileStmtContext):
-        global whilequeue, whileq, BreakOrContinueWhichLoop
-        BreakOrContinueWhichLoop.append(f'while_{whilequeue[-1]}')
-        self.instructions.append(f'while_{whilequeue[-1]}:')
+        global loopqueue, BreakOrContinueWhichLoop
+        current_loop_label = f"#L{len(loopqueue)}"
+        loopqueue.append(current_loop_label)
+        BreakOrContinueWhichLoop.append(current_loop_label)
+        self.instructions.append(f"LABEL {current_loop_label}")
         varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
-        self.instructions.append(f'JZ, end_while_{whilequeue[-1]}')
+        self.instructions.append(f"JZ, goto end_{current_loop_label}")
         self.visit(ctx.statements())
-        self.instructions.append(f'goto while_{whilequeue[-1]}')
-        self.instructions.append(f'end_while_{whilequeue[-1]}:')
-        whilequeue.pop()
+        self.instructions.append(f"goto {current_loop_label}")
+        self.instructions.append(f"LABEL end_{current_loop_label}")
+        loopqueue.pop()
         BreakOrContinueWhichLoop.pop()
 
+
+    # def visitDoWhileStmt(self, ctx: joiParser.DoWhileStmtContext):
+    #     global dowhilequeue, dowhileq, BreakOrContinueWhichLoop
+    #     BreakOrContinueWhichLoop.append(f'do_while_{dowhilequeue[-1]}')
+    #     self.instructions.append(f'do_while_{dowhilequeue[-1]}:')
+    #     self.visit(ctx.statements())
+    #     varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
+    #     self.instructions.append(f'JZ, end_do_while_{dowhilequeue[-1]}')
+    #     self.instructions.append(f'JMP, do_while_{dowhilequeue[-1]}')
+    #     self.instructions.append(f'end_do_while_{dowhilequeue[-1]}:')
+    #     dowhilequeue.pop()
+    #     BreakOrContinueWhichLoop.pop()
+
     def visitDoWhileStmt(self, ctx: joiParser.DoWhileStmtContext):
-        global dowhilequeue, dowhileq, BreakOrContinueWhichLoop
-        BreakOrContinueWhichLoop.append(f'do_while_{dowhilequeue[-1]}')
-        self.instructions.append(f'do_while_{dowhilequeue[-1]}:')
+        global loopqueue, BreakOrContinueWhichLoop
+        current_loop_label = f"#L{len(loopqueue)}"
+        loopqueue.append(current_loop_label)
+        BreakOrContinueWhichLoop.append(current_loop_label)
+        self.instructions.append(f"LABEL {current_loop_label}")
         self.visit(ctx.statements())
         varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
-        self.instructions.append(f'JZ, end_do_while_{dowhilequeue[-1]}')
-        self.instructions.append(f'goto do_while_{dowhilequeue[-1]}')
-        self.instructions.append(f'end_do_while_{dowhilequeue[-1]}:')
-        dowhilequeue.pop()
+        self.instructions.append(f"JZ, goto end_{current_loop_label}")
+        self.instructions.append(f"goto {current_loop_label}")
+        self.instructions.append(f"LABEL end_{current_loop_label}")
+        loopqueue.pop()
         BreakOrContinueWhichLoop.pop()
 
     def visitSwitchStmt(self, ctx: joiParser.SwitchStmtContext):
@@ -957,19 +990,36 @@ class VMCodeGenerator(joiVisitor):
     def visitDefaultStmt(self, ctx: joiParser.DefaultStmtContext):
         self.visit(ctx.statements())
 
+    # def visitForStmt(self, ctx: joiParser.ForStmtContext):
+    #     global forq, forqueue, BreakOrContinueWhichLoop
+    #     BreakOrContinueWhichLoop.append(f'for_{forqueue[-1]}')
+    #     self.visit(ctx.forInit())
+    #     self.instructions.append(f'for_{forqueue[-1]}:')
+    #     if(ctx.condition()):
+    #         self.visit(ctx.condition())
+    #         self.instructions.append(f'JZ, end_for_{forqueue[-1]}')
+    #     self.visit(ctx.statements())
+    #     # self.visit(ctx.forUpdate())
+    #     self.instructions.append(f'JMP, for_{forqueue[-1]}')
+    #     self.instructions.append(f'end_for_{forqueue[-1]}:')
+    #     forqueue.pop()
+    #     BreakOrContinueWhichLoop.pop()
+
     def visitForStmt(self, ctx: joiParser.ForStmtContext):
-        global forq, forqueue, BreakOrContinueWhichLoop
-        BreakOrContinueWhichLoop.append(f'for_{forqueue[-1]}')
+        global forq, loopqueue, BreakOrContinueWhichLoop
+        current_loop_label = f"#L{len(loopqueue)}"
+        loopqueue.append(current_loop_label)
+        BreakOrContinueWhichLoop.append(current_loop_label)
         self.visit(ctx.forInit())
-        self.instructions.append(f'for_{forqueue[-1]}:')
-        if(ctx.condition()):
+        self.instructions.append(f'LABEL {current_loop_label}')
+        if ctx.condition():
             self.visit(ctx.condition())
-            self.instructions.append(f'JZ, end_for_{forqueue[-1]}')
+            self.instructions.append(f'JZ, goto end_{current_loop_label}')
         self.visit(ctx.statements())
         self.visit(ctx.forUpdate())
-        self.instructions.append(f'goto for_{forqueue[-1]}')
-        self.instructions.append(f'end_for_{forqueue[-1]}:')
-        forqueue.pop()
+        self.instructions.append(f'goto {current_loop_label}')
+        self.instructions.append(f'LABEL end_{current_loop_label}')
+        loopqueue.pop()
         BreakOrContinueWhichLoop.pop()
 
     def visitForInit(self, ctx: joiParser.ForInitContext):
