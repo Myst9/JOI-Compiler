@@ -18,7 +18,7 @@ return c;
 int joi() {
     ## Define two 3x3 matrices
 
-    int a = add(4 , 'e');
+    int f = add(4 , 'e');
 
     return 0;
 }

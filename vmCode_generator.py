@@ -358,7 +358,7 @@ class VMCodeGenerator(joiVisitor):
         
         # if(len(ctx.IDENTIFIER())==1):
             
-        func_name = ctx.IDENTIFIER(len(ctx.IDENTIFIER())-1).getText()
+        func_name = ctx.IDENTIFIER().getText()
         if(not symbolTable.read(func_name)):
             ExitFromProgram("No such function to call")
         
