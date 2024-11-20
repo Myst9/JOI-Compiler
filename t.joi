@@ -15,18 +15,12 @@ int add(int c, char e);
 int joi() {
     ## Define two 3x3 matrices
 
-    int f = add(4 , 'e');
-    int g;
-    if g>10:{
-        g = 2;
-    }
-    else if f<10:{
-        f = (int)g;
-    }
-    else:{
-        g = 1;
-    }
-
+    ##int f = add(4 , 'e');
+    ##int f = 3;
+    ##int $g = new int;
+    int g = 3;
+    int f[10][3];
+    int h = f[2][g+2];
 
     return 0;
 }

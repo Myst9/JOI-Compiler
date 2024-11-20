@@ -135,7 +135,7 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'cannot delete undeclared variable {var_name}')
         if((symbolTable.read(var_name))['type']!='pointer'):
             ExitFromProgram(f'please provide a pointer to delete')
-        self.instructions.append(f'delete {symbolTable.read(var_name)["type"]} {var_name} {symbolTable.read(var_name)["datatype"]}')#I exactly dont know, just put it here as of now
+        self.instructions.append(f'delete {symbolTable.read(var_name)["type"]} {symbolTable.read(var_name)["id"]} {symbolTable.read(var_name)["datatype"]}')#I exactly dont know, just put it here as of now
         symbolTable.delete(var_name)
         
     ##No VM for this.. because nothing came from their side.. and I don't know how exactly they want it.. We might not even need this
@@ -305,7 +305,7 @@ class VMCodeGenerator(joiVisitor):
 
         if(ctx.COLON()):##This case is for when function is declared and defined here
             for i, param in enumerate(params):
-                self.instructions.append(f'push param {param} {params_data_type_array[i]}')
+                self.instructions.append(f'push argument {param} {params_data_type_array[i]}')
 
             if(ctx.statements()):#casual statements
                 self.visit(ctx.statements())
@@ -370,9 +370,9 @@ class VMCodeGenerator(joiVisitor):
         # Arguments in a function call
         arguments_data_types = []
         if(ctx.argList()):
-            self.instructions.append(f'ARGS_START')
+            # self.instructions.append(f'ARGS_START')
             arguments, arguments_data_types = self.visit(ctx.argList())
-            self.instructions.append(f'ARGS END')
+            # self.instructions.append(f'ARGS END')
         
         function_info = symbolTable.read(func_name)
         function_return_type = function_info['returntype']
@@ -422,8 +422,8 @@ class VMCodeGenerator(joiVisitor):
                     # self.instructions.append(f'STORE {var[1]}') # Store initialized value
                     # self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
-                    self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Declaration
-                    self.instructions.append(f'STORE {var[1]}') # Store initialized value
+                    # self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Declaration
+                    # self.instructions.append(f'STORE {var[1]}') # Store initialized value
                     self.instructions.append(f'pop local {symbolTable.read(var[1])["id"]} {data_type}') # since it is only declaration you can take it out.
             
             elif ctx.NEW():
@@ -442,15 +442,19 @@ class VMCodeGenerator(joiVisitor):
 
                     # self.instructions.append(f'DECLARE NEW {var[1]} {data_type}')   
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
-                    self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type} new')    
+                    self.instructions.append(f'alloc {data_type}')
+                    # self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type} new')    
+                    self.instructions.append(f'pop local {symbolTable.read(var[1])["id"]} ptr')
 
-            else:
+            else:# int a;
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
                         ExitFromProgram(f'already declared {var[1]} variable')
                     # self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
-                    self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Just declare if no assignment
+                    #no default values for these statements..
+                    # self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Just declare if no assignment
+                    self.instructions.append(f'pop local {symbolTable.read(var[1])["id"]} {data_type}')  # Just declare if no assignment
 
             return variables
         elif(ctx.arrayDeclarationStmt()):
@@ -471,12 +475,13 @@ class VMCodeGenerator(joiVisitor):
         symbolTable.create(name=arrayName, symbol_type='array', scope='ytd', datatype=data_type_of_array)
 
         ##THis part is for array size during its declaration
-        self.instructions.append(f'SIZE OF ARRAY START')
+        # self.instructions.append(f'SIZE OF ARRAY START')
         for expression in ctx.expression():
             index, index_data_type = self.visit(expression) #index data tyep cannot be anything other than int
             if(index_data_type!='int'):
                 ExitFromProgram(f'array cannot be accessed with {index_data_type} in []. Please use integers') 
-        self.instructions.append(f'SIZE OF ARRAY END')
+            self.instructions.append(f'alloc {index} {index_data_type}')
+        # self.instructions.append(f'SIZE OF ARRAY END')
 
         ##Here the initial values are assigned.
         if(ctx.arrayValueAssigning()):
@@ -484,7 +489,8 @@ class VMCodeGenerator(joiVisitor):
             if(data_type_of_initial_values!=data_type_of_array):
                 ExitFromProgram(f'Cannot assign {data_type_of_initial_values} to {data_type_of_array}')
 
-        self.instructions.append(f'DECLARE {data_type_of_array} ARRAY {arrayName} of {arrayinfo[0]}')        
+        # self.instructions.append(f'DECLARE {data_type_of_array} ARRAY {arrayName} of {arrayinfo[0]}') 
+        self.instructions.append(f'pop local {symbolTable.read(arrayName)["id"]} ptr')       
         return [['array', arrayName]]#This line is useful for const declarations.. don't think it is useless
 
 
@@ -673,13 +679,17 @@ class VMCodeGenerator(joiVisitor):
             # as wanted old value is used for current operation and new value is already with us to use for next operation
             
             elif ctx.expr():  
-                self.instructions.append(f'ARR_INDEX START')
+                # self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name}')  # should check this----------------
+                self.instructions.append(f'push local {id_of_var_name} ptr')  # should check this----------------
+                # self.instructions.append(f'ARR_INDEX START')
                 for expr in ctx.expr():  
                     expr_value, expr_data_type = self.visit(expr)
                     if(expr_data_type!='int'):
                         ExitFromProgram(f'array cannot be accessed with {expr_data_type} in []. Please use integers')
-                self.instructions.append(f'ARR_INDEX END')
-                self.instructions.append(f'push array local {id_of_var_name} {data_type_of_var_name}')  # should check this----------------
+                    
+                # self.instructions.append(f'ARR_INDEX END')
+                self.instructions.append(f'getindex')
+                self.instructions.append(f'access {data_type_of_var_name}')
             else:
                 self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name}')  
             return var_name, data_type_of_var_name
@@ -758,13 +768,14 @@ class VMCodeGenerator(joiVisitor):
             # if(data_type_of_index!='int'):
             #     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             
+            # self.instructions.append(f'push array local {id_of_array} {data_type_of_array}') 
+            self.instructions.append(f'pop local {id_of_array} ptr')   
             self.instructions.append(f'ARR_INDEX START')
             for i in range(0, len(ctx.expression()) - 1):
                 index, data_type_of_index = self.visit(ctx.expression(i)) 
                 if(data_type_of_index!='int'):
                     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             self.instructions.append(f'ARR_INDEX END')
-            self.instructions.append(f'push array local {id_of_array} {data_type_of_array}')  
             # self.instructions.append(f'PUSH {index}')  
             expr, data_type_of_assigning_value = self.visit(ctx.expression(len(ctx.expression())-1))  
 
