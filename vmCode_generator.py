@@ -26,6 +26,7 @@ dowhileq=0
 switchq=0
 caseq=0
 forq=0
+# thisisaconstdeclstmt = 0
 
 symbolTable = SymbolTable()
 
@@ -118,7 +119,9 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'cannot take input for undeclared variable {var_name}')
         if(var_type=='address_identifier'):
             ExitFromProgram(f'cannot take input into a referenced variable {var_name}')
-        self.instructions.append(f'INPUT {var_name}')
+        # self.instructions.append(f'INPUT {var_name}')
+        self.instructions.append(f'scan local {var_name} {symbolTable.read(var_name)["datatype"]}')
+
     
     def visitDeleteStmt(self, ctx: joiParser.DeleteStmtContext):
         var_info = self.visit(ctx.idOrPointerOrAddrId())
@@ -128,9 +131,10 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'cannot delete undeclared variable {var_name}')
         if((symbolTable.read(var_name))['type']!='pointer'):
             ExitFromProgram(f'please provide a pointer to delete')
+        self.instructions.append(f'delete {symbolTable.read(var_name)["type"]} {var_name} {symbolTable.read(var_name)["datatype"]}')#I exactly dont know, just put it here as of now
         symbolTable.delete(var_name)
-        self.instructions.append(f'DELETE {var_name}')#I exactly dont know, just put it here as of now
         
+    ##No VM for this.. because nothing came from their side.. and I don't know how exactly they want it.. We might not even need this
     def visitReferenceDeclarationStmt(self, ctx: joiParser.ReferenceDeclarationStmtContext):
         data_type = ctx.dataType().getText()
         var_name = self.visit(ctx.address_identifier())[1]
@@ -157,7 +161,7 @@ class VMCodeGenerator(joiVisitor):
         if symbolTable.read(class_name):
             ExitFromProgram(f"Class '{class_name}' already defined.")
         symbolTable.create(name=class_name, symbol_type='class', scope='ytd')
-        self.instructions.append(f'DECLARE CLASS {class_name}')
+        self.instructions.append(f'declare CLASS {class_name}')
 
         access_specifier = None
         for item in ctx.children: 
@@ -184,7 +188,7 @@ class VMCodeGenerator(joiVisitor):
             else:
                 print(f"Unknown class member type: {type(item)}")
 
-        self.instructions.append(f'END CLASS {class_name}')
+        self.instructions.append(f'end CLASS {class_name}')
 
     def visitConstructor(self, ctx: joiParser.ConstructorContext):
         constructor_name = ctx.IDENTIFIER().getText()
@@ -234,14 +238,17 @@ class VMCodeGenerator(joiVisitor):
         
         
     def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
+        # global thisisaconstdeclstmt
+        # thisisaconstdeclstmt = 1
         variables = self.visit(ctx.declarationStmt())
-        self.instructions.append(f"PREVIOUS {len(variables)} DECLARES ARE CONSTANT")
+        # self.instructions.append(f"PREVIOUS {len(variables)} DECLARES ARE CONSTANT")
         for var in variables:
             symbolTable.update(name=var[1], constant=True)
+        # thisisaconstdeclstmt = 0
         
     def visitBreakStmt(self, ctx: joiParser.BreakStmtContext):
         if(BreakOrContinueWhichLoop):
-            self.instructions.append(f'JMP, end_{BreakOrContinueWhichLoop[-1]}')
+            self.instructions.append(f'goto end_{BreakOrContinueWhichLoop[-1]}')
         else:
             ExitFromProgram("break written outside loop")
             pass # this is the case where break is not written in any loop but outside the loop.. we have to halt the 
@@ -249,7 +256,7 @@ class VMCodeGenerator(joiVisitor):
 
     def visitContinueStmt(self, ctx: joiParser.ContinueStmtContext):
         if(BreakOrContinueWhichLoop):
-            self.instructions.append(f'JMP, {BreakOrContinueWhichLoop[-1]}')
+            self.instructions.append(f'goto {BreakOrContinueWhichLoop[-1]}')
         else:
             ExitFromProgram("continue written outside loop")
             pass # this is the case where continue is not written in any loop but outside the loop.. we have to halt the 
@@ -259,8 +266,9 @@ class VMCodeGenerator(joiVisitor):
         to_be_printed_string=""
         for printexpression in ctx.printExpressionList():
             data_to_print, data_type_of_the_print = self.visit(printexpression)
-            to_be_printed_string+=data_to_print
-        self.instructions.append(f'PRINT {to_be_printed_string}')
+            # to_be_printed_string+=data_to_print ##if we want the whole statement else
+            to_be_printed_string = data_to_print
+            self.instructions.append(f'push data {to_be_printed_string} {data_type_of_the_print}')
     
     def visitPrintExpressionList(self, ctx: joiParser.PrintExpressionListContext):
         if(ctx.expression()):            
@@ -271,7 +279,7 @@ class VMCodeGenerator(joiVisitor):
             ##but wrote like this for more clarity
         
         if(ctx.ENDL()):
-            return "\n", "str"
+            return "\\n", "str"
         
         return "", "str"
     
@@ -282,36 +290,45 @@ class VMCodeGenerator(joiVisitor):
         func_name = ctx.IDENTIFIER().getText()
         if(symbolTable.read(func_name)):
             ExitFromProgram(f"The function {func_name} already exists. Use a different name.")
-        self.instructions.append(f'FUNC_{func_name}:') #check if func already exists
+        # self.instructions.append(f'FUNC_{func_name}:') #check if func already exists
         
         params_data_type_array = []
+        params=[]
         if(ctx.paramList()):# get info about paramnames and their datatypes to check for argument passing
             params, params_data_type_array = self.visitParamList(ctx.paramList()) 
-            for param in params:
-                self.instructions.append(f'param {param}')
 
-        if(ctx.statements()):#casual statements
-            self.visit(ctx.statements())
-            if(ctx.returnStmt()):
-                varname_func_returns, data_type_func_returns = self.visit(ctx.returnStmt())
-                #if both are None that means it should match with void function
-                if(return_type=="void" and data_type_func_returns!=None):
-                    ExitFromProgram(f'You cannot return anything for a void function')
+        self.instructions.append(f'function {func_name} {len(params_data_type_array)} {return_type}')
 
-                #we know that returntype of func must match with the return statement data type
-                if(return_type!=data_type_func_returns):
-                    ExitFromProgram(f'function {func_name} should return {return_type}, but you are returning {data_type_func_returns}')
+        if(ctx.COLON()):##This case is for when function is declared and defined here
+            for i, param in enumerate(params):
+                self.instructions.append(f'push param {param} {params_data_type_array[i]}')
+
+            if(ctx.statements()):#casual statements
+                self.visit(ctx.statements())
+                if(ctx.returnStmt()):
+                    varname_func_returns, data_type_func_returns = self.visit(ctx.returnStmt())
+                    #if both are None that means it should match with void function
+                    if(return_type=="void" and data_type_func_returns!=None):
+                        ExitFromProgram(f'You cannot return anything for a void function')
+
+                    #we know that returntype of func must match with the return statement data type
+                    if(return_type!=data_type_func_returns):
+                        ExitFromProgram(f'function {func_name} should return {return_type}, but you are returning {data_type_func_returns}')
+                
+                else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
+                    if(return_type!="void"):
+                        ExitFromProgram(f'function {func_name} must return {return_type} type. Currently you are returning nothing')
             
-            else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
-                if(return_type!="void"):
-                    ExitFromProgram(f'function {func_name} must return {return_type} type. Currently you are returning nothing')
-
+            self.instructions.append('return')#this appears only when it is defined not when it is declared
+        
+        else: #func is declared here.. but the definition is in someother file
+            pass
         symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array)
         
-        if(return_type=='void'):
-            self.instructions.append('RETURN VOID')
-		else:
-			self.instructions.append(f'RETURN_{func_name}')
+        # if(return_type=='void'):
+        #     self.instructions.append('return VOID')
+        # else:
+        #     self.instructions.append(f'return {func_name}')
 
     def visitParamList(self, ctx: joiParser.ParamListContext):
         params = []
@@ -377,7 +394,10 @@ class VMCodeGenerator(joiVisitor):
         return ctx.getChild(0).getText()
 
     def visitDeclarationStmt(self, ctx: joiParser.DeclarationStmtContext):
-        
+        # global thisisaconstdeclstmt
+        # constantText="local"
+        # if(thisisaconstdeclstmt==1):
+        #     constantText = "constant"
         if ctx.dataType() and ctx.varList():
             data_type = ctx.dataType(0).getText()  
             var_list = ctx.varList() 
@@ -702,7 +722,7 @@ class VMCodeGenerator(joiVisitor):
         if(not symbolTable.read(variable_to_change)):
             ExitFromProgram(f'Please declare the variable before typecasting it')
         if(symbolTable.read(variable_to_change)['datatype'] not in {'int','float','str','bool', 'char'}):
-            ExitFromProgram(f'Typecasting is only done for primitive datatypes. {variable_to_change} is a {symbolTable.read(variable_to_change)['datatype']}')
+            ExitFromProgram(f'Typecasting is only done for primitive datatypes. {variable_to_change} is a {(symbolTable.read(variable_to_change))["datatype"]}')
         return variable_to_change, new_data_type
     
     def visitAssignStmt(self, ctx: joiParser.AssignStmtContext):
@@ -813,7 +833,7 @@ class VMCodeGenerator(joiVisitor):
         data_type_of_return = None
         if ctx.expression():
             varname_of_return, data_type_of_return = self.visit(ctx.expression())
-        self.instructions.append('RETURN')
+        # self.instructions.append('RETURN')
         return varname_of_return, data_type_of_return
 
     def visitIfStmt(self, ctx: joiParser.IfStmtContext):

@@ -8,13 +8,18 @@ struct car:
     int d[2]={1};
 :
 
+void add(int c, char e);
+
 int joi() {
     ## Define two 3x3 matrices
 
-    car c;
-    float f;
-    f = c.d[0] + c.b;
-
+    while 1:{
+    continue;
+}
+cout<<1<<endl;
+    int $g;
+    cin>>g;
+    delete g;
     return 0;
 }
 
