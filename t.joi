@@ -14,9 +14,9 @@ void add(int c, char e);
 
 int joi() {
     ## Define two 3x3 matrices
-    car c;
+    car dl;
     float f=-2.3;
-    
+
     while 1:{
     continue;
 }
