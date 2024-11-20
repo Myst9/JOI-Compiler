@@ -19,6 +19,11 @@ class joiVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by joiParser#header.
+    def visitHeader(self, ctx:joiParser.HeaderContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by joiParser#usingStmt.
     def visitUsingStmt(self, ctx:joiParser.UsingStmtContext):
         return self.visitChildren(ctx)

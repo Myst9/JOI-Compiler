@@ -26,6 +26,15 @@ class joiListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by joiParser#header.
+    def enterHeader(self, ctx:joiParser.HeaderContext):
+        pass
+
+    # Exit a parse tree produced by joiParser#header.
+    def exitHeader(self, ctx:joiParser.HeaderContext):
+        pass
+
+
     # Enter a parse tree produced by joiParser#usingStmt.
     def enterUsingStmt(self, ctx:joiParser.UsingStmtContext):
         pass

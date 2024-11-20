@@ -310,8 +310,8 @@ class VMCodeGenerator(joiVisitor):
         
         if(return_type=='void'):
             self.instructions.append('RETURN VOID')
-		else:
-			self.instructions.append(f'RETURN_{func_name}')
+        else:
+            self.instructions.append(f'RETURN_{func_name}')
 
     def visitParamList(self, ctx: joiParser.ParamListContext):
         params = []
@@ -1123,6 +1123,19 @@ class VMCodeGenerator(joiVisitor):
         value = int(assigned_value) 
         symbolTable.update(enum_member, value=value)
         self.instructions.append(f"STORE {enum_member} = {value}")
+        
+    def visitIncludeStmt(self, ctx: joiParser.IncludeStmtContext):
+        header_content = self.visit(ctx.header())
+        if header_content:
+            self.instructions.append(f"lib {header_content}.jvm")
+        return None
+
+    def visitHeader(self, ctx: joiParser.HeaderContext):
+        identifier = ctx.IDENTIFIER(0).getText()  
+        if ctx.IDENTIFIER(1):  
+            extension = ctx.IDENTIFIER(1).getText()
+            return f"{identifier}"
+        return identifier  
 
 
     def visitMainFunction(self, ctx:joiParser.MainFunctionContext):

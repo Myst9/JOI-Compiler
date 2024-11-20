@@ -15,7 +15,6 @@ VOID: 'void';
 MAIN: 'joi';
 RETURN: 'return';
 INCLUDE: '#include';
-IOSTREAM: '<iostream>';
 USING: 'using';
 NAMESPACE: 'namespace';
 STD: 'std';
@@ -77,13 +76,15 @@ COMMENT: '##' ~[\r\n]* -> skip;
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
 CHAR_LITERAL: '\'' . '\''; // Char literals like 'a'
 STRING: '"' (~["\\] | '\\' .)* '"'; 
-NUMBER: [0-9]+ ('.' [0-9]+)?; 
+NUMBER: '-'? [0-9]+ ('.' [0-9]+)?; 
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
-program: includeStmt usingStmt (functionDefOrStructDefOrEnumDef | declarationStmt | classDef | constDeclarationStmt)* mainFunction? EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
+program: (includeStmt)* usingStmt? (functionDefOrStructDefOrEnumDef | declarationStmt | classDef | constDeclarationStmt)* mainFunction? EOF; //added declarationStmt* here becuase of global scope and local scope requirement of joi
 
-includeStmt: INCLUDE IOSTREAM;
+includeStmt: INCLUDE header;
+
+header: '<' IDENTIFIER ('.' IDENTIFIER)? '>';
 
 usingStmt: USING NAMESPACE STD ';';
 
