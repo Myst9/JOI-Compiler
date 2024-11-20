@@ -27,6 +27,7 @@ dowhileq=0
 switchq=0
 caseq=0
 forq=0
+label_counter=0
 # thisisaconstdeclstmt = 0
 
 symbolTable = SymbolTable()
@@ -917,8 +918,9 @@ class VMCodeGenerator(joiVisitor):
     #     BreakOrContinueWhichLoop.pop()
 
     def visitWhileStmt(self, ctx: joiParser.WhileStmtContext):
-        global loopqueue, BreakOrContinueWhichLoop
-        current_loop_label = f"#L{len(loopqueue)}"
+        global loopqueue, BreakOrContinueWhichLoop, label_counter
+        current_loop_label = f"#L{label_counter}"
+        label_counter +=1
         loopqueue.append(current_loop_label)
         BreakOrContinueWhichLoop.append(current_loop_label)
         self.instructions.append(f"LABEL {current_loop_label}")
@@ -944,8 +946,9 @@ class VMCodeGenerator(joiVisitor):
     #     BreakOrContinueWhichLoop.pop()
 
     def visitDoWhileStmt(self, ctx: joiParser.DoWhileStmtContext):
-        global loopqueue, BreakOrContinueWhichLoop
-        current_loop_label = f"#L{len(loopqueue)}"
+        global loopqueue, BreakOrContinueWhichLoop, label_counter
+        current_loop_label = f"#L{label_counter}"
+        label_counter+=1
         loopqueue.append(current_loop_label)
         BreakOrContinueWhichLoop.append(current_loop_label)
         self.instructions.append(f"LABEL {current_loop_label}")
@@ -1010,8 +1013,9 @@ class VMCodeGenerator(joiVisitor):
     #     BreakOrContinueWhichLoop.pop()
 
     def visitForStmt(self, ctx: joiParser.ForStmtContext):
-        global forq, loopqueue, BreakOrContinueWhichLoop
-        current_loop_label = f"#L{len(loopqueue)}"
+        global forq, loopqueue, BreakOrContinueWhichLoop, label_counter
+        current_loop_label = f"#L{label_counter}"
+        label_counter+=1
         loopqueue.append(current_loop_label)
         BreakOrContinueWhichLoop.append(current_loop_label)
         self.visit(ctx.forInit())
