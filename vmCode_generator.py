@@ -320,9 +320,10 @@ class VMCodeGenerator(joiVisitor):
                         ExitFromProgram(f'function {func_name} must return {return_type} type. Currently you are returning nothing')
             
             self.instructions.append('return')#this appears only when it is defined not when it is declared
-        
+            
         else: #func is declared here.. but the definition is in someother file
             pass
+
         symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array)
         
         # if(return_type=='void'):
@@ -355,27 +356,28 @@ class VMCodeGenerator(joiVisitor):
     
     def visitFunctionCall(self, ctx: joiParser.FunctionCallContext):
         
-        if(len(ctx.IDENTIFIER())==1):
-            func_name = ctx.IDENTIFIER(len(ctx.IDENTIFIER())-1).getText()
-            if(not symbolTable.read(func_name)):
-                ExitFromProgram("No such function to call")
+        # if(len(ctx.IDENTIFIER())==1):
             
-            # Arguments in a function call
-            arguments_data_types = []
-            if(ctx.argList()):
-                self.instructions.append(f'ARGS_START')
-                arguments, arguments_data_types = self.visit(ctx.argList())
-                self.instructions.append(f'ARGS END')
-            
-            function_info = symbolTable.read(func_name)
-            function_return_type = function_info['returntype']
-            function_params_type = function_info['paramstype']
+        func_name = ctx.IDENTIFIER(len(ctx.IDENTIFIER())-1).getText()
+        if(not symbolTable.read(func_name)):
+            ExitFromProgram("No such function to call")
+        
+        # Arguments in a function call
+        arguments_data_types = []
+        if(ctx.argList()):
+            self.instructions.append(f'ARGS_START')
+            arguments, arguments_data_types = self.visit(ctx.argList())
+            self.instructions.append(f'ARGS END')
+        
+        function_info = symbolTable.read(func_name)
+        function_return_type = function_info['returntype']
+        function_params_type = function_info['paramstype']
 
-            #the arguments' datatypes should match with the function's params datatypes else throw error
-            if(function_params_type!=arguments_data_types):
-                ExitFromProgram(f'The arguments and parameters are not matching for the function {func_name}')
+        #the arguments' datatypes should match with the function's params datatypes else throw error
+        if(function_params_type!=arguments_data_types):
+            ExitFromProgram(f'The arguments and parameters are not matching for the function {func_name}')
 
-            self.instructions.append(f'CALL {func_name}')
+        self.instructions.append(f'CALL {func_name}')
 
         return func_name, function_return_type
 

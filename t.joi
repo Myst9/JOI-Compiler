@@ -10,20 +10,16 @@ struct car:
     int d[2]={1};
 :
 
-void add(int c, char e);
+int add(int c, char e):
+
+return c;
+:
 
 int joi() {
     ## Define two 3x3 matrices
-    car dl;
-    float f=-2.3;
 
-    while 1:{
-    continue;
-}
-cout<<1<<endl;
-    int $g;
-    cin>>g;
-    delete g;
+    int a = add(4 , 'e');
+
     return 0;
 }
 
