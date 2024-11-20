@@ -322,6 +322,7 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append('return')#this appears only when it is defined not when it is declared
             
         else: #func is declared here.. but the definition is in someother file
+            self.instructions.append('return_') #this return statement helps us in code optimisation.. so this is useless for VM but for compiler optimisatino it has so much use.
             pass
 
         symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array)
@@ -377,7 +378,7 @@ class VMCodeGenerator(joiVisitor):
         if(function_params_type!=arguments_data_types):
             ExitFromProgram(f'The arguments and parameters are not matching for the function {func_name}')
 
-        self.instructions.append(f'CALL {func_name}')
+        self.instructions.append(f'call {func_name} {len(arguments)}')
 
         return func_name, function_return_type
 
@@ -413,9 +414,12 @@ class VMCodeGenerator(joiVisitor):
 
                     if(data_type!=var_data_type): # prevents int a = 'c';
                         ExitFromProgram(f'Cannot assign {var_data_type} to {data_type}')
-                    self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Declaration
+                    # self.instructions.append(f'DECLARE {var[1]} {data_type}')  # Declaration
+                    # self.instructions.append(f'STORE {var[1]}') # Store initialized value
+                    # self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
+                    self.instructions.append(f'push local {var[1]} {data_type}')  # Declaration
                     self.instructions.append(f'STORE {var[1]}') # Store initialized value
-                    self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
+                    self.instructions.append(f'pop local {var[1]} {data_type}') # since it is only declaration you can take it out.
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
             
             elif ctx.NEW():
@@ -432,14 +436,16 @@ class VMCodeGenerator(joiVisitor):
                     if(var[0]!='pointer'):
                         ExitFromProgram(f'cannot declare new {data_type} to {var[1]}.\n {var[1]} is not a pointer')
 
-                    self.instructions.append(f'DECLARE NEW {data_type} {var[1]}')    
+                    # self.instructions.append(f'DECLARE NEW {var[1]} {data_type}')   
+                    self.instructions.append(f'push local {var[1]} {data_type} new')    
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
 
             else:
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
                         ExitFromProgram(f'already declared {var[1]} variable')
-                    self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
+                    # self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
+                    self.instructions.append(f'push local {var[1]} {data_type}')  # Just declare if no assignment
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
 
             return variables
@@ -525,7 +531,7 @@ class VMCodeGenerator(joiVisitor):
 
         for i in range(1, len(ctx.logicalAndExpression())):
             next_loc, data_type_of_next_loc = self.visit(ctx.logicalAndExpression(i)) 
-            self.instructions.append('OR') 
+            self.instructions.append('or') 
             data_type_of_first_loc = 'bool'
 
         return first_loc, data_type_of_first_loc
@@ -535,7 +541,7 @@ class VMCodeGenerator(joiVisitor):
 
         for i in range(1, len(ctx.rel_expr())):
             next_lac, data_type_of_next_lac = self.visit(ctx.rel_expr(i))  
-            self.instructions.append('AND') 
+            self.instructions.append('and') 
             data_type_of_first_lac = 'bool'
 
         # print(data_type_of_first_lac)
@@ -545,7 +551,7 @@ class VMCodeGenerator(joiVisitor):
         # NOT rel_expr 
         if ctx.NOT():
             relexp, data_type_of_relexp = self.visit(ctx.rel_expr())  
-            self.instructions.append('NOT')  
+            self.instructions.append('not')  
             return relexp, 'bool'
         else:
             first_expr, data_type_of_first_expr= self.visit(ctx.expr(0))
@@ -570,9 +576,9 @@ class VMCodeGenerator(joiVisitor):
             next_term, data_type_of_next_term = self.visit(ctx.term(i)) 
             op = ctx.getChild(2 * i - 1).getText()   
             if op == '+':
-                operation = 'ADD'
+                operation = 'add'
             elif op == '-':
-                operation = 'SUB'
+                operation = 'sub'
             self.instructions.append(operation) 
             if(data_type_of_first_term!='int' and data_type_of_first_term!='float'):
                 ExitFromProgram(f'Cannot operate {operation} on {first_term} which is {data_type_of_first_term}')
@@ -588,11 +594,11 @@ class VMCodeGenerator(joiVisitor):
             next_factor, data_type_of_next_factor = self.visit(ctx.factor(i)) 
             op = ctx.getChild(2 * i - 1).getText()  
             if op == '*':
-                operation = 'MUL'
+                operation = 'mul'
             elif op == '/':
-                operation = 'DIV'
+                operation = 'div'
             elif op == '%':
-                operation = 'MOD'            
+                operation = 'mod'            
             self.instructions.append(operation)
             
             if(data_type_of_first_factor!='int' and data_type_of_first_factor!='float'):
@@ -622,18 +628,18 @@ class VMCodeGenerator(joiVisitor):
                 if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
                     ExitFromProgram(f'cannot Increment a {data_type_of_var_name}')
                 if(ctx.getChild(0).getText() == '++'):  # pre-increment
-                    self.instructions.append(f'PUSH {var_name}')
-                    self.instructions.append('PUSH 1')
-                    self.instructions.append('ADD')
-                    self.instructions.append(f'STORE {var_name}')
+                    self.instructions.append(f'push local {var_name} {data_type_of_var_name}')
+                    self.instructions.append('push constant 1 int')
+                    self.instructions.append('add')
+                    self.instructions.append(f'store local {var_name} {data_type_of_var_name}')
                 else: #post-increment # the jugaad is to increase the value but not use it for operations. see below
-                    self.instructions.append(f'PUSH {var_name}')
-                    self.instructions.append('PUSH 1')
-                    self.instructions.append('ADD')
-                    self.instructions.append(f'STORE {var_name}') ##same like pre-incrment now var is var+1 and is stored
+                    self.instructions.append(f'push local {var_name} {data_type_of_var_name}')
+                    self.instructions.append('push constant 1 int')
+                    self.instructions.append('add')
+                    self.instructions.append(f'store local {var_name} {data_type_of_var_name}') ##same like pre-incrment now var is var+1 and is stored
                     # now we subtract it by 1
-                    self.instructions.append('PUSH 1')
-                    self.instructions.append('SUB')
+                    self.instructions.append('push constant 1 int')
+                    self.instructions.append('sub')
                     #now we have (var+1)-1 = var in the stack which can be used for the operations...
                     # so we increased var but did not use it instead we used the previous version for operations
                     # and stored the new version
@@ -642,18 +648,18 @@ class VMCodeGenerator(joiVisitor):
                 if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
                     ExitFromProgram(f'cannot Decrement a {data_type_of_var_name}')
                 if(ctx.getChild(0).getText() == '--'):  # pre-decrement
-                    self.instructions.append(f'PUSH {var_name}')
-                    self.instructions.append('PUSH 1')
-                    self.instructions.append('SUB')
-                    self.instructions.append(f'STORE {var_name}')
+                    self.instructions.append(f'push local {var_name} {data_type_of_var_name}')
+                    self.instructions.append('push constant 1 int')
+                    self.instructions.append('sub')
+                    self.instructions.append(f'store local {var_name} {data_type_of_var_name}')
                 else: #post-decrement # the jugaad is to decrease the value but not use it for operations. see below
-                    self.instructions.append(f'PUSH {var_name}')
-                    self.instructions.append('PUSH 1')
-                    self.instructions.append('SUB')
-                    self.instructions.append(f'STORE {var_name}') ##same like pre-decrment now var is var-1 and is stored
+                    self.instructions.append(f'push local {var_name} {data_type_of_var_name}')
+                    self.instructions.append('push constant 1 int')
+                    self.instructions.append('sub')
+                    self.instructions.append(f'store local {var_name} {data_type_of_var_name}') ##same like pre-decrment now var is var-1 and is stored
                     # now we add 1 to it
-                    self.instructions.append('PUSH 1')
-                    self.instructions.append('ADD')
+                    self.instructions.append('push constant 1 int')
+                    self.instructions.append('add')
                     # now we have (var-1)+1 = var in the stack which can be used for the operations...
                     # so we decreased var but did not use it instead we used the previous version for operations
                     # and stored the new version
@@ -668,30 +674,30 @@ class VMCodeGenerator(joiVisitor):
                     if(expr_data_type!='int'):
                         ExitFromProgram(f'array cannot be accessed with {expr_data_type} in []. Please use integers')
                 self.instructions.append(f'ARR_INDEX END')
-                self.instructions.append(f'PUSH_ARRAY {var_name}')  # should check this----------------
+                self.instructions.append(f'push array local {var_name} {data_type_of_var_name}')  # should check this----------------
             else:
-                self.instructions.append(f'PUSH {var_name}')  
+                self.instructions.append(f'push local {var_name} {data_type_of_var_name}')  
             return var_name, data_type_of_var_name
         elif ctx.NUMBER():
             number = ctx.NUMBER().getText()
-            self.instructions.append(f'PUSH {number}')  
             data_type = 'int'
             if('.' in number):
                 data_type = 'float'
+            self.instructions.append(f'push constant {number} {data_type}')  
             return number, data_type # value, and type
         elif ctx.STRING():
             string_value = ctx.STRING().getText()
-            self.instructions.append(f'PUSH "{string_value}"')  
+            self.instructions.append(f'push constant {string_value} str')  
             return string_value, 'str'
         elif ctx.CHAR_LITERAL():
             char_value = ctx.CHAR_LITERAL().getText()
-            self.instructions.append(f'PUSH {char_value}')  
+            self.instructions.append(f'push constant {char_value} char')  
             return char_value, 'char'
         elif ctx.TRUE():
-            self.instructions.append('PUSH 1') 
+            self.instructions.append('push constant 1 bool') #might have to write int instead of bool here
             return True, 'bool' 
         elif ctx.FALSE():
-            self.instructions.append('PUSH 0') 
+            self.instructions.append('push constant 0 bool') 
             return False, 'bool' 
         elif ctx.expr(): 
             return self.visit(ctx.expr())  
@@ -725,6 +731,7 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'Please declare the variable before typecasting it')
         if(symbolTable.read(variable_to_change)['datatype'] not in {'int','float','str','bool', 'char'}):
             ExitFromProgram(f'Typecasting is only done for primitive datatypes. {variable_to_change} is a {(symbolTable.read(variable_to_change))["datatype"]}')
+        symbolTable.update(name=variable_to_change, datatype=new_data_type)
         return variable_to_change, new_data_type
     
     def visitAssignStmt(self, ctx: joiParser.AssignStmtContext):
@@ -751,29 +758,29 @@ class VMCodeGenerator(joiVisitor):
                 if(data_type_of_index!='int'):
                     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             self.instructions.append(f'ARR_INDEX END')
-            self.instructions.append(f'PUSH_ARRAY {var_name}')  
+            self.instructions.append(f'push array local {var_name} {data_type_of_array}')  
             # self.instructions.append(f'PUSH {index}')  
             expr, data_type_of_assigning_value = self.visit(ctx.expression(len(ctx.expression())-1))  
 
             if(ctx.assignOp()):
                 op = ctx.assignOp().getText()  
                 if op == '+=':
-                    self.instructions.append('ADD')  
+                    self.instructions.append('add')  
                 elif op == '-=':
-                    self.instructions.append('SUB')  
+                    self.instructions.append('sub')  
                 elif op == '*=':
-                    self.instructions.append('MUL')  
+                    self.instructions.append('mul')  
                 elif op == '/=':
-                    self.instructions.append('DIV')
+                    self.instructions.append('div')
                 elif op == '%=':
-                    self.instructions.append('MOD')
+                    self.instructions.append('mod')
                 
                 if((data_type_of_array!='int' or data_type_of_assigning_value!='int') and (data_type_of_array!='float' or data_type_of_assigning_value!='float')):
                     ExitFromProgram(f'can perform {op} operation only int and floats.\n{var_name} is of {data_type_of_array} and you are trying to do {op} with {data_type_of_assigning_value}')
 
             if(data_type_of_array!=data_type_of_assigning_value):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_array}')
-            self.instructions.append('POP_ARRAY') 
+            self.instructions.append(f'pop array local {var_name} {data_type_of_array}') 
         elif ctx.idOrPointerOrAddrId() and ctx.expression(0) and not ctx.assignOp(): # a = 3 type statements
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1] 
             
@@ -788,8 +795,8 @@ class VMCodeGenerator(joiVisitor):
             if(data_type_of_assigning_value!=data_type_of_variable):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
 
-            self.instructions.append(f'STORE {var_name}')  
-            self.instructions.append(f'POP {var_name}')  
+            self.instructions.append(f'store local {var_name} {data_type_of_variable}')  
+            self.instructions.append(f'pop local {var_name} {data_type_of_variable}')  
 
         # (IDENTIFIER assignOp expression ';')
         elif ctx.idOrPointerOrAddrId() and ctx.assignOp() and ctx.expression(0): # a+=3 type statements
@@ -801,26 +808,26 @@ class VMCodeGenerator(joiVisitor):
 
             op = ctx.assignOp().getText()  
             
-            self.instructions.append(f'PUSH {var_name}')  
-
             data_type_of_variable = symbolTable.read(var_name)['datatype']
+
+            self.instructions.append(f'push local {var_name} {data_type_of_variable}')  
             expr, data_type_of_assigning_value = self.visit(ctx.expression(0))  
             if(data_type_of_assigning_value!=data_type_of_variable):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
             
             if op == '+=':
-                self.instructions.append('ADD')  
+                self.instructions.append('add')  
             elif op == '-=':
-                self.instructions.append('SUB')  
+                self.instructions.append('sub')  
             elif op == '*=':
-                self.instructions.append('MUL')  
+                self.instructions.append('mul')  
             elif op == '/=':
-                self.instructions.append('DIV')
+                self.instructions.append('div')
             elif op == '%=':
-                self.instructions.append('MOD') 
+                self.instructions.append('mod') 
             
-            self.instructions.append(f'STORE {var_name}')
-            self.instructions.append(f'POP {var_name}')  
+            self.instructions.append(f'store local {var_name} {data_type_of_variable}')
+            self.instructions.append(f'pop local {var_name} {data_type_of_variable}')  
 
         # to be done
         elif ctx.structAssignStmt():
@@ -862,13 +869,13 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append(f'JZ, end_if_{ifqueue[-1]}')
 
         self.visit(ctx.statements())
-        self.instructions.append(f'JMP, end_if_{ifqueue[-1]}')
+        self.instructions.append(f'goto end_if_{ifqueue[-1]}')
 
         for elseifstmt in ctx.elseIfStmt():
             self.instructions.append(f'elseif_{elseifqueue[-1]}:')
             elseifqueue.pop()
             self.visit(elseifstmt)
-            self.instructions.append(f'JMP, end_if_{ifqueue[-1]}')
+            self.instructions.append(f'goto end_if_{ifqueue[-1]}')
 
         if(ctx.elseStmt()):
             self.instructions.append(f'else_{elsequeue[-1]}:')
@@ -896,7 +903,7 @@ class VMCodeGenerator(joiVisitor):
         varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
         self.instructions.append(f'JZ, end_while_{whilequeue[-1]}')
         self.visit(ctx.statements())
-        self.instructions.append(f'JMP, while_{whilequeue[-1]}')
+        self.instructions.append(f'goto while_{whilequeue[-1]}')
         self.instructions.append(f'end_while_{whilequeue[-1]}:')
         whilequeue.pop()
         BreakOrContinueWhichLoop.pop()
@@ -908,7 +915,7 @@ class VMCodeGenerator(joiVisitor):
         self.visit(ctx.statements())
         varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
         self.instructions.append(f'JZ, end_do_while_{dowhilequeue[-1]}')
-        self.instructions.append(f'JMP, do_while_{dowhilequeue[-1]}')
+        self.instructions.append(f'goto do_while_{dowhilequeue[-1]}')
         self.instructions.append(f'end_do_while_{dowhilequeue[-1]}:')
         dowhilequeue.pop()
         BreakOrContinueWhichLoop.pop()
@@ -943,7 +950,7 @@ class VMCodeGenerator(joiVisitor):
         else:
             self.instructions.append(f'JZ, default_{switchqueue[-1]}')
         self.visit(ctx.statements())
-        self.instructions.append(f'JMP, end_switch_{switchqueue[-1]}')
+        self.instructions.append(f'goto end_switch_{switchqueue[-1]}')
 
         return varname_of_expression, data_type_of_expression # during switch case we will compare this datatype with switch expr datatype and decide if they can be evaluated at all
 
@@ -960,7 +967,7 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append(f'JZ, end_for_{forqueue[-1]}')
         self.visit(ctx.statements())
         self.visit(ctx.forUpdate())
-        self.instructions.append(f'JMP, for_{forqueue[-1]}')
+        self.instructions.append(f'goto for_{forqueue[-1]}')
         self.instructions.append(f'end_for_{forqueue[-1]}:')
         forqueue.pop()
         BreakOrContinueWhichLoop.pop()
@@ -989,27 +996,29 @@ class VMCodeGenerator(joiVisitor):
     def visitArithmeticOp(self, ctx:joiParser.ArithmeticOpContext):
         op = ctx.getText()
         if op == '+':
-            self.instructions.append('ADD')
+            self.instructions.append('add')
         elif op == '-':
-            self.instructions.append('SUB')
+            self.instructions.append('sub')
         elif op == '*':
-            self.instructions.append('MUL')
+            self.instructions.append('mul')
         elif op == '/':
-            self.instructions.append('DIV')
+            self.instructions.append('div')
+        elif op == '%':
+            self.instructions.append('mod')
                 
     def visitComparisonOp(self, op):
         if op == '==':
-            operation = 'EQ'
+            operation = 'eq'
         elif op == '!=':
-            operation = 'NEQ'
+            operation = 'neq'
         elif op == '>':
-            operation = 'GT'
+            operation = 'gt'
         elif op == '<':
-            operation = 'LT'
+            operation = 'lt'
         elif op == '>=':
-            operation = 'GTE'
+            operation = 'gte'
         elif op == '<=':
-            operation = 'LTE'
+            operation = 'lte'
         
         self.instructions.append(operation)
         return operation 
@@ -1079,15 +1088,15 @@ class VMCodeGenerator(joiVisitor):
             #assignOp must work only on integers or floats
             op = ctx.assignOp().getText()                
             if op == '+=':
-                self.instructions.append('ADD')  
+                self.instructions.append('add')  
             elif op == '-=':
-                self.instructions.append('SUB')  
+                self.instructions.append('sub')  
             elif op == '*=':
-                self.instructions.append('MUL')  
+                self.instructions.append('mul')  
             elif op == '/=':
-                self.instructions.append('DIV')
+                self.instructions.append('div')
             elif op == '%=':
-                self.instructions.append('MOD') 
+                self.instructions.append('mod') 
 
             if((data_type_of_member!='int' or data_type_of_value_to_assign!='int') and (data_type_of_member!='float' or data_type_of_value_to_assign!='float')):
                 ExitFromProgram(f'can perform {op} operation only int and floats.\n{struct_var_member} is of {data_type_of_member} and you are trying to do {op} with {data_type_of_value_to_assign}')
@@ -1161,9 +1170,9 @@ class VMCodeGenerator(joiVisitor):
 
 
     def visitMainFunction(self, ctx:joiParser.MainFunctionContext):
-        self.instructions.append('LABEL MAIN')  
+        self.instructions.append('function joi 0 int')  
         self.visit(ctx.statements())  
-        self.instructions.append('RETURN')  
         self.visit(ctx.expression())  
-        self.instructions.append('HALT')  
+        self.instructions.append('return')  
+        self.instructions.append('halt')  
         symbolTable.display()
