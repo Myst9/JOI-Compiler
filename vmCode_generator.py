@@ -777,7 +777,7 @@ class VMCodeGenerator(joiVisitor):
                 if(data_type_of_index!='int'):
                     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             self.instructions.append(f'ARR_INDEX END')
-            self.instructions.append(f'push array local {id_of_array} {data_type_of_array.upper()}')  
+            # self.instructions.append(f'push array local {id_of_array} {data_type_of_array.upper()}')  
             # self.instructions.append(f'PUSH {index}')  
             expr, data_type_of_assigning_value = self.visit(ctx.expression(len(ctx.expression())-1))  
 
