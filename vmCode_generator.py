@@ -422,9 +422,9 @@ class VMCodeGenerator(joiVisitor):
                     # self.instructions.append(f'STORE {var[1]}') # Store initialized value
                     # self.instructions.append(f'POP {var[1]}') # since it is only declaration you can take it out.
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type, value='ytd') # we don't know how to get expression value to put it here
-                    self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Declaration
-                    self.instructions.append(f'STORE {var[1]}') # Store initialized value
-                    self.instructions.append(f'pop local {symbolTable.read(var[1])["id"]} {data_type}') # since it is only declaration you can take it out.
+                    # self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Declaration
+                    # self.instructions.append(f'STORE {var[1]}') # Store initialized value
+                    # self.instructions.append(f'pop local {symbolTable.read(var[1])["id"]} {data_type}') # since it is only declaration you can take it out.
             
             elif ctx.NEW():
                 for var in variables:
@@ -450,7 +450,7 @@ class VMCodeGenerator(joiVisitor):
                         ExitFromProgram(f'already declared {var[1]} variable')
                     # self.instructions.append(f'DECLARE {data_type} {var[1]}')  # Just declare if no assignment
                     symbolTable.create(name=var[1], symbol_type=var[0], scope='ytd', datatype=data_type)
-                    self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Just declare if no assignment
+                    # self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Just declare if no assignment
 
             return variables
         elif(ctx.arrayDeclarationStmt()):
@@ -636,12 +636,12 @@ class VMCodeGenerator(joiVisitor):
                     self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name}')
                     self.instructions.append('push constant 1 int')
                     self.instructions.append('add')
-                    self.instructions.append(f'store local {id_of_var_name} {data_type_of_var_name}')
+                    self.instructions.append(f'pop local {id_of_var_name} {data_type_of_var_name}')
                 else: #post-increment # the jugaad is to increase the value but not use it for operations. see below
                     self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name}')
                     self.instructions.append('push constant 1 int')
                     self.instructions.append('add')
-                    self.instructions.append(f'store local {id_of_var_name} {data_type_of_var_name}') ##same like pre-incrment now var is var+1 and is stored
+                    self.instructions.append(f'pop local {id_of_var_name} {data_type_of_var_name}') ##same like pre-incrment now var is var+1 and is stored
                     # now we subtract it by 1
                     self.instructions.append('push constant 1 int')
                     self.instructions.append('sub')
@@ -656,12 +656,12 @@ class VMCodeGenerator(joiVisitor):
                     self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name}')
                     self.instructions.append('push constant 1 int')
                     self.instructions.append('sub')
-                    self.instructions.append(f'store local {id_of_var_name} {data_type_of_var_name}')
+                    self.instructions.append(f'pop local {id_of_var_name} {data_type_of_var_name}')
                 else: #post-decrement # the jugaad is to decrease the value but not use it for operations. see below
                     self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name}')
                     self.instructions.append('push constant 1 int')
                     self.instructions.append('sub')
-                    self.instructions.append(f'store local {id_of_var_name} {data_type_of_var_name}') ##same like pre-decrment now var is var-1 and is stored
+                    self.instructions.append(f'pop local {id_of_var_name} {data_type_of_var_name}') ##same like pre-decrment now var is var-1 and is stored
                     # now we add 1 to it
                     self.instructions.append('push constant 1 int')
                     self.instructions.append('add')
@@ -802,7 +802,7 @@ class VMCodeGenerator(joiVisitor):
             if(data_type_of_assigning_value!=data_type_of_variable):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
 
-            self.instructions.append(f'store local {id_of_variable} {data_type_of_variable}')  
+            # self.instructions.append(f'store local {id_of_variable} {data_type_of_variable}')  
             self.instructions.append(f'pop local {id_of_variable} {data_type_of_variable}')  
 
         # (IDENTIFIER assignOp expression ';')
@@ -834,7 +834,7 @@ class VMCodeGenerator(joiVisitor):
             elif op == '%=':
                 self.instructions.append('mod') 
             
-            self.instructions.append(f'store local {id_of_variable} {data_type_of_variable}')
+            # self.instructions.append(f'store local {id_of_variable} {data_type_of_variable}')
             self.instructions.append(f'pop local {id_of_variable} {data_type_of_variable}')  
 
         # to be done
