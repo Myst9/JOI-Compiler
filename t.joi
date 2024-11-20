@@ -10,17 +10,24 @@ struct car:
     int d[2]={1};
 :
 
-int add(int c, char e);
+int add(int c, char e):
+return c+3;
+:
+
+void func();
 
 int joi() {
     ## Define two 3x3 matrices
 
     ##int f = add(4 , 'e');
-    ##int f = 3;
+    int f = 3;
     ##int $g = new int;
-    int g = 3;
-    int f[10][3];
-    int h = f[2][g+2];
+    ##int g = add(1, '2');
+    ##func();
+    ##g += 5;
+    ##int f[10][3];
+    ##int h = f[2][g+2] + 2;
+    ##f[0][1] -= 2;
 
     return 0;
 }

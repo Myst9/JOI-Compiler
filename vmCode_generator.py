@@ -39,6 +39,7 @@ def ExitFromProgram(errormessage):
 class VMCodeGenerator(joiVisitor):
     def __init__(self):
         self.instructions = [] 
+        self.optimised_instructions = []
 
     def visitProgram(self, ctx:joiParser.ProgramContext):
         self.visitChildren(ctx)
@@ -370,6 +371,7 @@ class VMCodeGenerator(joiVisitor):
         
         # Arguments in a function call
         arguments_data_types = []
+        arguments=[]
         if(ctx.argList()):
             # self.instructions.append(f'ARGS_START')
             arguments, arguments_data_types = self.visit(ctx.argList())
@@ -384,7 +386,7 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'The arguments and parameters are not matching for the function {func_name}')
 
         self.instructions.append(f'call {func_name} {len(arguments)}')
-
+        symbolTable.update(name=func_name, functioncalled=True)
         return func_name, function_return_type
 
     
@@ -770,15 +772,16 @@ class VMCodeGenerator(joiVisitor):
             #     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
             
             # self.instructions.append(f'push array local {id_of_array} {data_type_of_array}') 
-            self.instructions.append(f'pop local {id_of_array} ptr')   
-            self.instructions.append(f'ARR_INDEX START')
+            self.instructions.append(f'push local {id_of_array} ptr')   
+            # self.instructions.append(f'ARR_INDEX START')
             for i in range(0, len(ctx.expression()) - 1):
                 index, data_type_of_index = self.visit(ctx.expression(i)) 
                 if(data_type_of_index!='int'):
                     ExitFromProgram(f'array cannot be accessed with {data_type_of_index} in []. Please use integers') 
-            self.instructions.append(f'ARR_INDEX END')
+            # self.instructions.append(f'ARR_INDEX END')
             # self.instructions.append(f'push array local {id_of_array} {data_type_of_array.upper()}')  
             # self.instructions.append(f'PUSH {index}')  
+            self.instructions.append(f'getindex')
             expr, data_type_of_assigning_value = self.visit(ctx.expression(len(ctx.expression())-1))  
 
             if(ctx.assignOp()):
@@ -799,7 +802,9 @@ class VMCodeGenerator(joiVisitor):
 
             if(data_type_of_array!=data_type_of_assigning_value):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_array}')
-            self.instructions.append(f'pop array local {id_of_array} {data_type_of_array.upper()}') 
+            # self.instructions.append(f'pop array local {id_of_array} {data_type_of_array.upper()}') 
+            self.instructions.append(f'store {data_type_of_array.upper()}') 
+
         elif ctx.idOrPointerOrAddrId() and ctx.expression(0) and not ctx.assignOp(): # a = 3 type statements
             var_name = self.visit(ctx.idOrPointerOrAddrId())[1] 
             
@@ -1246,3 +1251,37 @@ class VMCodeGenerator(joiVisitor):
         self.instructions.append('return')  
         self.instructions.append('halt')  
         symbolTable.display()
+        # print("\nOPTIMISED CODE\n")
+        self.optimised_instructions = self.optimise_unused_functions()
+        # optimised_code_instruction_form = ""
+        # for i in optimised_code_array_form:
+        #     optimised_code_instruction_form.append(i)
+        # print(optimised_code_instruction_form)
+
+    def optimise_unused_functions(self):
+        unused_functions = [
+        name for name, attributes in symbolTable.table.items()
+        if attributes['type'] == 'function' and not attributes['functioncalled']
+        ]
+    
+        optimized_instructions = self.instructions[:]
+    
+        for function in unused_functions:
+            try:
+                # Find the line where the function appears
+                start_index = next(i for i, line in enumerate(optimized_instructions) if function in line)
+                
+                # Find the first 'return' after the function's line
+                end_index = next(
+                    i for i in range(start_index + 1, len(optimized_instructions)) if 'return' in optimized_instructions[i] or 'return_' in optimized_instructions[i]
+                )
+                
+                # Remove lines between start_index and end_index
+                optimized_instructions = (
+                    optimized_instructions[:start_index] + optimized_instructions[end_index + 1:]
+                )
+            except StopIteration:
+                # If no 'return' is found or the function name isn't in the instructions, skip
+                continue
+    
+        return optimized_instructions

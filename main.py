@@ -28,8 +28,13 @@ def main():
         code_generator.visit(tree)
 
         # Print generated VM instructions
+        print("\nBEFORE OPTIMISATION JUST AFTER COMPILING")
         for instruction in code_generator.instructions:
-                print(instruction)
+            print(instruction)
+
+        print("\nAFTER FUNCTION CALL OPTIMISATION\n")
+        for instruction in code_generator.optimised_instructions:
+            print(instruction)
 
     except Exception as e:
         print(e)
