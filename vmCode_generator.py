@@ -871,56 +871,89 @@ class VMCodeGenerator(joiVisitor):
         # self.instructions.append('RETURN')
         return varname_of_return, data_type_of_return
 
+    # def visitIfStmt(self, ctx: joiParser.IfStmtContext):
+    #     varname_of_condition, data_type_of_condition = self.visit(ctx.condition()) #varname of condition is not useful in this case for big expressions.. can be useful only if condition is singel variable
+    #     #however we don't use the above things.. they are there only for future purposes
+    #     global elseifqueue, elseifq, elseq, elseifqueue, ifq, elsequeue
+    #     k=0
+    #     if(len(ctx.elseIfStmt())>0):
+    #         k=1
+    #         for i in range(elseifq+len(ctx.elseIfStmt())-1, elseifq-1, -1):
+    #             elseifqueue.append(i)
+    #         elseifq+=len(ctx.elseIfStmt())
+    #     if(ctx.elseStmt()):
+    #         k=1
+    #         elsequeue.append(elseq)
+    #         elseq+=1
+
+    #     if(k):
+    #         if(len(elseifqueue)>0):
+    #             self.instructions.append(f'JZ, elseif_{elseifqueue[-1]}')
+    #         elif(elsequeue):
+    #             self.instructions.append(f'JZ, else_{elsequeue[-1]}')
+    #     else:
+    #         self.instructions.append(f'JZ, goto end_if_{ifqueue[-1]}')
+
+    #     self.visit(ctx.statements())
+    #     self.instructions.append(f'goto end_if_{ifqueue[-1]}')
+
+    #     for elseifstmt in ctx.elseIfStmt():
+    #         self.instructions.append(f'elseif_{elseifqueue[-1]}:')
+    #         elseifqueue.pop()
+    #         self.visit(elseifstmt)
+    #         self.instructions.append(f'goto end_if_{ifqueue[-1]}')
+
+    #     if(ctx.elseStmt()):
+    #         self.instructions.append(f'else_{elsequeue[-1]}:')
+    #         self.visit(ctx.elseStmt())
+    #         elsequeue.pop()
+    #     self.instructions.append(f'end_if_{ifqueue[-1]}:')
+    #     ifqueue.pop()
+
     def visitIfStmt(self, ctx: joiParser.IfStmtContext):
-        varname_of_condition, data_type_of_condition = self.visit(ctx.condition()) #varname of condition is not useful in this case for big expressions.. can be useful only if condition is singel variable
-        #however we don't use the above things.. they are there only for future purposes
-        global elseifqueue, elseifq, elseq, elseifqueue, ifq, elsequeue
-        k=0
-        if(len(ctx.elseIfStmt())>0):
-            k=1
-            for i in range(elseifq+len(ctx.elseIfStmt())-1, elseifq-1, -1):
-                elseifqueue.append(i)
-            elseifq+=len(ctx.elseIfStmt())
-        if(ctx.elseStmt()):
-            k=1
-            elsequeue.append(elseq)
-            elseq+=1
+        global ifqueue
+        current_if_index = len(ifqueue)
+        ifqueue.append(current_if_index)
 
-        if(k):
-            if(len(elseifqueue)>0):
-                self.instructions.append(f'JZ, elseif_{elseifqueue[-1]}')
-            elif(elsequeue):
-                self.instructions.append(f'JZ, else_{elsequeue[-1]}')
-        else:
-            self.instructions.append(f'JZ, end_if_{ifqueue[-1]}')
-
+        self.visit(ctx.condition())
+        self.instructions.append(f'if-goto IF_TRUE{current_if_index}')
+        self.instructions.append(f'goto IF_FALSE{current_if_index}')
+        self.instructions.append(f'label IF_TRUE{current_if_index}')
         self.visit(ctx.statements())
-        self.instructions.append(f'goto end_if_{ifqueue[-1]}')
+        self.instructions.append(f'goto IF_END{current_if_index}')
 
         for elseifstmt in ctx.elseIfStmt():
-            self.instructions.append(f'elseif_{elseifqueue[-1]}:')
-            elseifqueue.pop()
-            self.visit(elseifstmt)
-            self.instructions.append(f'goto end_if_{ifqueue[-1]}')
+            self.instructions.append(f'label IF_FALSE{current_if_index}')
+            self.visit(elseifstmt.condition())
+            current_if_index += 1
+            self.instructions.append(f'if-goto IF_TRUE{current_if_index}')
+            self.instructions.append(f'goto IF_FALSE{current_if_index}')
+            self.instructions.append(f'label IF_TRUE{current_if_index}')
+            self.visit(elseifstmt.statements())
+            self.instructions.append(f'goto IF_END{ifqueue[-1]}')
 
-        if(ctx.elseStmt()):
-            self.instructions.append(f'else_{elsequeue[-1]}:')
+        if ctx.elseStmt():
+            self.instructions.append(f'label IF_FALSE{current_if_index}')
             self.visit(ctx.elseStmt())
-            elsequeue.pop()
-        self.instructions.append(f'end_if_{ifqueue[-1]}:')
+            self.instructions.append(f'goto IF_END{ifqueue[-1]}')
+        else:
+            self.instructions.append(f'label IF_FALSE{current_if_index}')
+
+        self.instructions.append(f'label IF_END{ifqueue[-1]}')
         ifqueue.pop()
 
-    def visitElseIfStmt(self, ctx: joiParser.ElseIfStmtContext):
-        varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
-        global elseifqueue, elseifq, elseq, elseifqueue, ifq, elsequeue
-        if(elseifqueue):
-            self.instructions.append(f'JZ, elseif_{elseifqueue[-1]}')
-        else:
-            self.instructions.append(f'JZ, else_{elsequeue[-1]}')
-        self.visit(ctx.statements())
+    # def visitElseIfStmt(self, ctx: joiParser.ElseIfStmtContext):
+    #     varname_of_condition, data_type_of_condition = self.visit(ctx.condition())
+    #     global elseifqueue, elseifq, elseq, elseifqueue, ifq, elsequeue
+    #     if(elseifqueue):
+    #         self.instructions.append(f'JZ, elseif_{elseifqueue[-1]}')
+    #     else:
+    #         self.instructions.append(f'JZ, else_{elsequeue[-1]}')
+    #     self.visit(ctx.statements())
 
-    def visitElseStmt(self, ctx: joiParser.ElseStmtContext):
-        self.visit(ctx.statements())
+    # def visitElseStmt(self, ctx: joiParser.ElseStmtContext):
+    #     self.visit(ctx.statements())
+
 
     # def visitWhileStmt(self, ctx: joiParser.WhileStmtContext):
     #     global loopqueue, whileq, BreakOrContinueWhichLoop
