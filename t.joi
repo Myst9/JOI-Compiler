@@ -1,3 +1,5 @@
+#include <main.h>
+#include <tx.h>
 #include <iostream>
 using namespace std;
 ## Dynamic memory allocation and deallocation in joi
@@ -12,7 +14,9 @@ void add(int c, char e);
 
 int joi() {
     ## Define two 3x3 matrices
-
+    car c;
+    float f=-2.3;
+    
     while 1:{
     continue;
 }
