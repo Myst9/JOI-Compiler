@@ -30,6 +30,7 @@ forq=0
 label_counter=0
 current_func_name=None
 current_func_return_type=None
+returnStmtFound=False
 # thisisaconstdeclstmt = 0
 
 symbolTable = SymbolTable()
@@ -294,7 +295,7 @@ class VMCodeGenerator(joiVisitor):
         return "", "str"
     
     def visitFunctionDef(self, ctx: joiParser.FunctionDefContext):
-        global current_func_name, current_func_return_type
+        global current_func_name, current_func_return_type, returnStmtFound
         return_type="void"
         if(ctx.dataType()):#talks about which return type the function is
             return_type = ctx.dataType().getText() 
@@ -335,7 +336,9 @@ class VMCodeGenerator(joiVisitor):
                 # else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
                 #     if(return_type!="void"):
                 #         ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')
-            
+            if(return_type!='void' and not returnStmtFound):
+                ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')
+            returnStmtFound = False
             # self.instructions.append('return')#this appears only when it is defined not when it is declared
             
         else: #func is declared here.. but the definition is in someother file
@@ -878,9 +881,10 @@ class VMCodeGenerator(joiVisitor):
             raise Exception("Unhandled assignment statement type")
 
     def visitReturnStmt(self, ctx:joiParser.ReturnStmtContext):
-        global current_func_name, current_func_return_type
+        global current_func_name, current_func_return_type, returnStmtFound
         varname_of_return = None
         data_type_of_return = None
+        returnStmtFound = True
         if ctx.expression():
             varname_of_return, data_type_of_return = self.visit(ctx.expression())
         # self.instructions.append('RETURN')
@@ -891,7 +895,7 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'You cannot return anything for a void function')
         if(return_type!=data_type_func_returns):
             ExitFromProgram(f'function {func_name} should return {return_type.upper()}, but you are returning {data_type_func_returns}')
-                
+             
                 # else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
                 #     if(return_type!="void"):
                 #         ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')

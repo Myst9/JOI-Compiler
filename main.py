@@ -60,7 +60,7 @@ def main():
             with open(output_path, 'w') as vm_file:
                 # Placeholder processing logic - just copying content for now
                 printingstmt=""
-                for instruction in code_generator.instructions:
+                for instruction in code_generator.optimised_instructions:
                     printingstmt+=instruction+"\n"
                 vm_file.write(printingstmt)
             
