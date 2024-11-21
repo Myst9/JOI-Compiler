@@ -1,0 +1,21 @@
+lib iostream.jvm
+function printString 1 VOID
+return_
+function printInt 1 VOID
+return_
+function joi 0 INT
+push constant 1 INT
+pop local 18 INT
+push constant 2 INT
+pop local 19 INT
+push local 18 INT
+push local 19 INT
+add
+pop local 20 INT
+push constant "Sum is " STR
+call printString 1
+push local 20 INT
+call printInt 1
+push constant 0 INT
+return
+halt

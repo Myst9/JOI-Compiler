@@ -1,0 +1,121 @@
+pop local 0 int
+function vector_init 3 VOID
+push argument vector float
+push argument _size int
+push argument value float
+push constant 0 INT
+pop local 0 INT
+LABEL #L19
+push local 0 INT
+push local 2 INT
+lt
+JZ, goto end_#L19
+push local 1 ptr
+push local 0 INT
+getindex
+push local 3 FLOAT
+store FLOAT
+push local 0 INT
+push constant 1 INT
+add
+pop local 0 INT
+push constant 1 INT
+sub
+goto #L19
+LABEL end_#L19
+return
+function vector_add 4 VOID
+push argument result float
+push argument vector1 float
+push argument vector2 float
+push argument size int
+push constant 0 INT
+pop local 0 INT
+LABEL #L20
+push local 0 INT
+push local 8 INT
+lt
+JZ, goto end_#L20
+push local 5 ptr
+push local 0 INT
+getindex
+push local 6 ptr
+push local 0 INT
+getindex
+access float
+push local 7 ptr
+push local 0 INT
+getindex
+access float
+add
+store FLOAT
+push local 0 INT
+push constant 1 INT
+add
+pop local 0 INT
+push constant 1 INT
+sub
+goto #L20
+LABEL end_#L20
+return
+function vector_scale 3 VOID
+push argument vector_ float
+push argument size_ int
+push argument scalar float
+push constant 0 INT
+pop local 0 INT
+LABEL #L21
+push local 0 INT
+push local 11 INT
+lt
+JZ, goto end_#L21
+push local 10 ptr
+push local 0 INT
+getindex
+push local 12 FLOAT
+mul
+store FLOAT
+push local 0 INT
+push constant 1 INT
+add
+pop local 0 INT
+push constant 1 INT
+sub
+goto #L21
+LABEL end_#L21
+return
+function vector_dot 3 FLOAT
+push argument vector1_ float
+push argument vector2_ float
+push argument size__ int
+push constant 0.0 FLOAT
+pop local 18 FLOAT
+push constant 0 INT
+pop local 0 INT
+LABEL #L22
+push local 0 INT
+push local 16 INT
+lt
+JZ, goto end_#L22
+push local 18 FLOAT
+push local 14 ptr
+push local 0 INT
+getindex
+access float
+push local 15 ptr
+push local 0 INT
+getindex
+access float
+mul
+add
+pop local 18 FLOAT
+push local 0 INT
+push constant 1 INT
+add
+pop local 0 INT
+push constant 1 INT
+sub
+goto #L22
+LABEL end_#L22
+push local 18 FLOAT
+return

@@ -1,0 +1,54 @@
+#include <iostream.joi>
+#include <string.joi>
+#include <display.joi>
+#include <keyboard.joi>
+#include <e1.joi>
+#include <m1.joi>
+#include <c1.joi>
+#include <c2.joi>
+
+str read_string(char $input_, int $max_length);
+str strcmp(char $str1_, str str2_);
+str print_string(str $str_);
+void clear_screen();
+int e1();
+int m1();
+int c1();
+int c2();
+
+int joi(){
+    char $input[100];
+    read_string($input, 100);
+    
+    if strcmp($input, "clear") == 0:{
+        clear_screen();
+    }
+    else if strcmp($input, "exit") == 0:{
+        return 1;
+    }
+    else if strcmp($input, "ls") == 0:{
+        print_string("sum of two numbers");
+        print_string("factorial of a number");
+        print_string("bubble sort");
+        print_string("matrix multiplication");
+    }
+    else if strcmp($input, "sum of two numbers") == 0:{
+        e1();
+    }
+    else if strcmp($input, "factorial of a number") == 0:{
+        m1();
+    }
+    else if strcmp($input, "bubble sort") == 0:{
+        c1();
+    }
+    else if strcmp($input, "matrix multiplication") == 0:{
+        c2();
+    }
+    else:{
+        print_string("invalid command");
+    }
+
+
+
+    return 0;
+}

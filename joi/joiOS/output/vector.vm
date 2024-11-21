@@ -1,0 +1,118 @@
+pop local 175 int
+function vector_init 3 VOID
+push argument vector float
+push argument _size int
+push argument value float
+push constant 0 INT
+pop local 175 INT
+LABEL #L34
+push local 175 INT
+push local 177 INT
+lt
+JZ, goto end_#L34
+push local 176 ptr
+push local 175 INT
+getindex
+push local 178 FLOAT
+store FLOAT
+push local 175 INT
+push constant 1 INT
+add
+pop local 175 INT
+push constant 1 INT
+sub
+goto #L34
+LABEL end_#L34
+function vector_add 4 VOID
+push argument result float
+push argument vector1 float
+push argument vector2 float
+push argument size int
+push constant 0 INT
+pop local 175 INT
+LABEL #L35
+push local 175 INT
+push local 183 INT
+lt
+JZ, goto end_#L35
+push local 180 ptr
+push local 175 INT
+getindex
+push local 181 ptr
+push local 175 INT
+getindex
+access float
+push local 182 ptr
+push local 175 INT
+getindex
+access float
+add
+store FLOAT
+push local 175 INT
+push constant 1 INT
+add
+pop local 175 INT
+push constant 1 INT
+sub
+goto #L35
+LABEL end_#L35
+function vector_scale 3 VOID
+push argument vector_ float
+push argument size_ int
+push argument scalar float
+push constant 0 INT
+pop local 175 INT
+LABEL #L36
+push local 175 INT
+push local 186 INT
+lt
+JZ, goto end_#L36
+push local 185 ptr
+push local 175 INT
+getindex
+push local 187 FLOAT
+mul
+store FLOAT
+push local 175 INT
+push constant 1 INT
+add
+pop local 175 INT
+push constant 1 INT
+sub
+goto #L36
+LABEL end_#L36
+function vector_dot 3 FLOAT
+push argument vector1_ float
+push argument vector2_ float
+push argument size__ int
+push constant 0.0 FLOAT
+pop local 193 FLOAT
+push constant 0 INT
+pop local 175 INT
+LABEL #L37
+push local 175 INT
+push local 191 INT
+lt
+JZ, goto end_#L37
+push local 193 FLOAT
+push local 189 ptr
+push local 175 INT
+getindex
+access float
+push local 190 ptr
+push local 175 INT
+getindex
+access float
+mul
+add
+pop local 193 FLOAT
+push local 175 INT
+push constant 1 INT
+add
+pop local 175 INT
+push constant 1 INT
+sub
+goto #L37
+LABEL end_#L37
+push local 193 FLOAT
+return

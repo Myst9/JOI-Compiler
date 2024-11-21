@@ -1,0 +1,178 @@
+pop local 108 int
+function exp 1 FLOAT
+push argument x_ float
+push constant 1.0 FLOAT
+pop local 111 FLOAT
+push constant 1.0 FLOAT
+pop local 112 FLOAT
+push constant 1 INT
+pop local 108 INT
+LABEL #L19
+push local 108 INT
+push constant 20 INT
+lte
+JZ, goto end_#L19
+push local 112 FLOAT
+push local 109 FLOAT
+push local 108 INT
+div
+mul
+pop local 112 FLOAT
+push local 111 FLOAT
+push local 112 FLOAT
+add
+pop local 111 FLOAT
+push local 108 INT
+push constant 1 INT
+add
+pop local 108 INT
+push constant 1 INT
+sub
+goto #L19
+LABEL end_#L19
+push local 111 FLOAT
+return
+function power 2 FLOAT
+push argument base float
+push argument exponent float
+push constant 1.0 FLOAT
+pop local 116 FLOAT
+push local 114 FLOAT
+push constant 0 INT
+gt
+if-goto IF_TRUE21
+goto IF_FALSE21
+label IF_TRUE21
+push constant 0 INT
+pop local 108 INT
+LABEL #L20
+push local 108 INT
+push local 114 FLOAT
+lt
+JZ, goto end_#L20
+push local 116 FLOAT
+push local 113 FLOAT
+mul
+pop local 116 FLOAT
+push local 108 INT
+push constant 1 INT
+add
+pop local 108 INT
+goto #L20
+LABEL end_#L20
+goto IF_END21
+label IF_FALSE21
+push local 114 FLOAT
+push constant 0 INT
+lt
+if-goto IF_TRUE22
+goto IF_FALSE22
+label IF_TRUE22
+push constant 0 INT
+pop local 108 INT
+LABEL #L21
+push local 108 INT
+push constant -1 INT
+push local 114 FLOAT
+mul
+lt
+JZ, goto end_#L21
+push local 116 FLOAT
+push local 113 FLOAT
+mul
+pop local 116 FLOAT
+push local 108 INT
+push constant 1 INT
+add
+pop local 108 INT
+goto #L21
+LABEL end_#L21
+push constant 1.0 FLOAT
+push local 116 FLOAT
+div
+pop local 116 FLOAT
+goto IF_END21
+label IF_FALSE22
+label IF_END21
+push local 116 FLOAT
+return
+function mod 2 INT
+push argument x int
+push argument y int
+push local 118 INT
+push constant 0 INT
+eq
+if-goto IF_TRUE22
+goto IF_FALSE22
+label IF_TRUE22
+push constant -1 INT
+return
+goto IF_END22
+label IF_FALSE22
+label IF_END22
+push local 117 INT
+push local 118 INT
+div
+pop local 120 INT
+push local 117 INT
+push local 120 INT
+push local 118 INT
+mul
+sub
+pop local 121 INT
+push local 118 INT
+push constant 0 INT
+gt
+push local 121 INT
+push constant 0 INT
+lt
+and
+if-goto IF_TRUE23
+goto IF_FALSE23
+label IF_TRUE23
+push local 121 INT
+push local 118 INT
+add
+pop local 121 INT
+goto IF_END23
+label IF_FALSE23
+label IF_END23
+push local 118 INT
+push constant 0 INT
+lt
+push local 116 FLOAT
+push constant 0 INT
+gt
+and
+if-goto IF_TRUE24
+goto IF_FALSE24
+label IF_TRUE24
+push local 121 INT
+push local 118 INT
+add
+pop local 121 INT
+goto IF_END24
+label IF_FALSE24
+label IF_END24
+push local 121 INT
+return
+function gcd 2 INT
+push argument a int
+push argument b int
+LABEL #L22
+push local 123 INT
+push constant 0 INT
+neq
+JZ, goto end_#L22
+push local 123 INT
+pop local 125 INT
+push local 122 INT
+push local 123 INT
+mod
+pop local 123 INT
+push local 125 INT
+pop local 122 INT
+goto #L22
+LABEL end_#L22
+push local 122 INT
+return

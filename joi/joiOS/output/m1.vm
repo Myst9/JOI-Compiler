@@ -1,0 +1,31 @@
+function factorial 1 INT
+push argument n int
+push local 104 INT
+push constant 0 INT
+eq
+if-goto IF_TRUE20
+goto IF_FALSE20
+label IF_TRUE20
+push constant 1 INT
+return
+goto IF_END20
+label IF_FALSE20
+label IF_END20
+push local 104 INT
+push local 104 INT
+push constant 1 INT
+sub
+call factorial 1
+mul
+return
+function m1 0 INT
+push constant 7 INT
+pop local 107 INT
+push constant "Factorial: " STR
+push data "Factorial: " STR
+push local 107 INT
+call factorial 1
+push data factorial INT
+push data \n STR
+push constant 0 INT
+return

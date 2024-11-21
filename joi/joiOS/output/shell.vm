@@ -1,0 +1,123 @@
+lib iostream.jvm
+lib string.jvm
+lib display.jvm
+lib keyboard.jvm
+lib e1.jvm
+lib m1.jvm
+lib c1.jvm
+lib c2.jvm
+function read_string 2 STR
+return_
+function strcmp 2 STR
+return_
+function print_string 1 STR
+return_
+function clear_screen 0 VOID
+return_
+function e1 0 INT
+return_
+function m1 0 INT
+return_
+function c1 0 INT
+return_
+function c2 0 INT
+return_
+function joi 0 INT
+push constant 100 INT
+alloc 100 int
+pop local 139 ptr
+push local 139 CHAR
+push constant 100 INT
+call read_string 2
+push local 139 CHAR
+push constant "clear" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE25
+goto IF_FALSE25
+label IF_TRUE25
+call clear_screen 0
+goto IF_END25
+label IF_FALSE25
+push local 139 CHAR
+push constant "exit" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE26
+goto IF_FALSE26
+label IF_TRUE26
+push constant 1 INT
+return
+goto IF_END25
+label IF_FALSE26
+push local 139 CHAR
+push constant "ls" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE27
+goto IF_FALSE27
+label IF_TRUE27
+push constant "sum of two numbers" STR
+call print_string 1
+push constant "factorial of a number" STR
+call print_string 1
+push constant "bubble sort" STR
+call print_string 1
+push constant "matrix multiplication" STR
+call print_string 1
+goto IF_END25
+label IF_FALSE27
+push local 139 CHAR
+push constant "sum of two numbers" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE28
+goto IF_FALSE28
+label IF_TRUE28
+call e1 0
+goto IF_END25
+label IF_FALSE28
+push local 139 CHAR
+push constant "factorial of a number" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE29
+goto IF_FALSE29
+label IF_TRUE29
+call m1 0
+goto IF_END25
+label IF_FALSE29
+push local 139 CHAR
+push constant "bubble sort" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE30
+goto IF_FALSE30
+label IF_TRUE30
+call c1 0
+goto IF_END25
+label IF_FALSE30
+push local 139 CHAR
+push constant "matrix multiplication" STR
+call strcmp 2
+push constant 0 INT
+eq
+if-goto IF_TRUE31
+goto IF_FALSE31
+label IF_TRUE31
+call c2 0
+goto IF_END25
+label IF_FALSE31
+push constant "invalid command" STR
+call print_string 1
+goto IF_END25
+label IF_END25
+push constant 0 INT
+return
+halt

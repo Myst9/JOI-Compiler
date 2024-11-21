@@ -1,0 +1,13 @@
+## Program to calculate factorial of a number
+int factorial(int n) :
+    if n == 0:{
+        return 1;
+    }
+    return n * factorial(n - 1);
+:
+
+int m1():
+    int num= 7;
+    cout << "Factorial: " << factorial(num) << endl;
+    return 0;
+:

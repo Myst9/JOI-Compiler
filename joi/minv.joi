@@ -1,7 +1,7 @@
 constant int MAX = 10; ## Set a maximum size for the matrix
 
 ## Function to perform Gaussian elimination to find the inverse of a matrix
-bool inverseMatrix(float matrix, float inverse, int n) :
+bool inverseMatrix(float $matrix, float $inverse, int n) :
     ## Initialize the inverse matrix as the identity matrix
     for int i = 0; i < n; i++ :
     {

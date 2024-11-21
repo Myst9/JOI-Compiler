@@ -347,7 +347,8 @@ class VMCodeGenerator(joiVisitor):
                 ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')
             returnStmtFound = False
             # self.instructions.append('return')#this appears only when it is defined not when it is declared
-            
+            if(return_type=='void'):
+                self.instructions.append('return')
         else: #func is declared here.. but the definition is in someother file
             symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array, functiondefined=False)
             self.instructions.append('return_') #this return statement helps us in code optimisation.. so this is useless for VM but for compiler optimisatino it has so much use.
@@ -390,7 +391,7 @@ class VMCodeGenerator(joiVisitor):
             
         func_name = ctx.IDENTIFIER().getText()
         if(not symbolTable.read(func_name)):
-            ExitFromProgram("No such function to call")
+            ExitFromProgram(f"No such function to call {func_name}")
         
         # Arguments in a function call
         arguments_data_types = []
@@ -442,7 +443,7 @@ class VMCodeGenerator(joiVisitor):
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
                         ExitFromProgram(f'already declared {var[1]} variable')
 
-                    if(data_type!=var_data_type): # prevents int a = 'c';
+                    if(data_type!='char' and data_type!='str' and data_type!=var_data_type): # prevents int a = 'c';
                         ExitFromProgram(f'Cannot assign {var_data_type} to {data_type}')
                     # self.instructions.append(f'DECLARE {var[1]} {data_type}')  # Declaration
                     # self.instructions.append(f'STORE {var[1]}') # Store initialized value
@@ -512,7 +513,7 @@ class VMCodeGenerator(joiVisitor):
         ##Here the initial values are assigned.
         if(ctx.arrayValueAssigning()):
             values, data_type_of_initial_values = self.visit(ctx.arrayValueAssigning())
-            if(data_type_of_initial_values!=data_type_of_array):
+            if(data_type_of_initial_values!='char' and data_type_of_initial_values!='str' and data_type_of_initial_values!=data_type_of_array):
                 ExitFromProgram(f'Cannot assign {data_type_of_initial_values} to {data_type_of_array}')
 
         # self.instructions.append(f'DECLARE {data_type_of_array} ARRAY {arrayName} of {arrayinfo[0]}') 
@@ -825,7 +826,7 @@ class VMCodeGenerator(joiVisitor):
                 if((data_type_of_array!='int' or data_type_of_assigning_value!='int') and (data_type_of_array!='float' or data_type_of_assigning_value!='float')):
                     ExitFromProgram(f'can perform {op} operation only int and floats.\n{var_name} is of {data_type_of_array} and you are trying to do {op} with {data_type_of_assigning_value}')
 
-            if(data_type_of_array!=data_type_of_assigning_value):
+            if(data_type_of_array!='char' and data_type_of_array!='str' and data_type_of_array!=data_type_of_assigning_value):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_array}')
             # self.instructions.append(f'pop array local {id_of_array} {data_type_of_array.upper()}') 
             self.instructions.append(f'store {data_type_of_array.upper()}') 
@@ -842,7 +843,7 @@ class VMCodeGenerator(joiVisitor):
             id_of_variable = symbolTable.read(var_name)['id']
             expr, data_type_of_assigning_value = self.visit(ctx.expression(0))  
 
-            if(data_type_of_assigning_value!=data_type_of_variable):
+            if(data_type_of_assigning_value!='char' and data_type_of_assigning_value!='str' and data_type_of_assigning_value!=data_type_of_variable):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
 
             # self.instructions.append(f'store local {id_of_variable} {data_type_of_variable}')  
@@ -863,7 +864,7 @@ class VMCodeGenerator(joiVisitor):
 
             self.instructions.append(f'push local {id_of_variable} {data_type_of_variable.upper()}')  
             expr, data_type_of_assigning_value = self.visit(ctx.expression(0))  
-            if(data_type_of_assigning_value!=data_type_of_variable):
+            if(data_type_of_assigning_value!='char' and data_type_of_assigning_value!='str' and data_type_of_assigning_value!=data_type_of_variable):
                 ExitFromProgram(f'Cannot assign {data_type_of_assigning_value} to {data_type_of_variable}')
             
             if op == '+=':
@@ -1309,10 +1310,10 @@ class VMCodeGenerator(joiVisitor):
         return None
 
     def visitHeader(self, ctx: joiParser.HeaderContext):
-        identifier = ctx.IDENTIFIER(0).getText()  
-        if ctx.IDENTIFIER(1):  
-            extension = ctx.IDENTIFIER(1).getText()
-            return f"{identifier}"
+        identifier = ctx.IDENTIFIER().getText()  
+        # if ctx.IDENTIFIER(1):  
+        #     extension = ctx.IDENTIFIER(1).getText()
+        #     return f"{identifier}"
         return identifier  
 
 

@@ -1,0 +1,9 @@
+int e1():
+    int num1 = 5; 
+    int num2 = 10;     int sum;
+
+    sum = num1 + num2;
+    cout << "Sum: " << sum << endl;
+    cout<<3+4+5<<endl;
+    return 0;
+:

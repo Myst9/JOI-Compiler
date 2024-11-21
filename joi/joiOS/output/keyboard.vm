@@ -1,0 +1,57 @@
+lib string.jvm
+function write_string 1 VOID
+return_
+function print_string 1 VOID
+return_
+function printInt 1 VOID
+return_
+function getInt 0 INT
+return_
+function getString 1 INT
+return_
+function atoi 1 INT
+return_
+function itoa 2 VOID
+return_
+function read_string 2 VOID
+return_
+function write_string 1 VOID
+return_
+function print_string 1 VOID
+push argument printstr char
+push local 96 CHAR
+call write_string 1
+function printInt 1 VOID
+push argument num int
+push constant 10 INT
+alloc 10 int
+pop local 98 ptr
+push local 97 INT
+push local 98 CHAR
+call itoa 2
+push local 98 CHAR
+call write_string 1
+function getInt 0 INT
+push constant 10 INT
+alloc 10 int
+pop local 99 ptr
+push local 99 CHAR
+push constant 10 INT
+call read_string 2
+push local 99 CHAR
+call atoi 1
+return
+function getString 1 INT
+push argument length int
+push local 100 INT
+alloc length int
+pop local 101 ptr
+push local 101 CHAR
+push local 100 INT
+call read_string 2
+push local 101 CHAR
+pop local 102 CHAR
+push local 102 CHAR
+pop local 103 INT
+push local 103 INT
+return

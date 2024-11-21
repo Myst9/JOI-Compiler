@@ -1,0 +1,38 @@
+int i;
+## Initializes a vector with a given value
+void vector_init(float$ vector, int _size, float value) :
+     i = 0;
+    while i < _size: {
+        vector[i] = value;
+        i++;
+    }
+:
+
+## Adds two vectors element-wise
+void vector_add(float$ result, float$ vector1, float$ vector2, int size) :
+    i = 0;
+    while i < size: {
+        result[i] = vector1[i] + vector2[i];
+        i++;
+    }
+:
+
+## Multiplies a vector by a scalar value
+void vector_scale(float$ vector_, int size_, float scalar) :
+     i = 0;
+    while i < size_: {
+        vector_[i] *= scalar;
+        i++;
+    }
+:
+
+## Computes the dot product of two vectors
+float vector_dot(float$ vector1_, float$ vector2_, int size__) :
+    float result_ = 0.0;
+     i = 0;
+    while i < size__: {
+        result_ += vector1_[i] * vector2_[i];
+        i++;
+    }
+    return result_;
+:

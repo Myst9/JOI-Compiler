@@ -1,0 +1,133 @@
+function c2 0 INT
+push constant 3 INT
+alloc 3 int
+push constant 3 INT
+alloc 3 int
+push constant 1 INT
+push constant 2 INT
+push constant 3 INT
+push constant 4 INT
+push constant 5 INT
+push constant 6 INT
+push constant 7 INT
+push constant 8 INT
+push constant 9 INT
+pop local 29 ptr
+push constant 3 INT
+alloc 3 int
+push constant 3 INT
+alloc 3 int
+push constant 9 INT
+push constant 8 INT
+push constant 7 INT
+push constant 6 INT
+push constant 5 INT
+push constant 4 INT
+push constant 3 INT
+push constant 2 INT
+push constant 1 INT
+pop local 30 ptr
+push constant 3 INT
+alloc 3 int
+push constant 3 INT
+alloc 3 int
+push constant 0 INT
+pop local 31 ptr
+push constant 0 INT
+pop local 32 INT
+LABEL #L7
+push local 32 INT
+push constant 3 INT
+lt
+JZ, goto end_#L7
+push constant 0 INT
+pop local 33 INT
+LABEL #L8
+push local 33 INT
+push constant 3 INT
+lt
+JZ, goto end_#L8
+push constant 0 INT
+pop local 34 INT
+LABEL #L9
+push local 34 INT
+push constant 3 INT
+lt
+JZ, goto end_#L9
+push local 31 ptr
+push local 32 INT
+push local 33 INT
+getindex
+push local 31 ptr
+push local 32 INT
+push local 33 INT
+getindex
+access int
+push local 29 ptr
+push local 32 INT
+push local 34 INT
+getindex
+access int
+push local 30 ptr
+push local 34 INT
+push local 33 INT
+getindex
+access int
+mul
+add
+store INT
+push local 34 INT
+push constant 1 INT
+add
+pop local 34 INT
+goto #L9
+LABEL end_#L9
+push local 33 INT
+push constant 1 INT
+add
+pop local 33 INT
+goto #L8
+LABEL end_#L8
+push local 32 INT
+push constant 1 INT
+add
+pop local 32 INT
+goto #L7
+LABEL end_#L7
+push constant 0 INT
+pop local 35 INT
+LABEL #L10
+push local 35 INT
+push constant 3 INT
+lt
+JZ, goto end_#L10
+push constant 0 INT
+pop local 36 INT
+LABEL #L11
+push local 36 INT
+push constant 3 INT
+lt
+JZ, goto end_#L11
+push local 31 ptr
+push local 35 INT
+push local 36 INT
+getindex
+access int
+push data result INT
+push constant " " STR
+push data " " STR
+push local 36 INT
+push constant 1 INT
+add
+pop local 36 INT
+goto #L11
+LABEL end_#L11
+push data \n STR
+push local 35 INT
+push constant 1 INT
+add
+pop local 35 INT
+goto #L10
+LABEL end_#L10
+push constant 0 INT
+return

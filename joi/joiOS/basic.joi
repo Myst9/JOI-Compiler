@@ -1,0 +1,11 @@
+#include <iostream.joi>
+void printString(str s_);
+void printInt(int i_);
+int joi() {
+    int a = 1;
+    int b = 2;
+    int sum = a + b;
+    printString("Sum is ");
+    printInt(sum);
+    return 0;
+}

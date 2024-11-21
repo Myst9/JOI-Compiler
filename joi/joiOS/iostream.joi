@@ -1,0 +1,40 @@
+#include <string.joi>
+
+void write_string(char $_p_);
+void print_string(char $_printstr_);
+void printInt(int _num_);
+int getInt();
+int getString(int _length_);
+int atoi(char $_strAtoi_);
+void itoa(int __num_, char $__strItoa_);
+void read_string(char $__recint, int _k__);
+
+void write_string(char $p__);
+
+void print_string(char $printstr)
+:
+    write_string($printstr);
+:
+
+void printInt(int num)
+:
+    char $printint[10];
+    itoa($num, $printint);
+    write_string($printint);
+:
+
+int getInt()
+:
+    char $recint[10];
+    read_string($recint, 10);
+    return atoi($recint);
+:
+
+int getString(int length)
+:
+    char $recstr[length];
+    read_string($recstr, length);
+    char __ch_ = $recstr;
+    int _a__ = (int)__ch_;
+    return _a__;
+:

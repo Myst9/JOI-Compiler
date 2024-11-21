@@ -1,0 +1,162 @@
+int length;
+int i;
+int j;
+## Function to calculate the length of a string
+int strlen(str strlenstr)
+:
+    length = 0;
+    while strlenstr[length] != '\0' :
+    {
+        length++;
+    }
+    return length;
+:
+
+## Function to copy a string from src to dest
+void strcpy(str destcpy, str srccpy)
+:
+    i = 0;
+    while srccpy[i] != '\0' :
+    {
+        destcpy[i] = srccpy[i];
+        i++;
+    }
+    destcpy[i] = '\0'; ## Null terminate the destination string
+:
+
+## Function to compare two strings (similar to strcmp)
+int strcmp(str str1, str str2)
+:
+    i = 0;
+    while str1[i] != '\0' && str2[i] != '\0' :
+    {
+        if str1[i] != str2[i] :
+        {
+            char diffChar = (str1[i] - str2[i]);
+            int diffInt = (int)diffChar;
+            return diffInt;
+        }
+        i++;
+    }
+    char diffChar1 = (str1[i] - str2[i]);
+    int diffInt1 = (int)diffChar;
+    return diffInt1;
+:
+
+## Function to concatenate two strings (similar to strcat)
+void strcat(str dest, str src)
+:
+    i = 0;
+    while dest[i] != '\0':
+    {
+        i++; ## Move to the end of the destination string
+    }
+    j = 0;
+    while src[j] != '\0' :
+    {
+        dest[i] = src[j]; ## Copy each character from src to dest
+        i++;
+        j++;
+    }
+    dest[i] = '\0'; ## Null terminate the concatenated string
+:
+
+## Function to convert a string to uppercase
+void to_uppercase(str strToUpper)
+:
+    i = 0;
+    while strToUpper[i] != '\0':
+    {
+        if strToUpper[i] >= 'a' && strToUpper[i] <= 'z' :
+        {
+            strToUpper[i] = strToUpper[i] - 'a' + 'A'; ## Convert to uppercase
+        }
+        i++;
+    }
+:
+
+## Function to convert a string to lowercase
+void to_lowercase(str strToLower)
+:
+    i = 0;
+    while strToLower[i] != '\0':
+    {
+        if strToLower[i] >= 'A' && strToLower[i] <= 'Z' :
+        {
+            strToLower[i] = strToLower[i] - 'A' + 'a'; ## Convert to lowercase
+        }
+        i++;
+    }
+:
+
+## Function to check if a string is a palindrome
+int is_palindrome(str strIsPalindrome)
+:
+    length = strlen(strIsPalindrome);
+    i = 0;
+    while i < length / 2:
+    {
+        if strIsPalindrome[i] != strIsPalindrome[length - i - 1] :
+        {
+            return 0; ## Not a palindrome
+        }
+        i++;
+    }
+    return 1; ## Is a palindrome
+:
+
+## Function to reverse a string
+void reverse(str strReverse)
+:
+    length = strlen(strReverse);
+    i = 0;
+    while i < length / 2:
+    {
+        char temp = strReverse[i];
+        strReverse[i] = strReverse[length - i - 1];
+        strReverse[length - i - 1] = temp;
+        i++;
+    }
+:
+
+## Function to convert a string to an integer
+int atoi(str strAtoi)
+:
+    int numAtoi = 0;
+    int signAtoi = 1;
+    i = 0;
+    if strAtoi[0] == '-' :
+    {
+        signAtoi = -1;
+        i++;
+    }
+    while strAtoi[i] != '\0':
+    {
+        numAtoi = numAtoi * 10 + (strAtoi[i] - '0');
+        i++;
+    }
+    return numAtoi * signAtoi;
+:
+
+## Function to convert an integer to a string
+void itoa(int numItoa, str strItoa)
+:
+    i = 0;
+    int is_negative = 0;
+    if numItoa < 0 :
+    {
+        is_negative = 1;
+        numItoa = -1 * numItoa;
+    }
+    while numItoa != 0:
+    {
+        strItoa[i++] = numItoa % 10 + '0';
+        numItoa = numItoa / 10;
+    }
+    if is_negative :
+    {
+        strItoa[i++] = '-';
+    }
+    strItoa[i] = '\0';
+    reverse(strItoa);
+:

@@ -1,0 +1,108 @@
+function c1 0 INT
+push constant 6 INT
+alloc 6 int
+push constant 5 INT
+push constant 2 INT
+push constant 9 INT
+push constant 1 INT
+push constant 5 INT
+push constant 6 INT
+pop local 22 ptr
+push constant 6 INT
+pop local 23 INT
+push constant 0 INT
+pop local 24 INT
+LABEL #L4
+push local 24 INT
+push local 23 INT
+push constant 1 INT
+sub
+lt
+JZ, goto end_#L4
+push constant 0 INT
+pop local 25 INT
+LABEL #L5
+push local 25 INT
+push local 23 INT
+push local 24 INT
+sub
+push constant 1 INT
+sub
+lt
+JZ, goto end_#L5
+push local 22 ptr
+push local 25 INT
+getindex
+access int
+push local 22 ptr
+push local 25 INT
+push constant 1 INT
+add
+getindex
+access int
+gt
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push local 22 ptr
+push local 25 INT
+getindex
+access int
+pop local 26 INT
+push local 22 ptr
+push local 25 INT
+getindex
+push local 22 ptr
+push local 25 INT
+push constant 1 INT
+add
+getindex
+access int
+store INT
+push local 22 ptr
+push local 25 INT
+push constant 1 INT
+add
+getindex
+push local 26 INT
+store INT
+goto IF_END6
+label IF_FALSE6
+label IF_END6
+push local 25 INT
+push constant 1 INT
+add
+pop local 25 INT
+goto #L5
+LABEL end_#L5
+push local 24 INT
+push constant 1 INT
+add
+pop local 24 INT
+goto #L4
+LABEL end_#L4
+push constant "Sorted array: " STR
+push data "Sorted array: " STR
+push constant 0 INT
+pop local 27 INT
+LABEL #L6
+push local 27 INT
+push local 23 INT
+lt
+JZ, goto end_#L6
+push local 22 ptr
+push local 27 INT
+getindex
+access int
+push data arr INT
+push constant " " STR
+push data " " STR
+push local 27 INT
+push constant 1 INT
+add
+pop local 27 INT
+goto #L6
+LABEL end_#L6
+push data \n STR
+push constant 0 INT
+return

@@ -12,7 +12,7 @@ class MyErrorListener(ErrorListener):
 def main():
     # input_folder = "C:\Users\User\Desktop\JOI Compiler\joi"
     # output_folder = os.path.join(input_folder, "output")
-    input_folder = "./joi"
+    input_folder = "./joi/librs"
     output_folder = os.path.join(input_folder, "output")
     os.makedirs(output_folder, exist_ok=True)
     

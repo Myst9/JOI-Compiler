@@ -10,7 +10,6 @@ BOOL: 'bool';
 FLOAT: 'float';
 CHAR: 'char';
 STR: 'str';
-AVLNODE: 'AVLNode';
 CONST: 'constant';
 VOID: 'void';
 MAIN: 'joi';
@@ -85,7 +84,7 @@ program: (includeStmt)* usingStmt? (functionDefOrStructDefOrEnumDef | declaratio
 
 includeStmt: INCLUDE header;
 
-header: '<' IDENTIFIER ('.' IDENTIFIER)? '>';
+header: '<' IDENTIFIER ('.' 'joi')? '>';
 
 usingStmt: USING NAMESPACE STD ';';
 
@@ -318,7 +317,7 @@ comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
 logicalOp: AND | OR;
 
 // Data types
-dataType: INT | BOOL | FLOAT | CHAR | STR |AVLNODE;
+dataType: INT | BOOL | FLOAT | CHAR | STR ;
 referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
 // Entry point for parsing
 main: program;
