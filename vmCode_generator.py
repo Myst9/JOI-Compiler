@@ -31,6 +31,7 @@ label_counter=0
 current_func_name=None
 current_func_return_type=None
 returnStmtFound=False
+joiFuncVisited=False
 # thisisaconstdeclstmt = 0
 
 symbolTable = SymbolTable()
@@ -45,7 +46,12 @@ class VMCodeGenerator(joiVisitor):
         self.optimised_instructions = []
 
     def visitProgram(self, ctx:joiParser.ProgramContext):
+        global joiFuncVisited
         self.visitChildren(ctx)
+        print(joiFuncVisited)
+        if(not joiFuncVisited):
+            self.optimised_instructions = self.instructions
+        joiFuncVisited=False
         return self.instructions
     
  
@@ -610,8 +616,8 @@ class VMCodeGenerator(joiVisitor):
             elif op == '-':
                 operation = 'sub'
             self.instructions.append(operation) 
-            if(data_type_of_first_term!='int' and data_type_of_first_term!='float'):
-                ExitFromProgram(f'Cannot operate {operation} on {first_term} which is {data_type_of_first_term}')
+            # if(data_type_of_first_term!='int' and data_type_of_first_term!='float'):
+            #     ExitFromProgram(f'Cannot operate {operation} on {first_term} which is {data_type_of_first_term}')
             if(data_type_of_first_term!=data_type_of_next_term):
                 ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_term} is {data_type_of_first_term} and {next_term} is {data_type_of_next_term}')
 
@@ -631,8 +637,8 @@ class VMCodeGenerator(joiVisitor):
                 operation = 'mod'            
             self.instructions.append(operation)
             
-            if(data_type_of_first_factor!='int' and data_type_of_first_factor!='float'):
-                ExitFromProgram(f'Cannot operate {operation} on {first_factor} which is {data_type_of_first_factor}')
+            # if(data_type_of_first_factor!='int' and data_type_of_first_factor!='float'):
+            #     ExitFromProgram(f'Cannot operate {operation} on {first_factor} which is {data_type_of_first_factor}')
             if(data_type_of_first_factor!=data_type_of_next_factor):
                 ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_factor} is {data_type_of_first_factor} and {next_factor} is {data_type_of_next_factor}')
         
@@ -735,7 +741,7 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append('push constant 0 BOOL') 
             return False, 'bool' 
         elif ctx.expr(): 
-            return self.visit(ctx.expr())  
+            return self.visit(ctx.expr(0))  
         elif ctx.functionCall():
             func_name, function_return_type = self.visit(ctx.functionCall()) 
             return func_name, function_return_type
@@ -766,6 +772,7 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'Please declare the variable before typecasting it')
         if(symbolTable.read(variable_to_change)['datatype'] not in {'int','float','str','bool', 'char'}):
             ExitFromProgram(f'Typecasting is only done for primitive datatypes. {variable_to_change} is a {(symbolTable.read(variable_to_change))["datatype"]}')
+        self.instructions.append(f'push local {symbolTable.read(variable_to_change)["id"]} {symbolTable.read(variable_to_change)["datatype"].upper()}')
         symbolTable.update(name=variable_to_change, datatype=new_data_type)
         return variable_to_change, new_data_type
     
@@ -1314,6 +1321,8 @@ class VMCodeGenerator(joiVisitor):
         self.visit(ctx.expression())  
         self.instructions.append('return')  
         self.instructions.append('halt')  
+        global joiFuncVisited
+        joiFuncVisited = True
         # symbolTable.display()
         # print("\nOPTIMISED CODE\n")
         self.optimised_instructions = self.optimise_unused_functions()

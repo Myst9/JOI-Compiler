@@ -1,9 +1,10 @@
-function add 2 INT
-return_
 function joi 0 INT
-push constant 2 INT
-push constant 3 INT
-call add 2
+push constant 'c' CHAR
+push constant 'r' CHAR
+add
+pop local 37 CHAR
+push local 37 CHAR
+pop local 38 INT
 push constant 0 INT
 return
 halt

@@ -2,6 +2,7 @@ function joi 0 INT
 push constant 10.5 FLOAT
 pop local 29 FLOAT
 pop local 30 int
+push local 29 FLOAT
 pop local 30 INT
 push constant "Float: " STR
 push data "Float: " STR
