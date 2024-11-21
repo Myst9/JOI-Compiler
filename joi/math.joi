@@ -1,0 +1,64 @@
+int i;
+
+## Absolute value function
+##int abs(int x) :
+  ##  return (x < 0) ? -1*x : x;
+##:
+
+##exponential  function
+float exp(float x_) :
+        float result_ = 1.0;
+        float term_ = 1.0;
+        for i = 1; i <= 20; i++: {
+            term_ *= x_ / i;
+            result_ += term_;
+        }
+        return result_;
+    :
+
+## Power function (base^exponent)
+float power(float base, float exponent) :
+        float result = 1.0;
+        if exponent > 0: {
+            for i = 0; i < exponent; ++i: {
+                result *= base;
+            }
+        } else if exponent < 0: {
+            for i = 0; i < -1*exponent; ++i: {
+                result *= base;
+            }
+            result = 1.0 / result;
+        }
+        return result;
+:
+
+
+int mod(int x, int y) :
+    if y == 0 :{
+        return -1; 
+    }
+    
+    int quotient = x / y; 
+    int gg = x - (quotient * y); 
+    
+    if y > 0 && gg < 0: {
+        gg += y; 
+    }
+    
+    if y < 0 && result > 0: {
+        gg += y; 
+    }
+
+    return gg;
+:
+
+
+## GCD function (Greatest Common Divisor using Euclidean algorithm)
+    int gcd(int a, int b) :
+        while b != 0: {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    :

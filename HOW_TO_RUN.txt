@@ -1,4 +1,5 @@
 go to terminal
+pip install antlr4-python3-runtime
 run java -jar .\antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor joi.g4
 in main.py there is a input folder
 give the input folder path there and your input folder should consist of your .joi files

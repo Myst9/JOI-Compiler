@@ -52,6 +52,7 @@ class VMCodeGenerator(joiVisitor):
         if(not joiFuncVisited):
             self.optimised_instructions = self.instructions
         joiFuncVisited=False
+        symbolTable.clear()
         return self.instructions
     
  
@@ -598,8 +599,8 @@ class VMCodeGenerator(joiVisitor):
                 operation = self.visitComparisonOp(comp_op)
                 if(data_type_of_first_expr=='str' or data_type_of_next_expr=='str'):
                     ExitFromProgram(f'Cannot operate {operation} on {first_expr}, {next_expr} strings')
-                if(data_type_of_first_expr!=data_type_of_next_expr):
-                    ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_expr} is {data_type_of_first_expr} and {next_expr} is {data_type_of_next_expr}')
+                # if(data_type_of_first_expr!=data_type_of_next_expr):
+                #     ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_expr} is {data_type_of_first_expr} and {next_expr} is {data_type_of_next_expr}')
                 data_type_of_first_expr = 'bool'
 
             # print(first_expr)
@@ -618,8 +619,8 @@ class VMCodeGenerator(joiVisitor):
             self.instructions.append(operation) 
             # if(data_type_of_first_term!='int' and data_type_of_first_term!='float'):
             #     ExitFromProgram(f'Cannot operate {operation} on {first_term} which is {data_type_of_first_term}')
-            if(data_type_of_first_term!=data_type_of_next_term):
-                ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_term} is {data_type_of_first_term} and {next_term} is {data_type_of_next_term}')
+            # if(data_type_of_first_term!=data_type_of_next_term):
+            #     ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_term} is {data_type_of_first_term} and {next_term} is {data_type_of_next_term}')
 
         return first_term, data_type_of_first_term
 
@@ -639,8 +640,8 @@ class VMCodeGenerator(joiVisitor):
             
             # if(data_type_of_first_factor!='int' and data_type_of_first_factor!='float'):
             #     ExitFromProgram(f'Cannot operate {operation} on {first_factor} which is {data_type_of_first_factor}')
-            if(data_type_of_first_factor!=data_type_of_next_factor):
-                ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_factor} is {data_type_of_first_factor} and {next_factor} is {data_type_of_next_factor}')
+            # if(data_type_of_first_factor!=data_type_of_next_factor):
+            #     ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_factor} is {data_type_of_first_factor} and {next_factor} is {data_type_of_next_factor}')
         
 
         return first_factor, data_type_of_first_factor
@@ -1330,7 +1331,7 @@ class VMCodeGenerator(joiVisitor):
         # for i in optimised_code_array_form:
         #     optimised_code_instruction_form.append(i)
         # print(optimised_code_instruction_form)
-        symbolTable.clear()
+        
 
     def optimise_unused_functions(self):
         unused_functions = [

@@ -1,0 +1,98 @@
+constant int MAX = 10; ## Set a maximum size for the matrix
+
+## Function to perform Gaussian elimination to find the inverse of a matrix
+bool inverseMatrix(float matrix, float inverse, int n) :
+    ## Initialize the inverse matrix as the identity matrix
+    for int i = 0; i < n; i++ :
+    {
+        for int j = 0; j < n; j++ :
+        {
+            if i==j:{
+                inverse[i][j] = 1.0;
+            }
+            else:{
+                inverse[i][j] = 0.0;
+            }
+        }
+    }
+
+    ## Perform Gaussian elimination
+    for i = 0; i < n; i++ :
+    {
+        ## Find pivot element
+        float pivot = matrix[i][i];
+        if pivot == 0.0 :
+        {
+            cout << "Matrix is singular and cannot be inverted." << endl;
+            return false;
+        }
+
+        ## Normalize the pivot row
+        for j = 0; j < n; j++ :
+        {
+            matrix[i][j] /= pivot;
+            inverse[i][j] /= pivot;
+        }
+
+        ## Eliminate other rows
+        for int k = 0; k < n; k++ :
+        {
+            if k != i :
+            {
+                float factor = matrix[k][i];
+                for j = 0; j < n; j++ :
+                {
+                    matrix[k][j] -= factor * matrix[i][j];
+ inverse[k][j] -= factor * inverse[i][j];
+                }
+            }
+        }
+    }
+
+    return true;
+:
+
+int joi() {
+    int _n;
+    cout << "Enter the size of the matrix (n * n): ";
+    cin >> _n;
+
+    if _n > MAX :
+    {
+        cout << "Matrix size exceeds the maximum allowed size of " << MAX << "." << endl;
+        return 1;
+    }
+
+    float _matrix[MAX][MAX];
+    float _inverse[MAX][MAX];
+
+    cout << "Enter the elements of the matrix:" << endl;
+    for i = 0; i < _n; i++ :
+    {
+        for j = 0; j < _n; j++ :
+        {
+            float temp;
+            cin >> temp;
+            matrix[i][j] = temp;
+        }
+    }
+
+    if inverseMatrix(_matrix, _inverse, _n) :
+    {
+        cout << "The inverse of the matrix is: " << endl;
+        for i = 0; i < _n; i++ :
+        {
+            for j = 0; j < _n; j++ :
+            {
+                cout << inverse[i][j] << "\t";
+            }
+            cout << endl;
+        }
+    }
+ else :
+    {
+        cout << "The matrix has no inverse." << endl;
+    }
+
+    return 0;
+}
