@@ -3,39 +3,39 @@ push constant "Counting from 1 to 10 (skipping 5):" STR
 push data "Counting from 1 to 10 (skipping 5):" STR
 push data \n STR
 push constant 1 INT
-pop local 19 INT
-LABEL #L8
-push local 19 INT
+pop local 37 INT
+LABEL #L12
+push local 37 INT
 push constant 10 INT
 lte
-JZ, goto end_#L8
-push local 19 INT
+JZ, goto end_#L12
+push local 37 INT
 push constant 5 INT
 eq
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
-goto #L8
-goto IF_END3
-label IF_FALSE3
-label IF_END3
-push local 19 INT
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+goto #L12
+goto IF_END8
+label IF_FALSE8
+label IF_END8
+push local 37 INT
 push constant 8 INT
 eq
-if-goto IF_TRUE4
-goto IF_FALSE4
-label IF_TRUE4
-goto end_#L8
-goto IF_END4
-label IF_FALSE4
-label IF_END4
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+goto end_#L12
+goto IF_END9
+label IF_FALSE9
+label IF_END9
 push data \n STR
-push local 19 INT
+push local 37 INT
 push constant 1 INT
 add
-pop local 19 INT
-goto #L8
-LABEL end_#L8
+pop local 37 INT
+goto #L12
+LABEL end_#L12
 push constant 0 INT
 return
 halt

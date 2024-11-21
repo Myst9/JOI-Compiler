@@ -1,0 +1,13 @@
+## Program to check if a number is even or odd
+int joi() {
+    int num = 7; 
+    int even = 0;
+    int odd = 0;
+    if num % 2 == 0 : {
+        even = 1;
+    } else: {
+        odd = 0 ;
+    }
+    
+    return 0;
+}

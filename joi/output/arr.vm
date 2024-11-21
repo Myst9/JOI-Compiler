@@ -1,0 +1,171 @@
+pop local 4 int
+function my_sort 2 VOID
+push argument arr int
+push argument size int
+push constant 1 BOOL
+pop local 8 BOOL
+LABEL #L0
+push local 8 BOOL
+JZ, goto end_#L0
+push constant 0 BOOL
+pop local 8 BOOL
+push constant 0 INT
+pop local 4 INT
+LABEL #L1
+push local 4 INT
+push local 6 INT
+push constant 1 INT
+sub
+lt
+JZ, goto end_#L1
+push local 5 ptr
+push local 4 INT
+getindex
+access int
+push local 5 ptr
+push local 4 INT
+push constant 1 INT
+add
+getindex
+access int
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 5 ptr
+push local 4 INT
+getindex
+access int
+pop local 9 INT
+push local 5 ptr
+push local 4 INT
+getindex
+push local 5 ptr
+push local 4 INT
+push constant 1 INT
+add
+getindex
+access int
+store INT
+push local 5 ptr
+push local 4 INT
+push constant 1 INT
+add
+getindex
+push local 9 INT
+store INT
+push constant 1 BOOL
+pop local 8 BOOL
+goto IF_END1
+label IF_FALSE1
+label IF_END1
+push local 4 INT
+push constant 1 INT
+add
+pop local 4 INT
+goto #L1
+LABEL end_#L1
+goto #L0
+LABEL end_#L0
+function my_min 2 INT
+push argument arr1 int
+push argument size2 int
+push local 11 INT
+push constant 0 INT
+lte
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant -1 INT
+return
+goto IF_END2
+label IF_FALSE2
+label IF_END2
+push local 10 ptr
+push constant 0 INT
+getindex
+access int
+pop local 13 INT
+push constant 1 INT
+pop local 4 INT
+LABEL #L2
+push local 4 INT
+push local 11 INT
+lt
+JZ, goto end_#L2
+push local 10 ptr
+push local 4 INT
+getindex
+access int
+push local 13 INT
+lt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 10 ptr
+push local 4 INT
+getindex
+access int
+pop local 13 INT
+goto IF_END3
+label IF_FALSE3
+label IF_END3
+push local 4 INT
+push constant 1 INT
+add
+pop local 4 INT
+goto #L2
+LABEL end_#L2
+push local 13 INT
+return
+function my_max 2 INT
+push argument arr2 int
+push argument size3 int
+push local 15 INT
+push constant 0 INT
+lte
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push constant -1 INT
+return
+goto IF_END4
+label IF_FALSE4
+label IF_END4
+push local 14 ptr
+push constant 0 INT
+getindex
+access int
+pop local 17 INT
+push constant 1 INT
+pop local 4 INT
+LABEL #L3
+push local 4 INT
+push local 15 INT
+lt
+JZ, goto end_#L3
+push local 14 ptr
+push local 4 INT
+getindex
+access int
+push local 17 INT
+gt
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 14 ptr
+push local 4 INT
+getindex
+access int
+pop local 17 INT
+goto IF_END5
+label IF_FALSE5
+label IF_END5
+push local 4 INT
+push constant 1 INT
+add
+pop local 4 INT
+goto #L3
+LABEL end_#L3
+push local 17 INT
+return

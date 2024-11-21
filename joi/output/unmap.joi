@@ -1,0 +1,53 @@
+## Defines a key-value pair structure
+struct KeyValuePair :
+    int key;
+    int value;
+:
+
+## Initializes the map with a given size
+void map_init(KeyValuePair$ map, int size) :
+    int i = 0;
+    while i < size: {
+        map[i].key = -1; ## Use -1 as an empty key
+        map[i].value = 0;
+        i++;
+    }
+:
+
+## Inserts a key-value pair into the map
+void map_insert(KeyValuePair$ map, int size, int key, int value) :
+    int i = 0;
+    while i < size: {
+        if map[i].key == -1 || map[i].key == key: {
+            map[i].key = key;
+            map[i].value = value;
+            return;
+        }
+        i++;
+    }
+:
+
+## Retrieves a value by key
+int map_get(KeyValuePair$ map, int size, int key) :
+    int i = 0;
+    while i < size: {
+        if map[i].key == key: {
+            return map[i].value;
+        }
+        i++;
+    }
+    return -1; ## Key not found
+:
+
+## Removes a key-value pair by key
+void map_remove(KeyValuePair$ map, int size, int key) :
+    int i = 0;
+    while i < size: {
+        if map[i].key == key: {
+            map[i].key = -1; ## Mark as empty
+            map[i].value = 0;
+            return;
+        }
+        i++;
+    }
+:

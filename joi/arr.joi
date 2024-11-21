@@ -1,0 +1,53 @@
+##ifndef MYARRAYLIB_H
+##define MYARRAYLIB_H
+##include <iostream>
+## Global variable for iteration (used to avoid reusing variable names)
+##extern int global_iter;
+int global_iter;
+## Sort function (Bubble Sort) for an array of integers
+
+void my_sort(int$ arr, int size) :
+    bool swapped = true;
+    while swapped: {
+        swapped = false;
+        for global_iter = 0; global_iter < size - 1; ++global_iter: {
+            if arr[global_iter] > arr[global_iter + 1]: {
+                ## Swap if elements are out of order
+                int temp = arr[global_iter];
+                arr[global_iter] = arr[global_iter + 1];
+                arr[global_iter + 1] = temp;
+                swapped = true;  ## If a swap is made, continue checking
+            }
+        }
+    }
+:
+
+## Function to find the minimum element in the array
+int my_min(int$ arr1, int size2) :
+    if size2 <= 0: {
+        return -1; ## Error: empty arr1ay
+    }
+    
+    int min_val = arr1[0];  ## Assume the first element is the minimum
+    for global_iter = 1; global_iter < size2; ++global_iter: {
+        if arr1[global_iter] < min_val: {
+            min_val = arr1[global_iter];  ## Update if a smaller element is found
+        }
+    }
+    return min_val;
+:
+
+## Function to find the maximum element in the arr2ay
+int my_max(int$ arr2, int size3) :
+    if size3 <= 0: {
+        return -1; ## Error: empty arr2ay
+    }
+    
+    int max_val = arr2[0];  ## Assume the first element is the maximum
+    for global_iter = 1; global_iter < size3; ++global_iter: {
+        if arr2[global_iter] > max_val: {
+            max_val = arr2[global_iter];  ## Update if a larger element is found
+        }
+    }
+    return max_val;
+:

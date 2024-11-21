@@ -1,328 +1,328 @@
 push constant 10 INT
-pop local 52 INT
+pop local 72 INT
 function inverseMatrix 3 BOOL
 push argument matrix float
 push argument inverse float
 push argument n int
 push constant 0 INT
-pop local 57 INT
-LABEL #L13
-push local 57 INT
-push local 55 INT
+pop local 77 INT
+LABEL #L17
+push local 77 INT
+push local 75 INT
 lt
-JZ, goto end_#L13
+JZ, goto end_#L17
 push constant 0 INT
-pop local 58 INT
-LABEL #L14
-push local 58 INT
-push local 55 INT
+pop local 78 INT
+LABEL #L18
+push local 78 INT
+push local 75 INT
 lt
-JZ, goto end_#L14
-push local 57 INT
-push local 58 INT
+JZ, goto end_#L18
+push local 77 INT
+push local 78 INT
 eq
-if-goto IF_TRUE11
-goto IF_FALSE11
-label IF_TRUE11
-push local 54 ptr
-push local 57 INT
-push local 58 INT
+if-goto IF_TRUE17
+goto IF_FALSE17
+label IF_TRUE17
+push local 74 ptr
+push local 77 INT
+push local 78 INT
 getindex
 push constant 1.0 FLOAT
 store FLOAT
-goto IF_END11
-label IF_FALSE11
-push local 54 ptr
-push local 57 INT
-push local 58 INT
+goto IF_END17
+label IF_FALSE17
+push local 74 ptr
+push local 77 INT
+push local 78 INT
 getindex
 push constant 0.0 FLOAT
 store FLOAT
-goto IF_END11
-label IF_END11
-push local 58 INT
+goto IF_END17
+label IF_END17
+push local 78 INT
 push constant 1 INT
 add
-pop local 58 INT
+pop local 78 INT
 push constant 1 INT
 sub
-goto #L14
-LABEL end_#L14
-push local 57 INT
+goto #L18
+LABEL end_#L18
+push local 77 INT
 push constant 1 INT
 add
-pop local 57 INT
+pop local 77 INT
 push constant 1 INT
 sub
-goto #L13
-LABEL end_#L13
+goto #L17
+LABEL end_#L17
 push constant 0 INT
-pop local 57 INT
-LABEL #L15
-push local 57 INT
-push local 55 INT
+pop local 77 INT
+LABEL #L19
+push local 77 INT
+push local 75 INT
 lt
-JZ, goto end_#L15
-push local 53 ptr
-push local 57 INT
-push local 57 INT
+JZ, goto end_#L19
+push local 73 ptr
+push local 77 INT
+push local 77 INT
 getindex
 access float
-pop local 59 FLOAT
-push local 59 FLOAT
+pop local 79 FLOAT
+push local 79 FLOAT
 push constant 0.0 FLOAT
 eq
-if-goto IF_TRUE12
-goto IF_FALSE12
-label IF_TRUE12
+if-goto IF_TRUE18
+goto IF_FALSE18
+label IF_TRUE18
 push constant "Matrix is singular and cannot be inverted." STR
 push data "Matrix is singular and cannot be inverted." STR
 push data \n STR
 push constant 0 BOOL
 return
-goto IF_END12
-label IF_FALSE12
-label IF_END12
+goto IF_END18
+label IF_FALSE18
+label IF_END18
 push constant 0 INT
-pop local 58 INT
-LABEL #L16
-push local 58 INT
-push local 55 INT
+pop local 78 INT
+LABEL #L20
+push local 78 INT
+push local 75 INT
 lt
-JZ, goto end_#L16
-push local 53 ptr
-push local 57 INT
-push local 58 INT
+JZ, goto end_#L20
+push local 73 ptr
+push local 77 INT
+push local 78 INT
 getindex
-push local 59 FLOAT
+push local 79 FLOAT
 div
 store FLOAT
-push local 54 ptr
-push local 57 INT
-push local 58 INT
+push local 74 ptr
+push local 77 INT
+push local 78 INT
 getindex
-push local 59 FLOAT
+push local 79 FLOAT
 div
 store FLOAT
-push local 58 INT
+push local 78 INT
 push constant 1 INT
 add
-pop local 58 INT
+pop local 78 INT
 push constant 1 INT
 sub
-goto #L16
-LABEL end_#L16
+goto #L20
+LABEL end_#L20
 push constant 0 INT
-pop local 60 INT
-LABEL #L17
-push local 60 INT
-push local 55 INT
+pop local 80 INT
+LABEL #L21
+push local 80 INT
+push local 75 INT
 lt
-JZ, goto end_#L17
-push local 60 INT
-push local 57 INT
+JZ, goto end_#L21
+push local 80 INT
+push local 77 INT
 neq
-if-goto IF_TRUE13
-goto IF_FALSE13
-label IF_TRUE13
-push local 53 ptr
-push local 60 INT
-push local 57 INT
+if-goto IF_TRUE19
+goto IF_FALSE19
+label IF_TRUE19
+push local 73 ptr
+push local 80 INT
+push local 77 INT
 getindex
 access float
-pop local 61 FLOAT
+pop local 81 FLOAT
 push constant 0 INT
-pop local 58 INT
-LABEL #L18
-push local 58 INT
-push local 55 INT
+pop local 78 INT
+LABEL #L22
+push local 78 INT
+push local 75 INT
 lt
-JZ, goto end_#L18
-push local 53 ptr
-push local 60 INT
-push local 58 INT
+JZ, goto end_#L22
+push local 73 ptr
+push local 80 INT
+push local 78 INT
 getindex
-push local 61 FLOAT
-push local 53 ptr
-push local 57 INT
-push local 58 INT
-getindex
-access float
-mul
-sub
-store FLOAT
-push local 54 ptr
-push local 60 INT
-push local 58 INT
-getindex
-push local 61 FLOAT
-push local 54 ptr
-push local 57 INT
-push local 58 INT
+push local 81 FLOAT
+push local 73 ptr
+push local 77 INT
+push local 78 INT
 getindex
 access float
 mul
 sub
 store FLOAT
-push local 58 INT
+push local 74 ptr
+push local 80 INT
+push local 78 INT
+getindex
+push local 81 FLOAT
+push local 74 ptr
+push local 77 INT
+push local 78 INT
+getindex
+access float
+mul
+sub
+store FLOAT
+push local 78 INT
 push constant 1 INT
 add
-pop local 58 INT
+pop local 78 INT
 push constant 1 INT
 sub
-goto #L18
-LABEL end_#L18
-goto IF_END13
-label IF_FALSE13
-label IF_END13
-push local 60 INT
+goto #L22
+LABEL end_#L22
+goto IF_END19
+label IF_FALSE19
+label IF_END19
+push local 80 INT
 push constant 1 INT
 add
-pop local 60 INT
+pop local 80 INT
 push constant 1 INT
 sub
-goto #L17
-LABEL end_#L17
-push local 57 INT
+goto #L21
+LABEL end_#L21
+push local 77 INT
 push constant 1 INT
 add
-pop local 57 INT
+pop local 77 INT
 push constant 1 INT
 sub
-goto #L15
-LABEL end_#L15
+goto #L19
+LABEL end_#L19
 push constant 1 BOOL
 return
 function joi 0 INT
-pop local 62 int
+pop local 82 int
 push constant "Enter the size of the matrix (n * n): " STR
 push data "Enter the size of the matrix (n * n): " STR
-scan local 62 INT
-push local 62 INT
-push local 52 INT
+scan local 82 INT
+push local 82 INT
+push local 72 INT
 gt
-if-goto IF_TRUE14
-goto IF_FALSE14
-label IF_TRUE14
+if-goto IF_TRUE20
+goto IF_FALSE20
+label IF_TRUE20
 push constant "Matrix size exceeds the maximum allowed size of " STR
 push data "Matrix size exceeds the maximum allowed size of " STR
-push local 52 INT
+push local 72 INT
 push data MAX INT
 push constant "." STR
 push data "." STR
 push data \n STR
 push constant 1 INT
 return
-goto IF_END14
-label IF_FALSE14
-label IF_END14
-push local 52 INT
+goto IF_END20
+label IF_FALSE20
+label IF_END20
+push local 72 INT
 alloc MAX int
-push local 52 INT
+push local 72 INT
 alloc MAX int
-pop local 63 ptr
-push local 52 INT
+pop local 83 ptr
+push local 72 INT
 alloc MAX int
-push local 52 INT
+push local 72 INT
 alloc MAX int
-pop local 64 ptr
+pop local 84 ptr
 push constant "Enter the elements of the matrix:" STR
 push data "Enter the elements of the matrix:" STR
 push data \n STR
 push constant 0 INT
-pop local 57 INT
-LABEL #L19
-push local 57 INT
-push local 62 INT
+pop local 77 INT
+LABEL #L23
+push local 77 INT
+push local 82 INT
 lt
-JZ, goto end_#L19
+JZ, goto end_#L23
 push constant 0 INT
-pop local 58 INT
-LABEL #L20
-push local 58 INT
-push local 62 INT
+pop local 78 INT
+LABEL #L24
+push local 78 INT
+push local 82 INT
 lt
-JZ, goto end_#L20
-pop local 65 float
-scan local 65 FLOAT
-push local 53 ptr
-push local 57 INT
-push local 58 INT
+JZ, goto end_#L24
+pop local 85 float
+scan local 85 FLOAT
+push local 73 ptr
+push local 77 INT
+push local 78 INT
 getindex
-push local 65 FLOAT
+push local 85 FLOAT
 store FLOAT
-push local 58 INT
+push local 78 INT
 push constant 1 INT
 add
-pop local 58 INT
+pop local 78 INT
 push constant 1 INT
 sub
-goto #L20
-LABEL end_#L20
-push local 57 INT
+goto #L24
+LABEL end_#L24
+push local 77 INT
 push constant 1 INT
 add
-pop local 57 INT
+pop local 77 INT
 push constant 1 INT
 sub
-goto #L19
-LABEL end_#L19
-push local 63 FLOAT
-push local 64 FLOAT
-push local 62 INT
+goto #L23
+LABEL end_#L23
+push local 83 FLOAT
+push local 84 FLOAT
+push local 82 INT
 call inverseMatrix 3
-if-goto IF_TRUE15
-goto IF_FALSE15
-label IF_TRUE15
+if-goto IF_TRUE21
+goto IF_FALSE21
+label IF_TRUE21
 push constant "The inverse of the matrix is: " STR
 push data "The inverse of the matrix is: " STR
 push data \n STR
 push constant 0 INT
-pop local 57 INT
-LABEL #L21
-push local 57 INT
-push local 62 INT
+pop local 77 INT
+LABEL #L25
+push local 77 INT
+push local 82 INT
 lt
-JZ, goto end_#L21
+JZ, goto end_#L25
 push constant 0 INT
-pop local 58 INT
-LABEL #L22
-push local 58 INT
-push local 62 INT
+pop local 78 INT
+LABEL #L26
+push local 78 INT
+push local 82 INT
 lt
-JZ, goto end_#L22
-push local 54 ptr
-push local 57 INT
-push local 58 INT
+JZ, goto end_#L26
+push local 74 ptr
+push local 77 INT
+push local 78 INT
 getindex
 access float
 push data inverse FLOAT
 push constant "\t" STR
 push data "\t" STR
-push local 58 INT
+push local 78 INT
 push constant 1 INT
 add
-pop local 58 INT
+pop local 78 INT
 push constant 1 INT
 sub
-goto #L22
-LABEL end_#L22
+goto #L26
+LABEL end_#L26
 push data \n STR
-push local 57 INT
+push local 77 INT
 push constant 1 INT
 add
-pop local 57 INT
+pop local 77 INT
 push constant 1 INT
 sub
-goto #L21
-LABEL end_#L21
-goto IF_END15
-label IF_FALSE15
+goto #L25
+LABEL end_#L25
+goto IF_END21
+label IF_FALSE21
 push constant "The matrix has no inverse." STR
 push data "The matrix has no inverse." STR
 push data \n STR
-goto IF_END15
-label IF_END15
+goto IF_END21
+label IF_END21
 push constant 0 INT
 return
 halt

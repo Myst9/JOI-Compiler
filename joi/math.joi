@@ -1,9 +1,13 @@
 int i;
 
 ## Absolute value function
-##int abs(int x) :
-  ##  return (x < 0) ? -1*x : x;
-##:
+int abs(int __x) :
+    if __x<0:{
+        __x = -1*__x;
+        return __x;
+    }
+    return __x; 
+:
 
 ##exponential  function
 float exp(float x_) :

@@ -1,178 +1,197 @@
-pop local 34 int
+pop local 52 int
+function abs 1 INT
+push argument __x int
+push local 53 INT
+push constant 0 INT
+lt
+if-goto IF_TRUE12
+goto IF_FALSE12
+label IF_TRUE12
+push constant -1 INT
+push local 53 INT
+mul
+pop local 53 INT
+push local 53 INT
+return
+goto IF_END12
+label IF_FALSE12
+label IF_END12
+push local 53 INT
+return
 function exp 1 FLOAT
 push argument x_ float
 push constant 1.0 FLOAT
-pop local 37 FLOAT
+pop local 57 FLOAT
 push constant 1.0 FLOAT
-pop local 38 FLOAT
+pop local 58 FLOAT
 push constant 1 INT
-pop local 34 INT
-LABEL #L9
-push local 34 INT
+pop local 52 INT
+LABEL #L13
+push local 52 INT
 push constant 20 INT
 lte
-JZ, goto end_#L9
-push local 38 FLOAT
-push local 35 FLOAT
-push local 34 INT
+JZ, goto end_#L13
+push local 58 FLOAT
+push local 55 FLOAT
+push local 52 INT
 div
 mul
-pop local 38 FLOAT
-push local 37 FLOAT
-push local 38 FLOAT
+pop local 58 FLOAT
+push local 57 FLOAT
+push local 58 FLOAT
 add
-pop local 37 FLOAT
-push local 34 INT
+pop local 57 FLOAT
+push local 52 INT
 push constant 1 INT
 add
-pop local 34 INT
+pop local 52 INT
 push constant 1 INT
 sub
-goto #L9
-LABEL end_#L9
-push local 37 FLOAT
+goto #L13
+LABEL end_#L13
+push local 57 FLOAT
 return
 function power 2 FLOAT
 push argument base float
 push argument exponent float
 push constant 1.0 FLOAT
-pop local 42 FLOAT
-push local 40 FLOAT
+pop local 62 FLOAT
+push local 60 FLOAT
 push constant 0 INT
 gt
-if-goto IF_TRUE7
-goto IF_FALSE7
-label IF_TRUE7
+if-goto IF_TRUE13
+goto IF_FALSE13
+label IF_TRUE13
 push constant 0 INT
-pop local 34 INT
-LABEL #L10
-push local 34 INT
-push local 40 FLOAT
+pop local 52 INT
+LABEL #L14
+push local 52 INT
+push local 60 FLOAT
 lt
-JZ, goto end_#L10
-push local 42 FLOAT
-push local 39 FLOAT
+JZ, goto end_#L14
+push local 62 FLOAT
+push local 59 FLOAT
 mul
-pop local 42 FLOAT
-push local 34 INT
+pop local 62 FLOAT
+push local 52 INT
 push constant 1 INT
 add
-pop local 34 INT
-goto #L10
-LABEL end_#L10
-goto IF_END7
-label IF_FALSE7
-push local 40 FLOAT
+pop local 52 INT
+goto #L14
+LABEL end_#L14
+goto IF_END13
+label IF_FALSE13
+push local 60 FLOAT
 push constant 0 INT
 lt
-if-goto IF_TRUE8
-goto IF_FALSE8
-label IF_TRUE8
+if-goto IF_TRUE14
+goto IF_FALSE14
+label IF_TRUE14
 push constant 0 INT
-pop local 34 INT
-LABEL #L11
-push local 34 INT
+pop local 52 INT
+LABEL #L15
+push local 52 INT
 push constant -1 INT
-push local 40 FLOAT
+push local 60 FLOAT
 mul
 lt
-JZ, goto end_#L11
-push local 42 FLOAT
-push local 39 FLOAT
+JZ, goto end_#L15
+push local 62 FLOAT
+push local 59 FLOAT
 mul
-pop local 42 FLOAT
-push local 34 INT
+pop local 62 FLOAT
+push local 52 INT
 push constant 1 INT
 add
-pop local 34 INT
-goto #L11
-LABEL end_#L11
+pop local 52 INT
+goto #L15
+LABEL end_#L15
 push constant 1.0 FLOAT
-push local 42 FLOAT
+push local 62 FLOAT
 div
-pop local 42 FLOAT
-goto IF_END7
-label IF_FALSE8
-label IF_END7
-push local 42 FLOAT
+pop local 62 FLOAT
+goto IF_END13
+label IF_FALSE14
+label IF_END13
+push local 62 FLOAT
 return
 function mod 2 INT
 push argument x int
 push argument y int
-push local 44 INT
+push local 64 INT
 push constant 0 INT
 eq
-if-goto IF_TRUE8
-goto IF_FALSE8
-label IF_TRUE8
+if-goto IF_TRUE14
+goto IF_FALSE14
+label IF_TRUE14
 push constant -1 INT
 return
-goto IF_END8
-label IF_FALSE8
-label IF_END8
-push local 43 INT
-push local 44 INT
+goto IF_END14
+label IF_FALSE14
+label IF_END14
+push local 63 INT
+push local 64 INT
 div
-pop local 46 INT
-push local 43 INT
-push local 46 INT
-push local 44 INT
+pop local 66 INT
+push local 63 INT
+push local 66 INT
+push local 64 INT
 mul
 sub
-pop local 47 INT
-push local 44 INT
+pop local 67 INT
+push local 64 INT
 push constant 0 INT
 gt
-push local 47 INT
+push local 67 INT
 push constant 0 INT
 lt
 and
-if-goto IF_TRUE9
-goto IF_FALSE9
-label IF_TRUE9
-push local 47 INT
-push local 44 INT
+if-goto IF_TRUE15
+goto IF_FALSE15
+label IF_TRUE15
+push local 67 INT
+push local 64 INT
 add
-pop local 47 INT
-goto IF_END9
-label IF_FALSE9
-label IF_END9
-push local 44 INT
+pop local 67 INT
+goto IF_END15
+label IF_FALSE15
+label IF_END15
+push local 64 INT
 push constant 0 INT
 lt
-push local 42 FLOAT
+push local 62 FLOAT
 push constant 0 INT
 gt
 and
-if-goto IF_TRUE10
-goto IF_FALSE10
-label IF_TRUE10
-push local 47 INT
-push local 44 INT
+if-goto IF_TRUE16
+goto IF_FALSE16
+label IF_TRUE16
+push local 67 INT
+push local 64 INT
 add
-pop local 47 INT
-goto IF_END10
-label IF_FALSE10
-label IF_END10
-push local 47 INT
+pop local 67 INT
+goto IF_END16
+label IF_FALSE16
+label IF_END16
+push local 67 INT
 return
 function gcd 2 INT
 push argument a int
 push argument b int
-LABEL #L12
-push local 49 INT
+LABEL #L16
+push local 69 INT
 push constant 0 INT
 neq
-JZ, goto end_#L12
-push local 49 INT
-pop local 51 INT
-push local 48 INT
-push local 49 INT
+JZ, goto end_#L16
+push local 69 INT
+pop local 71 INT
+push local 68 INT
+push local 69 INT
 mod
-pop local 49 INT
-push local 51 INT
-pop local 48 INT
-goto #L12
-LABEL end_#L12
-push local 48 INT
+pop local 69 INT
+push local 71 INT
+pop local 68 INT
+goto #L16
+LABEL end_#L16
+push local 68 INT
 return

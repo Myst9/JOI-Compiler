@@ -203,8 +203,8 @@ class VMCodeGenerator(joiVisitor):
                 self.visitConstructor(item)
                 if access_specifier:
                     self.instructions.append(f'ACCESS {access_specifier} END')
-            else:
-                print(f"Unknown class member type: {type(item)}")
+            # else:
+            #     print(f"Unknown class member type: {type(item)}")
 
         self.instructions.append(f'end CLASS {class_name}')
 
@@ -597,8 +597,8 @@ class VMCodeGenerator(joiVisitor):
                 next_expr, data_type_of_next_expr = self.visit(ctx.expr(i))  
                 comp_op = ctx.comparisonOp(i - 1).getText() 
                 operation = self.visitComparisonOp(comp_op)
-                if(data_type_of_first_expr=='str' or data_type_of_next_expr=='str'):
-                    ExitFromProgram(f'Cannot operate {operation} on {first_expr}, {next_expr} strings')
+                # if(data_type_of_first_expr=='str' or data_type_of_next_expr=='str'):
+                #     ExitFromProgram(f'Cannot operate {operation} on {first_expr}, {next_expr} strings')
                 # if(data_type_of_first_expr!=data_type_of_next_expr):
                 #     ExitFromProgram(f'Cannot operate {operation} on two different datatypes - {first_expr} is {data_type_of_first_expr} and {next_expr} is {data_type_of_next_expr}')
                 data_type_of_first_expr = 'bool'
@@ -663,8 +663,8 @@ class VMCodeGenerator(joiVisitor):
             data_type_of_var_name = symbolTable.read(var_name)['datatype']
             id_of_var_name = symbolTable.read(var_name)["id"]
             if ctx.INC():
-                if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
-                    ExitFromProgram(f'cannot Increment a {data_type_of_var_name}')
+                # if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
+                #     ExitFromProgram(f'cannot Increment a {data_type_of_var_name}')
                 if(ctx.getChild(0).getText() == '++'):  # pre-increment
                     self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name.upper()}')
                     self.instructions.append('push constant 1 INT')
@@ -683,8 +683,8 @@ class VMCodeGenerator(joiVisitor):
                     # and stored the new version
 
             elif ctx.DEC():
-                if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
-                    ExitFromProgram(f'cannot Decrement a {data_type_of_var_name}')
+                # if(data_type_of_var_name != 'int' and data_type_of_var_name != 'float'): #we are not incrmeenting char, usually it is done in c++
+                #     ExitFromProgram(f'cannot Decrement a {data_type_of_var_name}')
                 if(ctx.getChild(0).getText() == '--'):  # pre-decrement
                     self.instructions.append(f'push local {id_of_var_name} {data_type_of_var_name.upper()}')
                     self.instructions.append('push constant 1 INT')
@@ -1198,8 +1198,8 @@ class VMCodeGenerator(joiVisitor):
         struct_var = ctx.IDENTIFIER(0).getText()
         member = ctx.IDENTIFIER(1).getText()
         struct_info = symbolTable.read(struct_var)
-        if not struct_info or struct_info['type'] != 'struct_variable':
-            ExitFromProgram(f"'{struct_var}' is not a struct variable.")
+        # if not struct_info or struct_info['type'] != 'struct_variable':
+        #     ExitFromProgram(f"'{struct_var}' is not a struct variable.")
         member_info = symbolTable.read(f"{member}")
         if not member_info:
             ExitFromProgram(f"Struct '{struct_info['datatype']}' has no member '{member}'.")

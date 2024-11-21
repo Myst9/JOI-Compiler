@@ -2,9 +2,9 @@ function joi 0 INT
 push constant 'c' CHAR
 push constant 'r' CHAR
 add
-pop local 69 CHAR
-push local 69 CHAR
-pop local 70 INT
+pop local 89 CHAR
+push local 89 CHAR
+pop local 90 INT
 push constant 0 INT
 return
 halt

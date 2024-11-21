@@ -1,28 +1,28 @@
 function joi 0 INT
 push constant 15 INT
-pop local 17 INT
+pop local 35 INT
 push constant 10 INT
-pop local 18 INT
-push local 17 INT
-push local 18 INT
+pop local 36 INT
+push local 35 INT
+push local 36 INT
 gt
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
 push constant "Maximum: " STR
 push data "Maximum: " STR
-push local 17 INT
+push local 35 INT
 push data num1 INT
 push data \n STR
-goto IF_END2
-label IF_FALSE2
+goto IF_END7
+label IF_FALSE7
 push constant "Maximum: " STR
 push data "Maximum: " STR
-push local 18 INT
+push local 36 INT
 push data num2 INT
 push data \n STR
-goto IF_END2
-label IF_END2
+goto IF_END7
+label IF_END7
 push constant 0 INT
 return
 halt

@@ -1,16 +1,16 @@
 function joi 0 INT
 push constant 10.5 FLOAT
-pop local 29 FLOAT
-pop local 30 int
-push local 29 FLOAT
-pop local 30 INT
+pop local 47 FLOAT
+pop local 48 int
+push local 47 FLOAT
+pop local 48 INT
 push constant "Float: " STR
 push data "Float: " STR
-push local 29 INT
+push local 47 INT
 push data floatValue INT
 push constant ", Integer: " STR
 push data ", Integer: " STR
-push local 30 INT
+push local 48 INT
 push data intValue INT
 push data \n STR
 push constant 0 INT

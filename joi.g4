@@ -10,6 +10,7 @@ BOOL: 'bool';
 FLOAT: 'float';
 CHAR: 'char';
 STR: 'str';
+AVLNODE: 'AVLNode';
 CONST: 'constant';
 VOID: 'void';
 MAIN: 'joi';
@@ -74,7 +75,7 @@ AMPERSAND: '&';
 DOLLAR: '$';
 COMMENT: '##' ~[\r\n]* -> skip; 
 IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
-CHAR_LITERAL: '\'' . '\''; // Char literals like 'a'
+CHAR_LITERAL: '\'' . '\'' | '\'\\0\''; // Char literals like 'a'
 STRING: '"' (~["\\] | '\\' .)* '"'; 
 NUMBER: '-'? [0-9]+ ('.' [0-9]+)?; 
 WS: [ \t\r\n]+ -> skip;
@@ -317,7 +318,7 @@ comparisonOp: EQ | NEQ | GT_OP | LT_OP | GTE | LTE;
 logicalOp: AND | OR;
 
 // Data types
-dataType: INT | BOOL | FLOAT | CHAR | STR ;
+dataType: INT | BOOL | FLOAT | CHAR | STR |AVLNODE;
 referenceDataType: INT AMPERSAND| BOOL AMPERSAND | FLOAT AMPERSAND | CHAR AMPERSAND | STR AMPERSAND; 
 // Entry point for parsing
 main: program;
