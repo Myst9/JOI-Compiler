@@ -1,16 +1,16 @@
 function joi 0 INT
 push constant 5 INT
-pop local 0 INT
+pop local 14 INT
 push constant 10 INT
-pop local 1 INT
-pop local 2 int
-push local 0 INT
-push local 1 INT
+pop local 15 INT
+pop local 16 int
+push local 14 INT
+push local 15 INT
 add
-pop local 2 INT
+pop local 16 INT
 push constant "Sum: " STR
 push data "Sum: " STR
-push local 2 INT
+push local 16 INT
 push data sum INT
 push data \n STR
 push constant 3 INT

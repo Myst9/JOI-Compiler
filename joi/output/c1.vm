@@ -41,7 +41,9 @@ add
 getindex
 access int
 gt
-JZ, end_if_0
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
 push local 0 ptr
 push local 3 INT
 getindex
@@ -64,8 +66,9 @@ add
 getindex
 push local 4 INT
 store INT
-goto end_if_0
-end_if_0:
+goto IF_END1
+label IF_FALSE1
+label IF_END1
 push local 3 INT
 push constant 1 INT
 add

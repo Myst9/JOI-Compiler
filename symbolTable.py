@@ -78,5 +78,5 @@ class SymbolTable:
 
     def clear(self):
         self.table.clear()
-        self.counter = 0
+        # self.counter = 0
         # print("Symbol table has been cleared.")

@@ -1,7 +1,7 @@
 STRUCT_Student
-pop local 1 int
-pop local 2 str
-pop local 3 float
+pop local 25 int
+pop local 26 str
+pop local 27 float
 STRUCT_END_Student
 function joi 0 INT
 DECLARE Student student1

@@ -1,25 +1,28 @@
 function joi 0 INT
 push constant 7 INT
-pop local 0 INT
-push local 0 INT
+pop local 20 INT
+push local 20 INT
 push constant 2 INT
 mod
 push constant 0 INT
 eq
-JZ, else_1
-push local 0 INT
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 20 INT
 push data num INT
 push constant " is even." STR
 push data " is even." STR
 push data \n STR
-goto end_if_4
-else_1:
-push local 0 INT
+goto IF_END5
+label IF_FALSE5
+push local 20 INT
 push data num INT
 push constant " is odd." STR
 push data " is odd." STR
 push data \n STR
-end_if_4:
+goto IF_END5
+label IF_END5
 push constant 0 INT
 return
 halt

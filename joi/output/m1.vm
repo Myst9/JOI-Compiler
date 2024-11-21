@@ -1,15 +1,18 @@
 function factorial 1 INT
 push argument n int
-push local 0 INT
+push local 21 INT
 push constant 0 INT
 eq
-JZ, end_if_5
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
 push constant 1 INT
 return
-goto end_if_5
-end_if_5:
-push local 0 INT
-push local 0 INT
+goto IF_END6
+label IF_FALSE6
+label IF_END6
+push local 21 INT
+push local 21 INT
 push constant 1 INT
 sub
 call factorial 1
@@ -17,10 +20,10 @@ mul
 return
 function joi 0 INT
 push constant 7 INT
-pop local 2 INT
+pop local 23 INT
 push constant "Factorial: " STR
 push data "Factorial: " STR
-push local 2 INT
+push local 23 INT
 call factorial 1
 push data factorial INT
 push data \n STR
