@@ -5,7 +5,7 @@ class SymbolTable:
         self.counter = 0
 
     # Create or add a new entry to the symbol table
-    def create(self, name, symbol_type, scope, value=None, datatype=None, returntype=None, paramstype=None, constant=False, functioncalled=False):
+    def create(self, name, symbol_type, scope, value=None, datatype=None, returntype=None, paramstype=None, constant=False, functioncalled=False, functiondefined=False):
         if name not in self.table:
             self.table[name] = {
                 'type': symbol_type,
@@ -16,7 +16,8 @@ class SymbolTable:
                 'paramstype': paramstype,
                 'constant': constant,  #paramstype is an array of datatypes for params in a function. It is like [int int char int] for comparing with args during compilation.
                 'id': self.counter, #if scope == "local" else None
-                'functioncalled': functioncalled #this is true when function is called.. used for optimisation purposes.
+                'functioncalled': functioncalled, #this is true when function is called.. used for optimisation purposes.
+                'functiondefined': functiondefined
             }
             # print(f"Created: {name} -> {self.table[name]}")
             self.counter += 1
@@ -36,7 +37,7 @@ class SymbolTable:
             return None
 
     # Update an existing entry in the symbol table
-    def update(self, name, symbol_type=None, scope=None, value=None, datatype=None, returntype=None, paramstype=None, constant=None, functioncalled=None):
+    def update(self, name, symbol_type=None, scope=None, value=None, datatype=None, returntype=None, paramstype=None, constant=None, functioncalled=None, functiondefined=None):
         if name in self.table:
             if symbol_type is not None:
                 self.table[name]['type'] = symbol_type
@@ -54,6 +55,8 @@ class SymbolTable:
                 self.table[name]['constant'] = constant
             if functioncalled is not None:
                 self.table[name]['functioncalled'] = functioncalled
+            if functiondefined is not None:
+                self.table[name]['functiondefined'] = functiondefined
             # print(f"Updated: {name} -> {self.table[name]}")
         else:
             # print(f"Error: Symbol '{name}' not found.")
@@ -72,3 +75,8 @@ class SymbolTable:
     def display(self):
         for name, attributes in self.table.items():
             print(f"{name}: {attributes}")
+
+    def clear(self):
+        self.table.clear()
+        self.counter = 0
+        # print("Symbol table has been cleared.")

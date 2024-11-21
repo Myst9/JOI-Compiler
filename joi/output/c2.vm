@@ -1,0 +1,134 @@
+function joi 0 INT
+push constant 3 INT
+alloc 3 int
+push constant 3 INT
+alloc 3 int
+push constant 1 INT
+push constant 2 INT
+push constant 3 INT
+push constant 4 INT
+push constant 5 INT
+push constant 6 INT
+push constant 7 INT
+push constant 8 INT
+push constant 9 INT
+pop local 0 ptr
+push constant 3 INT
+alloc 3 int
+push constant 3 INT
+alloc 3 int
+push constant 9 INT
+push constant 8 INT
+push constant 7 INT
+push constant 6 INT
+push constant 5 INT
+push constant 4 INT
+push constant 3 INT
+push constant 2 INT
+push constant 1 INT
+pop local 1 ptr
+push constant 3 INT
+alloc 3 int
+push constant 3 INT
+alloc 3 int
+push constant 0 INT
+pop local 2 ptr
+push constant 0 INT
+pop local 3 INT
+LABEL #L3
+push local 3 INT
+push constant 3 INT
+lt
+JZ, goto end_#L3
+push constant 0 INT
+pop local 4 INT
+LABEL #L4
+push local 4 INT
+push constant 3 INT
+lt
+JZ, goto end_#L4
+push constant 0 INT
+pop local 5 INT
+LABEL #L5
+push local 5 INT
+push constant 3 INT
+lt
+JZ, goto end_#L5
+push local 2 ptr
+push local 3 INT
+push local 4 INT
+getindex
+push local 2 ptr
+push local 3 INT
+push local 4 INT
+getindex
+access int
+push local 0 ptr
+push local 3 INT
+push local 5 INT
+getindex
+access int
+push local 1 ptr
+push local 5 INT
+push local 4 INT
+getindex
+access int
+mul
+add
+store INT
+push local 5 INT
+push constant 1 INT
+add
+pop local 5 INT
+goto #L5
+LABEL end_#L5
+push local 4 INT
+push constant 1 INT
+add
+pop local 4 INT
+goto #L4
+LABEL end_#L4
+push local 3 INT
+push constant 1 INT
+add
+pop local 3 INT
+goto #L3
+LABEL end_#L3
+push constant 0 INT
+pop local 6 INT
+LABEL #L6
+push local 6 INT
+push constant 3 INT
+lt
+JZ, goto end_#L6
+push constant 0 INT
+pop local 7 INT
+LABEL #L7
+push local 7 INT
+push constant 3 INT
+lt
+JZ, goto end_#L7
+push local 2 ptr
+push local 6 INT
+push local 7 INT
+getindex
+access int
+push data result INT
+push constant " " STR
+push data " " STR
+push local 7 INT
+push constant 1 INT
+add
+pop local 7 INT
+goto #L7
+LABEL end_#L7
+push data \n STR
+push local 6 INT
+push constant 1 INT
+add
+pop local 6 INT
+goto #L6
+LABEL end_#L6
+push constant 0 INT
+return
+halt

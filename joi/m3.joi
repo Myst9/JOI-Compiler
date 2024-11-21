@@ -1,0 +1,9 @@
+int joi() {
+    float floatValue = 10.5;          ## Float value
+    int intValue;                     ## Explicit conversion to int
+    intValue = (int) floatValue;       ## Explicitly converts float to int
+
+    cout << "Float: " << floatValue << ", Integer: " << intValue << endl;  ## Output values
+
+    return 0;  ## Indicate successful execution
+}

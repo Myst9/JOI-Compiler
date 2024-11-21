@@ -1,0 +1,16 @@
+int joi() {
+    cout << "Counting from 1 to 10 (skipping 5):" << endl;
+
+    ## For loop with break and continue
+    for int count = 1; count <= 10; ++count: {
+        if count == 5: {
+            continue;  ## Skip the rest of the loop when count is 5
+        }
+        if count == 8: {
+            break;  ## Exit the loop when count is 8
+        }
+        cout<< endl;  ## Output the current count
+    }
+
+    return 0;                  ## Indicate successful execution
+}

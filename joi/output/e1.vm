@@ -1,0 +1,25 @@
+function joi 0 INT
+push constant 5 INT
+pop local 0 INT
+push constant 10 INT
+pop local 1 INT
+pop local 2 int
+push local 0 INT
+push local 1 INT
+add
+pop local 2 INT
+push constant "Sum: " STR
+push data "Sum: " STR
+push local 2 INT
+push data sum INT
+push data \n STR
+push constant 3 INT
+push constant 4 INT
+add
+push constant 5 INT
+add
+push data 3 INT
+push data \n STR
+push constant 0 INT
+return
+halt

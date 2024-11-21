@@ -1,0 +1,12 @@
+class Car :
+public:
+    void drive() :
+        cout << "Driving" << endl;
+    :
+:;
+
+int joi() {
+    Car myCar = new Car();               ## Create an object of Car
+    myCar.drive();          ## Call the method to drive
+    return 0;               ## Indicate successful execution
+}

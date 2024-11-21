@@ -1,0 +1,25 @@
+function joi 0 INT
+push constant 7 INT
+pop local 0 INT
+push local 0 INT
+push constant 2 INT
+mod
+push constant 0 INT
+eq
+JZ, else_1
+push local 0 INT
+push data num INT
+push constant " is even." STR
+push data " is even." STR
+push data \n STR
+goto end_if_4
+else_1:
+push local 0 INT
+push data num INT
+push constant " is odd." STR
+push data " is odd." STR
+push data \n STR
+end_if_4:
+push constant 0 INT
+return
+halt

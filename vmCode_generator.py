@@ -28,6 +28,8 @@ switchq=0
 caseq=0
 forq=0
 label_counter=0
+current_func_name=None
+current_func_return_type=None
 # thisisaconstdeclstmt = 0
 
 symbolTable = SymbolTable()
@@ -113,6 +115,8 @@ class VMCodeGenerator(joiVisitor):
             return self.visit(ctx.structDeclarationStmt())
         elif ctx.enumDeclarationStmt():
             return self.visit(ctx.enumDeclarationStmt())
+        elif ctx.returnStmt():
+            return self.visit(ctx.returnStmt())
         
 
 
@@ -240,7 +244,7 @@ class VMCodeGenerator(joiVisitor):
         object_name = ctx.IDENTIFIER().getText()
         if(not symbolTable.read(object_name) or symbolTable.read(object_name)['type']!='object'):
             ExitFromProgram(f'There is no such object as {object_name}. Please check')
-        self.visitFunctionCall()
+        self.visitFunctionCall(ctx.functionCall())
         
         
     def visitConstDeclarationStmt(self, ctx: joiParser.ConstDeclarationStmtContext):
@@ -274,7 +278,7 @@ class VMCodeGenerator(joiVisitor):
             data_to_print, data_type_of_the_print = self.visit(printexpression)
             # to_be_printed_string+=data_to_print ##if we want the whole statement else
             to_be_printed_string = data_to_print
-            self.instructions.append(f'push data {to_be_printed_string} {data_type_of_the_print}')
+            self.instructions.append(f'push data {to_be_printed_string} {data_type_of_the_print.upper()}')
     
     def visitPrintExpressionList(self, ctx: joiParser.PrintExpressionListContext):
         if(ctx.expression()):            
@@ -290,11 +294,12 @@ class VMCodeGenerator(joiVisitor):
         return "", "str"
     
     def visitFunctionDef(self, ctx: joiParser.FunctionDefContext):
+        global current_func_name, current_func_return_type
         return_type="void"
         if(ctx.dataType()):#talks about which return type the function is
             return_type = ctx.dataType().getText() 
         func_name = ctx.IDENTIFIER().getText()
-        if(symbolTable.read(func_name)):
+        if(symbolTable.read(func_name) and symbolTable.read(func_name)['functiondefined']==True):
             ExitFromProgram(f"The function {func_name} already exists. Use a different name.")
         # self.instructions.append(f'FUNC_{func_name}:') #check if func already exists
         
@@ -304,34 +309,42 @@ class VMCodeGenerator(joiVisitor):
             params, params_data_type_array = self.visitParamList(ctx.paramList()) 
 
         self.instructions.append(f'function {func_name} {len(params_data_type_array)} {return_type.upper()}')
-
+        
         if(ctx.COLON()):##This case is for when function is declared and defined here
+            if(symbolTable.read(func_name)):
+                symbolTable.update(name=func_name, functiondefined=True)
+            else:
+                symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array, functiondefined=True)
             for i, param in enumerate(params):
                 self.instructions.append(f'push argument {param} {params_data_type_array[i]}')
 
             if(ctx.statements()):#casual statements
+                current_func_name = func_name
+                current_func_return_type = return_type
                 self.visit(ctx.statements())
-                if(ctx.returnStmt()):
-                    varname_func_returns, data_type_func_returns = self.visit(ctx.returnStmt())
-                    #if both are None that means it should match with void function
-                    if(return_type=="void" and data_type_func_returns!=None):
-                        ExitFromProgram(f'You cannot return anything for a void function')
+                # if(ctx.returnStmt()):
+                #     varname_func_returns, data_type_func_returns = self.visit(ctx.returnStmt())
+                #     #if both are None that means it should match with void function
+                #     if(return_type=="void" and data_type_func_returns!=None):
+                #         ExitFromProgram(f'You cannot return anything for a void function')
 
-                    #we know that returntype of func must match with the return statement data type
-                    if(return_type!=data_type_func_returns):
-                        ExitFromProgram(f'function {func_name} should return {return_type.upper()}, but you are returning {data_type_func_returns}')
+                #     #we know that returntype of func must match with the return statement data type
+                #     if(return_type!=data_type_func_returns):
+                #         ExitFromProgram(f'function {func_name} should return {return_type.upper()}, but you are returning {data_type_func_returns}')
                 
-                else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
-                    if(return_type!="void"):
-                        ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')
+                # else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
+                #     if(return_type!="void"):
+                #         ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')
             
-            self.instructions.append('return')#this appears only when it is defined not when it is declared
+            # self.instructions.append('return')#this appears only when it is defined not when it is declared
             
         else: #func is declared here.. but the definition is in someother file
+            symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array, functiondefined=False)
             self.instructions.append('return_') #this return statement helps us in code optimisation.. so this is useless for VM but for compiler optimisatino it has so much use.
-            pass
+            
 
-        symbolTable.create(name=func_name, symbol_type='function', scope='ytd', returntype=return_type, paramstype=params_data_type_array)
+        current_func_name = 'joi'
+        current_func_return_type = 'int'
         
         # if(return_type=='void'):
         #     self.instructions.append('return VOID')
@@ -428,7 +441,7 @@ class VMCodeGenerator(joiVisitor):
                     # self.instructions.append(f'push local {symbolTable.read(var[1])["id"]} {data_type}')  # Declaration
                     # self.instructions.append(f'STORE {var[1]}') # Store initialized value
                     self.instructions.append(f'pop local {symbolTable.read(var[1])["id"]} {data_type.upper()}') # since it is only declaration you can take it out.
-            
+                    
             elif ctx.NEW():
                 for var in variables:
                     if(symbolTable.read(var[1])):# if the variable is already declared somewhere.. doesn't matter if it is var or func or array. once declared cannot be used again
@@ -476,7 +489,7 @@ class VMCodeGenerator(joiVisitor):
             ExitFromProgram(f'cannot create {arrayName} array of references')
 
         symbolTable.create(name=arrayName, symbol_type='array', scope='ytd', datatype=data_type_of_array)
-
+        
         ##THis part is for array size during its declaration
         # self.instructions.append(f'SIZE OF ARRAY START')
         for expression in ctx.expression():
@@ -488,12 +501,13 @@ class VMCodeGenerator(joiVisitor):
 
         ##Here the initial values are assigned.
         if(ctx.arrayValueAssigning()):
-            data_type_of_initial_values = self.visit(ctx.arrayValueAssigning())
+            values, data_type_of_initial_values = self.visit(ctx.arrayValueAssigning())
             if(data_type_of_initial_values!=data_type_of_array):
                 ExitFromProgram(f'Cannot assign {data_type_of_initial_values} to {data_type_of_array}')
 
         # self.instructions.append(f'DECLARE {data_type_of_array} ARRAY {arrayName} of {arrayinfo[0]}') 
-        self.instructions.append(f'pop local {symbolTable.read(arrayName)["id"]} ptr')       
+        self.instructions.append(f'pop local {symbolTable.read(arrayName)["id"]} ptr')  
+             
         return [['array', arrayName]]#This line is useful for const declarations.. don't think it is useless
 
 
@@ -514,7 +528,7 @@ class VMCodeGenerator(joiVisitor):
         if(len(set_of_data_types)>1):#this means more than one datatype is in the array we cannot declare like that
             ExitFromProgram(f'Cannot declare an array with values of different data types')
         
-        return set_of_data_types.pop()
+        return "", set_of_data_types.pop()
 
     def visitVarList(self, ctx:joiParser.VarListContext):
         variables = []
@@ -864,11 +878,24 @@ class VMCodeGenerator(joiVisitor):
             raise Exception("Unhandled assignment statement type")
 
     def visitReturnStmt(self, ctx:joiParser.ReturnStmtContext):
+        global current_func_name, current_func_return_type
         varname_of_return = None
         data_type_of_return = None
         if ctx.expression():
             varname_of_return, data_type_of_return = self.visit(ctx.expression())
         # self.instructions.append('RETURN')
+        func_name =current_func_name
+        return_type = current_func_return_type
+        data_type_func_returns = data_type_of_return
+        if(return_type=="void" and data_type_func_returns!=None):
+            ExitFromProgram(f'You cannot return anything for a void function')
+        if(return_type!=data_type_func_returns):
+            ExitFromProgram(f'function {func_name} should return {return_type.upper()}, but you are returning {data_type_func_returns}')
+                
+                # else: #there is no return statement, this is acceptable only if return type is void.. if return type is not void then throw error
+                #     if(return_type!="void"):
+                #         ExitFromProgram(f'function {func_name} must return {return_type.upper()} type. Currently you are returning nothing')
+        self.instructions.append('return')
         return varname_of_return, data_type_of_return
 
     def visitIfStmt(self, ctx: joiParser.IfStmtContext):
@@ -1250,13 +1277,14 @@ class VMCodeGenerator(joiVisitor):
         self.visit(ctx.expression())  
         self.instructions.append('return')  
         self.instructions.append('halt')  
-        symbolTable.display()
+        # symbolTable.display()
         # print("\nOPTIMISED CODE\n")
         self.optimised_instructions = self.optimise_unused_functions()
         # optimised_code_instruction_form = ""
         # for i in optimised_code_array_form:
         #     optimised_code_instruction_form.append(i)
         # print(optimised_code_instruction_form)
+        symbolTable.clear()
 
     def optimise_unused_functions(self):
         unused_functions = [

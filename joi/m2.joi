@@ -1,0 +1,23 @@
+## Define a structure to hold student information
+struct Student: 
+    int id;              ## Student ID
+    str name;        ## Student Name
+    float grade;        ## Student Grade
+:
+
+int joi() {
+    ## Create a structure variable
+    Student student1;
+
+    ## Initialize the structure members
+    student1.id = 101;
+    student1.name = "Alice";
+    student1.grade = 95.5;
+
+    ## Access and output the structure members
+    cout << "Student ID: " << student1.id << endl;        ## Output: 101
+    cout << "Student Name: " << student1.name << endl;    ## Output: Alice
+    cout << "Student Grade: " << student1.grade << endl;  ## Output: 95.5
+
+    return 0;  ## Indicate successful execution
+}

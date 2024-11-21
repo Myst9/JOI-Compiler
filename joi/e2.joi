@@ -1,0 +1,11 @@
+## Program to find the maximum of two numbers
+int joi() {
+    int num1 = 15; 
+    int num2 = 10;
+    if num1 > num2: {
+        cout << "Maximum: " << num1 << endl;
+    } else: {
+       cout << "Maximum: " << num2 << endl;
+    }
+    return 0;
+}

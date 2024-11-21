@@ -1,0 +1,14 @@
+declare CLASS Car
+ACCESS PUBLIC BEGIN
+function drive 0 VOID
+push constant "Driving" STR
+push data "Driving" STR
+push data \n STR
+ACCESS PUBLIC END
+end CLASS Car
+function joi 0 INT
+DECLARE Car myCar
+call drive 0
+push constant 0 INT
+return
+halt

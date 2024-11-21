@@ -1,0 +1,35 @@
+function joi 0 INT
+push constant "Counting from 1 to 10 (skipping 5):" STR
+push data "Counting from 1 to 10 (skipping 5):" STR
+push data \n STR
+push constant 1 INT
+pop local 0 INT
+LABEL #L8
+push local 0 INT
+push constant 10 INT
+lte
+JZ, goto end_#L8
+push local 0 INT
+push constant 5 INT
+eq
+JZ, end_if_2
+goto #L8
+goto end_if_2
+end_if_2:
+push local 0 INT
+push constant 8 INT
+eq
+JZ, end_if_3
+goto end_#L8
+goto end_if_3
+end_if_3:
+push data \n STR
+push local 0 INT
+push constant 1 INT
+add
+pop local 0 INT
+goto #L8
+LABEL end_#L8
+push constant 0 INT
+return
+halt

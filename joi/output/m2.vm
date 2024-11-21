@@ -1,0 +1,37 @@
+STRUCT_Student
+pop local 1 int
+pop local 2 str
+pop local 3 float
+STRUCT_END_Student
+function joi 0 INT
+DECLARE Student student1
+PUSH student1.id
+push constant 101 INT
+STORE int student1.id
+POP student1.id
+PUSH student1.name
+push constant "Alice" STR
+STORE str student1.name
+POP student1.name
+PUSH student1.grade
+push constant 95.5 FLOAT
+STORE float student1.grade
+POP student1.grade
+push constant "Student ID: " STR
+push data "Student ID: " STR
+PUSH student1.id
+push data id INT
+push data \n STR
+push constant "Student Name: " STR
+push data "Student Name: " STR
+PUSH student1.name
+push data name STR
+push data \n STR
+push constant "Student Grade: " STR
+push data "Student Grade: " STR
+PUSH student1.grade
+push data grade FLOAT
+push data \n STR
+push constant 0 INT
+return
+halt

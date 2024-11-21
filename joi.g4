@@ -132,6 +132,7 @@ statement
     | objectDeclarationStmt
     | structDeclarationStmt
     | enumDeclarationStmt
+    | returnStmt
     ;
 
 deleteStmt: DELETE idOrPointerOrAddrId ';';
